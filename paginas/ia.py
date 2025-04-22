@@ -50,4 +50,3 @@ def pagina_ia():
 
     except Exception as e:
         st.error(f"Erro ao treinar ou exibir os resultados do modelo: {e}")
-
