@@ -8,7 +8,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
 from xgboost import XGBClassifier
 from ajustes import carregar_dados_excel as carregar_dados
-from estatisticas import mostrar_estatisticas
+from paginas.estatisticas import mostrar_estatisticas
 
 
 def carregar_dados_e_treinar_modelos(arquivo):
@@ -68,9 +68,13 @@ def gerar_jogo(modelo, dados):
     probabilidades = modelo.predict_proba(X)[:, 1]
     dados = dados.copy()
     dados['Probabilidade'] = probabilidades
+
+    # Garante que existe uma coluna 'Dezena' para exibição
+    if 'Dezena' not in dados.columns:
+        dados['Dezena'] = dados.index
+
     dezenas_recomendadas = dados.sort_values(by='Probabilidade', ascending=False).head(15)
     return dezenas_recomendadas
-
 
 def menu_lateral():
     st.sidebar.title("Menu")
@@ -123,4 +127,4 @@ def menu_lateral():
         else:
             st.warning("Erro ao carregar ou treinar modelos. Verifique o arquivo.")
     else:
-        st.info("Envie um arquivo Excel válido para começar.")
+     st.sidebar.info("📤 Por favor, envie um arquivo Excel para começar.")
