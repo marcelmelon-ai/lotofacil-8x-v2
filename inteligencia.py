@@ -162,10 +162,6 @@ def carregar_e_preparar_dados():
 
     return dados_ia
 
-# Carregar e preparar os dados
-if uploaded_file is not None:
-    dados_ia = carregar_e_preparar_dados()
-
 # Selecionar o modelo
 modelo_selecionado = st.selectbox("Selecione o modelo:", ['XGBoost', 'Random Forest', 'MLP'])
 
