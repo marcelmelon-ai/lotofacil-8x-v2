@@ -21,6 +21,8 @@ def carregar_dados_excel(arquivo):
         
 # === CARREGAMENTO DAS ESTATÍSTICAS (SITE NUMEROMANIA) ===
 
+# === CARREGAMENTO DAS ESTATÍSTICAS (SITE NUMEROMANIA) ===
+
 @st.cache_data
 def carregar_tabelas_numeromania():
     url = "https://www.numeromania.com.br/fa9912.html"
@@ -59,13 +61,19 @@ def carregar_tabelas_numeromania():
             else:
                 df = pd.DataFrame(dados)
 
-            # Tentar converter colunas para numérico, ignorando erros
             for col in df.columns:
-                df[col] = pd.to_numeric(df[col].str.extract('(\d+)')[0], errors='ignore')
+                try:
+                    df[col] = pd.to_numeric(df[col].str.extract(r'(\d+)')[0])
+                except Exception as e:
+                    st.warning(f"Erro ao converter coluna '{col}' para numérico: {e}")
 
             tabelas[nome] = df
 
         return tabelas
+
+    except Exception as e:
+        st.error(f"Erro ao carregar tabelas estatísticas: {e}")
+        return {}
 
     except Exception as e:
         st.error(f"Erro ao carregar tabelas estatísticas: {e}")
