@@ -151,16 +151,32 @@ def exibir_graficos_desempenho(y_test, y_pred, modelo_nome):
     cr = classification_report(y_test, y_pred)
     st.text(cr)
 
-# Função para carregar e preparar os dados
+# Função para carregar e preparar os dados somente após o app estar rodando
 @st.cache_data(ttl=3600)
 def carregar_e_preparar_dados():
-    tabelas = carregar_tabelas_numeromania()  # Defina essa função para carregar as tabelas do seu sistema
-    dados_ia = preparar_dados_para_ia(tabelas)
-    
-    # Verificar se as colunas estão corretas
-    validar_colunas(dados_ia)
+    try:
+        # Tenta carregar as tabelas da Numeromania
+        tabelas = carregar_tabelas_numeromania()
+        
+        # Garante que o conteúdo necessário foi encontrado
+        if not tabelas or 'Tabela_01' not in tabelas or 'Tabela_02' not in tabelas or 'Tabela_03' not in tabelas:
+            st.warning("As tabelas necessárias da Numeromania não foram carregadas corretamente.")
+            return pd.DataFrame()
 
-    return dados_ia
+        # Prepara os dados
+        dados_ia = preparar_dados_para_ia(tabelas)
+
+        # Verifica as colunas obrigatórias
+        validar_colunas(dados_ia)
+
+        return dados_ia
+    
+    except Exception as e:
+        st.error(f"Erro ao carregar e preparar os dados da IA: {e}")
+        return pd.DataFrame()
+
+# Carregar os dados antes de treinar
+dados_ia = carregar_e_preparar_dados()
 
 # Selecionar o modelo
 modelo_selecionado = st.selectbox("Selecione o modelo:", ['XGBoost', 'Random Forest', 'MLP'])
