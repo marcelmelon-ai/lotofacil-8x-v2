@@ -98,7 +98,13 @@ def preprocessar_dados(df):
     multiplos_3 = set(range(3, 26, 3))
 
     features = []
-    for dezenas in "carregar_dados_excel"
+    
+    # Supondo que o DataFrame tenha colunas D1 a D15 com os números sorteados
+    col_dezenas = [col for col in df.columns if col.startswith("D")]
+    
+    for _, row in df.iterrows():
+        dezenas = row[col_dezenas].astype(int).tolist()
+
         pares = sum(1 for d in dezenas if d % 2 == 0)
         impares = 15 - pares
         primos_count = sum(1 for d in dezenas if d in primos)
