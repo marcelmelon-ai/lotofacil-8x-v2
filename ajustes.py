@@ -19,7 +19,6 @@ def carregar_dados_excel(arquivo):
         st.warning(f"Erro ao carregar Excel: {e}")
         return pd.DataFrame()
         
-# === CARREGAMENTO DAS ESTATÍSTICAS (SITE NUMEROMANIA) ===
 
 # === CARREGAMENTO DAS ESTATÍSTICAS (SITE NUMEROMANIA) ===
 
