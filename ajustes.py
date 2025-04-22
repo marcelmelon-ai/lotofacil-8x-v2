@@ -98,7 +98,7 @@ def preprocessar_dados(df):
     multiplos_3 = set(range(3, 26, 3))
 
     features = []
-    for dezenas in carregar_dados_excel
+    for dezenas in "carregar_dados_excel"
         pares = sum(1 for d in dezenas if d % 2 == 0)
         impares = 15 - pares
         primos_count = sum(1 for d in dezenas if d in primos)
