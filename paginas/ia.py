@@ -13,28 +13,41 @@ import matplotlib.pyplot as plt
 def pagina_ia():
     st.header("🧠 IA e Previsões")
 
-    # Só carrega os dados depois que o usuário estiver nessa página
-    dados_ia = carregar_e_preparar_dados()
+    try:
+        dados_ia = carregar_e_preparar_dados()
+    except Exception as e:
+        st.error(f"Erro ao carregar e preparar dados: {e}")
+        return
+
+    if dados_ia.empty:
+        st.warning("Nenhum dado disponível para treinar a IA.")
+        return
 
     modelo_selecionado = st.selectbox("Selecione o modelo:", ['XGBoost', 'Random Forest', 'MLP'])
 
-    if modelo_selecionado == 'XGBoost':
-        modelo, accuracy, y_test, y_pred = treinar_modelo_xgb(dados_ia)
-    elif modelo_selecionado == 'Random Forest':
-        modelo, accuracy, y_test, y_pred = treinar_modelo_rf(dados_ia)
-    else:
-        modelo, accuracy, y_test, y_pred = treinar_modelo_mlp(dados_ia)
+    try:
+        if modelo_selecionado == 'XGBoost':
+            modelo, accuracy, y_test, y_pred = treinar_modelo_xgb(dados_ia)
+        elif modelo_selecionado == 'Random Forest':
+            modelo, accuracy, y_test, y_pred = treinar_modelo_rf(dados_ia)
+        else:
+            modelo, accuracy, y_test, y_pred = treinar_modelo_mlp(dados_ia)
 
-    st.write(f"Acurácia do modelo {modelo_selecionado}: {accuracy:.2%}")
-    exibir_graficos_desempenho(y_test, y_pred, modelo_selecionado)
+        st.write(f"Acurácia do modelo {modelo_selecionado}: {accuracy:.2%}")
+        exibir_graficos_desempenho(y_test, y_pred, modelo_selecionado)
 
-    top_dezenas = prever_dezenas(modelo, dados_ia)
-    st.subheader(f"🎯 Dezenas mais prováveis segundo IA ({modelo_selecionado})")
-    st.dataframe(top_dezenas[['Dezena', 'Probabilidade']])
+        top_dezenas = prever_dezenas(modelo, dados_ia)
+        st.subheader(f"🎯 Dezenas mais prováveis segundo IA ({modelo_selecionado})")
+        st.dataframe(top_dezenas[['Dezena', 'Probabilidade']])
 
-    jogo_gerado = sorted(top_dezenas['Dezena'].sample(15).tolist())
-    st.success(f"Jogo gerado com IA: {', '.join(jogo_gerado)}")
+        jogo_gerado = sorted(top_dezenas['Dezena'].sample(15).tolist())
+        st.success(f"Jogo gerado com IA: {', '.join(jogo_gerado)}")
 
-    fig, ax = plt.subplots()
-    sns.heatmap(dados_ia.set_index('Dezena'), annot=True, fmt=".0f", cmap="YlGnBu", ax=ax)
-    st.pyplot(fig)
+        # Gráfico de calor com Seaborn
+        fig, ax = plt.subplots()
+        sns.heatmap(dados_ia.set_index('Dezena'), annot=True, fmt=".0f", cmap="YlGnBu", ax=ax)
+        st.pyplot(fig)
+
+    except Exception as e:
+        st.error(f"Erro ao treinar ou exibir os resultados do modelo: {e}")
+
