@@ -83,8 +83,7 @@ def preprocessar_dados(df):
 
 # === EXTRAÇÃO DE FEATURES PARA IA ===
 
-def extrair_features(df):
-    def extrair_features(jogos):
+def preprocessar_dados(df):
     fibo_set = {1, 2, 3, 5, 8, 13, 21}
     primos = {2, 3, 5, 7, 11, 13, 17, 19, 23}
     moldura = {1, 2, 3, 4, 5, 6, 10, 11, 15, 16, 20, 21, 22, 23, 24, 25}
