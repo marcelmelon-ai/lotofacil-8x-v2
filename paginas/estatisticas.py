@@ -22,8 +22,6 @@ def pagina_estatisticas(df):
         st.subheader("Ocorrência por posição (em construção)")
         st.info("🔧 Essa funcionalidade está em desenvolvimento.")
 
-import streamlit as st
-
 def mostrar_dashboard_estatistico():
     st.subheader("📈 Dashboard Estatístico")
     st.info("🚧 Esta funcionalidade ainda está em desenvolvimento.")
