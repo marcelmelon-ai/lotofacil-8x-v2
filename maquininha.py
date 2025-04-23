@@ -8,31 +8,44 @@ def carregar_resultados_excel(caminho_arquivo):
 
 # Função para carregar e nomear todas as 12 tabelas do site Numeromania
 def carregar_estatisticas_numeromania():
-    url = "https://www.numeromania.com.br/fa9912.html"
-    response = requests.get(url)
-    soup = BeautifulSoup(response.text, 'html.parser')
+    try:
+        xls = pd.ExcelFile("tabelas_numeromania.xlsx")  # Certifique-se que o Excel esteja no mesmo diretório do app
 
-    # Captura todas as tabelas com a classe esperada
-    tabelas_html = soup.find_all('table', {'class': 'tabelaResultado'})
-    tabelas = pd.read_html(str(soup))[:12]  # Limita às 12 primeiras
+        nomes_abas = {
+            "tabela1 - atraso": "Frequencia",
+            "tabela 2 - duplas mais sairam": "Duplas_Mais_Frequentes",
+            "tabela 3 - duplas que - sairam": "Duplas_Menos_Frequentes",
+            "tabela 4 - tricas mais sairam": "Trincas_Mais_Frequentes",
+            "tabela 5 quadras que + sairam": "Quadras_Mais_Frequentes",
+            "tabela 6 -repetição consecutiva": "Repeticoes_Consecutivas",
+            "tabela 7 - AUSÊNCIA CONSECUTIVA": "Ausencias_Consecutivas",
+            "tabela 8 - CONTROLE DE CICLOS": "Controle_de_Ciclos",
+            "tabela 9 Dezenas mais sorteadas": "Dezenas_Mais_Sorteadas",
+            "tabela 10 - Média das dezenas": "Media_das_Dezenas",
+            "tabela 11 - Dezenas + atrasadas": "Dezenas_Mais_Atrasadas",
+            "tabela 12 - Pares e ímpares": "Pares_Impares",
+            "tabela 13 - Números primos": "Numeros_Primos",
+            "tabela 14 - multiplos de 3": "Multiplos_de_3",
+            "tabela 15 -Números de Fibonacci": "Fibonacci",
+            "tabela 16 Soma das dezenas": "Soma_das_Dezenas",
+            "tabela 17 repetidas do concurso": "Repetidas_do_Concurso"
+        }
 
-    nomes_tabelas = [
-        'Frequencia',
-        'Atraso',
-        'Maior_Atraso',
-        'Duplas_Mais_Frequentes',
-        'Trincas_Mais_Frequentes',
-        'Quadras_Mais_Frequentes',
-        'Quinas_Mais_Frequentes',
-        'Senas_Mais_Frequentes',
-        'Setes_Mais_Frequentes',
-        'Dezenas_Repetidas',
-        'Dezenas_Ausentes',
-        'Final_Impar_Par'
-    ]
+        estatisticas = {}
 
-    estatisticas = {nome: tabela for nome, tabela in zip(nomes_tabelas, tabelas)}
-    return estatisticas
+        for aba_excel, nome_tabela in nomes_abas.items():
+            if aba_excel in xls.sheet_names:
+                df = xls.parse(aba_excel)
+                df.columns = [str(c).strip() for c in df.columns]
+                estatisticas[nome_tabela] = df
+            else:
+                st.warning(f"Aba '{aba_excel}' não foi encontrada no Excel!")
+
+        return estatisticas
+
+    except Exception as e:
+        st.error(f"Erro ao carregar estatísticas: {e}")
+        return {}
 
 # Função auxiliar para reconstruir estatísticas básicas (caso faltem)
 def reconstruir_estatisticas_basicas(planilha):

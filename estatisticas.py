@@ -2,6 +2,7 @@ import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
 from sklearn.ensemble import GradientBoostingClassifier
+from ajustes import carregar_tabelas_excel_local
 
 
 # -----------------------------

@@ -23,72 +23,46 @@ def carregar_dados_excel(arquivo):
 # === CARREGAMENTO DAS ESTATÍSTICAS (SITE NUMEROMANIA) ===
 
 @st.cache_data
-def carregar_tabelas_numeromania():
-    url = "https://www.numeromania.com.br/fa9912.html"
+def carregar_tabelas_excel_local(caminho_excel: str) -> dict:
     try:
-        response = requests.get(url, timeout=10)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.content, "html.parser")
+        xls = pd.ExcelFile(caminho_excel)
 
-        tabelas_html = soup.find_all("table")
-        nomes = [
-    "Tabela_01",  # Ordem crescente das Dezenas
-    "Tabela_02",  # Ordem decrescente de ATRASO
-    "Tabela_03",  # Ordem decrescente de OCORRÊNCIA
-    "Tabela_04",  # As DUPLAS
-    "Tabela_04a", # As DUPLAS em ordem decrescente de atraso
-    "Tabela_04a", # AS DUPLAS de Dezenas queMENOS SAÍRAM
-    "Tabela_05",  # As TRINCAS
-    "Tabela_05a", # As TRINCAS em ordem decrescente de atraso
-    "Tabela_06",  # As QUADRAS
-    "Tabela_06a", # As QUADRAS em ordem decrescente de atraso
-    "Tabela_07",  # As QUINAS de Dezenas que MAIS SAÍRAM
-    "Tabela_08",  # As SENAS de Dezenas que MAIS SAÍRAM
-    "Tabela_09",  # Os GRUPOS DE 7 DEZENAS
-    "Tabela_10"   # REPETIÇÃO CONSECUTIVA
-    "Tabela_11",  # AUSÊNCIA CONSECUTIVA
-    "Tabela_12",  # CONTROLE DE CICLOS NORMAIS
-    "Tabela_13",  # ESTATÍSTICAS DIVERSAS - LOTOFÁCIL - (Todos os resultados)
-]
+        nomes_abas = {
+            "tabela1 - atraso": "Tabela_01",
+            "tabela 2 - duplas mais sairam": "Tabela_02",
+            "tabela 3 - duplas que - sairam": "Tabela_03",
+            "tabela 4 - tricas mais sairam": "Tabela_04",
+            "tabela 5 quadras que + sairam": "Tabela_05",
+            "tabela 6 -repetição consecutiva": "Tabela_06",
+            "tabela 7 - AUSÊNCIA CONSECUTIVA": "Tabela_07",
+            "tabela 8 - CONTROLE DE CICLOS": "Tabela_08",
+            "tabela 9 Dezenas mais sorteadas": "Tabela_09",
+            "tabela 10 - Média das dezenas": "Tabela_10",
+            "tabela 11 - Dezenas + atrasadas": "Tabela_11",
+            "tabela 12 - Pares e ímpares": "Tabela_12",
+            "tabela 13 - Números primos": "Tabela_13",
+            "tabela 14 - multiplos de 3": "Tabela_14",
+            "tabela 15 -Números de Fibonacci": "Tabela_15",
+            "tabela 16 Soma das dezenas": "Tabela_16",
+            "tabela 17 repetidas do concurso": "Tabela_17"
+        }
 
         tabelas = {}
 
-        for i, nome in enumerate(nomes):
-            if i >= len(tabelas_html):
-                st.warning(f"Tabela '{nome}' não encontrada.")
-                continue
-
-            tabela = tabelas_html[i]
-            linhas = tabela.find_all("tr")
-            dados = [[col.get_text(strip=True) for col in linha.find_all(["td", "th"])] for linha in linhas]
-
-            if len(dados) > 1 and len(dados[1]) == len(dados[0]):
-                df = pd.DataFrame(dados[1:], columns=dados[0])
+        for aba_original, nome_padrao in nomes_abas.items():
+            if aba_original in xls.sheet_names:
+                df = xls.parse(aba_original)
+                df.columns = [str(c).strip() for c in df.columns]
+                tabelas[nome_padrao] = df
             else:
-                df = pd.DataFrame(dados)
-
-            for col in df.columns:
-                try:
-                    df[col] = pd.to_numeric(df[col].str.extract(r'(\d+)')[0])
-                except Exception as e:
-                    st.warning(f"Erro ao converter coluna '{col}' para numérico: {e}")
-
-            tabelas[nome] = df
-            
-            if st.sidebar.checkbox("🔍 Ver tabelas brutas da Numeromania"):
-                for nome, tabela in tabelas.items():
-                    st.subheader(f"Tabela: {nome}")
-                    st.dataframe(tabela)
+                st.warning(f"Aba '{aba_original}' não encontrada no Excel.")
 
         return tabelas
 
     except Exception as e:
-        st.error(f"Erro ao carregar tabelas estatísticas: {e}")
+        st.error(f"Erro ao carregar tabelas do Excel: {e}")
         return {}
 
-    except Exception as e:
-        st.error(f"Erro ao carregar tabelas estatísticas: {e}")
-        return {}
 
 # === PRÉ-PROCESSAMENTO DE RESULTADOS EXCEL ===
 

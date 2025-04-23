@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from xgboost import XGBClassifier
 import streamlit as st
-from helpers import carregar_tabelas_numeromania, preparar_dados_para_ia  # Certifique-se de que essas funções estão no helpers.py
+from ajustes import carregar_tabelas_excel_local("tabelas_numeromania.xlsx"), preparar_dados_para_ia  # Certifique-se de que essas funções estão no ajustes.py
 
 # ⚙️ Função para treinar o modelo XGBoost com estatísticas simples
 def treinar_modelo_xgb(df_stats):
