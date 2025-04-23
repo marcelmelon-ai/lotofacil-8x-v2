@@ -15,28 +15,34 @@ from xgboost import XGBClassifier
 def preparar_dados_para_ia(tabelas):
     dados_ia = pd.DataFrame()
 
-    if 'Tabela_01' in tabelas:  # Frequência das dezenas
-        df_freq = tabelas['Tabela_01'].copy()
+    try:
+        df_freq = tabelas["Tabela 1"].copy()
         df_freq.columns = ['Dezena', 'Frequência']
         df_freq['Dezena'] = df_freq['Dezena'].astype(str).str.zfill(2)
         df_freq['Frequência'] = pd.to_numeric(df_freq['Frequência'], errors='coerce')
         dados_ia = df_freq.set_index('Dezena')
+    except Exception as e:
+        st.error("Erro ao carregar Tabela 1: Frequência")
 
-    if 'Tabela_02' in tabelas:  # Atraso atual
-        df_atraso = tabelas['Tabela_02'].copy()
+    try:
+        df_atraso = tabelas["Tabela 2"].copy()
         df_atraso.columns = ['Dezena', 'Atraso']
         df_atraso['Dezena'] = df_atraso['Dezena'].astype(str).str.zfill(2)
         df_atraso['Atraso'] = pd.to_numeric(df_atraso['Atraso'], errors='coerce')
         dados_ia['Atraso'] = df_atraso.set_index('Dezena')['Atraso']
+    except Exception as e:
+        st.error("Erro ao carregar Tabela 2: Atraso")
 
-    if 'Tabela_03' in tabelas:  # Maior atraso histórico
-        df_maior_atraso = tabelas['Tabela_03'].copy()
+    try:
+        df_maior_atraso = tabelas["Tabela 3"].copy()
         df_maior_atraso.columns = ['Dezena', 'Maior_Atraso']
         df_maior_atraso['Dezena'] = df_maior_atraso['Dezena'].astype(str).str.zfill(2)
         df_maior_atraso['Maior_Atraso'] = pd.to_numeric(df_maior_atraso['Maior_Atraso'], errors='coerce')
         dados_ia['Maior_Atraso'] = df_maior_atraso.set_index('Dezena')['Maior_Atraso']
+    except Exception as e:
+        st.error("Erro ao carregar Tabela 3: Maior Atraso")
 
-    dados_ia = dados_ia.dropna()  # Remove qualquer linha com dados ausentes
+    dados_ia = dados_ia.dropna()
     return dados_ia.reset_index()
 
 # Função para validar se todas as colunas obrigatórias estão presentes e sem dados inválidos
