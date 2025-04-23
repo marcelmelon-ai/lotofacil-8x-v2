@@ -22,15 +22,12 @@ def pagina_ia():
     if dados_ia.empty:
         st.warning("Nenhum dado disponível para treinar a IA.")
         return
-    
-    if dados_ia.empty:
-        st.error("❌ Os dados carregados estão vazios. Verifique o carregamento das tabelas.")
-    return dados_ia
 
-
+    # Selecionar o modelo
     modelo_selecionado = st.selectbox("Selecione o modelo:", ['XGBoost', 'Random Forest', 'MLP'])
 
     try:
+        # Treinar e avaliar o modelo escolhido
         if modelo_selecionado == 'XGBoost':
             modelo, accuracy, y_test, y_pred = treinar_modelo_xgb(dados_ia)
         elif modelo_selecionado == 'Random Forest':
@@ -41,14 +38,16 @@ def pagina_ia():
         st.write(f"Acurácia do modelo {modelo_selecionado}: {accuracy:.2%}")
         exibir_graficos_desempenho(y_test, y_pred, modelo_selecionado)
 
+        # Prever dezenas
         top_dezenas = prever_dezenas(modelo, dados_ia)
         st.subheader(f"🎯 Dezenas mais prováveis segundo IA ({modelo_selecionado})")
         st.dataframe(top_dezenas[['Dezena', 'Probabilidade']])
 
+        # Gerar um jogo com base nas top 15
         jogo_gerado = sorted(top_dezenas['Dezena'].sample(15).tolist())
         st.success(f"Jogo gerado com IA: {', '.join(jogo_gerado)}")
 
-        # Gráfico de calor com Seaborn
+        # Gráfico de calor
         fig, ax = plt.subplots()
         sns.heatmap(dados_ia.set_index('Dezena'), annot=True, fmt=".0f", cmap="YlGnBu", ax=ax)
         st.pyplot(fig)

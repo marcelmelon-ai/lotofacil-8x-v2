@@ -206,22 +206,3 @@ def carregar_e_preparar_dados():
     validar_colunas(dados_ia)
     return dados_ia
 
-# Exibir resultados do modelo
-st.write(f"Acurácia do modelo {modelo_selecionado}: {accuracy:.2f}") # type: ignore
-exibir_graficos_desempenho(y_test, y_pred, modelo_selecionado) # type: ignore
-
-# Prever as dezenas mais prováveis
-top_dezenas = prever_dezenas(modelo, dados_ia) # type: ignore
-
-# Exibindo resultados no Streamlit
-st.subheader(f"🎯 Dezenas mais prováveis segundo IA ({modelo_selecionado})") # type: ignore
-st.dataframe(top_dezenas[['Dezena', 'Probabilidade']])
-
-# Gerar um jogo com base nas top 15
-jogo_gerado = sorted(top_dezenas['Dezena'].sample(15).tolist())
-st.success(f"Jogo gerado com IA: {', '.join(jogo_gerado)}")
-
-# Exemplo de gráfico de calor com seaborn
-fig, ax = plt.subplots()
-sns.heatmap(dados_ia.set_index('Dezena'), annot=True, fmt=".0f", cmap="YlGnBu", ax=ax) # type: ignore
-st.pyplot(fig)
