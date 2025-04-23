@@ -14,7 +14,12 @@ from models import gerar_jogos_otimizados
 from inteligencia import treinar_modelo_xgb, prever_dezenas
 from estatisticas import mostrar_dashboard_estatistico, carregar_resultados_lotofacil
 
+df_resultados = carregar_resultados_lotofacil()
+if not df_resultados.empty:
+    mostrar_dashboard_estatistico(df_resultados)
+
 # ====== IMPORTAÇÃO DAS PÁGINAS ======
+from mostrar_dashboard_estatistico import mostrar_dashboard_estatistico
 from paginas.gerador import pagina_gerador
 from paginas.estatisticas import pagina_estatisticas
 from paginas.ia import pagina_ia
