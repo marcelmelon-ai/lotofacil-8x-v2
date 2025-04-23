@@ -76,9 +76,9 @@ def carregar_tabelas_numeromania():
             tabelas[nome] = df
             
             if st.sidebar.checkbox("🔍 Ver tabelas brutas da Numeromania"):
-    for nome, tabela in tabelas.items():
-        st.subheader(f"Tabela: {nome}")
-        st.dataframe(tabela)
+                for nome, tabela in tabelas.items():
+                    st.subheader(f"Tabela: {nome}")
+                    st.dataframe(tabela)
 
         return tabelas
 
