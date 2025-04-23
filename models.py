@@ -13,6 +13,10 @@ def treinar_modelo_xgb(df_stats):
     model.fit(X, y)
     return model
 
+def gerar_jogos_otimizados():
+    # TODO: implementar lógica de otimização
+    return []
+
 # ⚙️ Função para prever dezenas com base no modelo treinado
 def prever_dezenas(model, df_stats):
     X = df_stats[["Frequência", "Atraso", "Maior_Atraso"]]
