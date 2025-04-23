@@ -10,7 +10,8 @@ from maquininha import maquininha
 from layout import menu_lateral
 from ajustes import carregar_dados_excel
 from inteligencia import aplicar_ia_para_jogos
-from models import gerar_jogos_otimizados, treinar_modelo_xgb, prever_dezenas
+from models import gerar_jogos_otimizados
+from inteligencia import treinar_modelo_xgb, prever_dezenas
 from estatisticas import mostrar_dashboard_estatistico
 
 # ====== IMPORTAÇÃO DAS PÁGINAS ======
