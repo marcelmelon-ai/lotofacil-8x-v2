@@ -22,6 +22,11 @@ def pagina_ia():
     if dados_ia.empty:
         st.warning("Nenhum dado disponível para treinar a IA.")
         return
+    
+    if dados_ia.empty:
+    st.error("❌ Os dados carregados estão vazios. Verifique o carregamento das tabelas.")
+    return dados_ia
+
 
     modelo_selecionado = st.selectbox("Selecione o modelo:", ['XGBoost', 'Random Forest', 'MLP'])
 

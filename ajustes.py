@@ -32,17 +32,24 @@ def carregar_tabelas_numeromania():
 
         tabelas_html = soup.find_all("table")
         nomes = [
-            "dezenas",
-            "duplas",
-            "trincas",
-            "quadras",
-            "quinas",
-            "senas",
-            "grupos_7",
-            "repeticoes",
-            "ausencias",
-            "estatisticas_gerais"
-        ]
+    "Tabela_01",  # Ordem crescente das Dezenas
+    "Tabela_02",  # Ordem decrescente de ATRASO
+    "Tabela_03",  # Ordem decrescente de OCORRÊNCIA
+    "Tabela_04",  # As DUPLAS
+    "Tabela_04a", # As DUPLAS em ordem decrescente de atraso
+    "Tabela_04a", # AS DUPLAS de Dezenas queMENOS SAÍRAM
+    "Tabela_05",  # As TRINCAS
+    "Tabela_05a", # As TRINCAS em ordem decrescente de atraso
+    "Tabela_06",  # As QUADRAS
+    "Tabela_06a", # As QUADRAS em ordem decrescente de atraso
+    "Tabela_07",  # As QUINAS de Dezenas que MAIS SAÍRAM
+    "Tabela_08",  # As SENAS de Dezenas que MAIS SAÍRAM
+    "Tabela_09",  # Os GRUPOS DE 7 DEZENAS
+    "Tabela_10"   # REPETIÇÃO CONSECUTIVA
+    "Tabela_11",  # AUSÊNCIA CONSECUTIVA
+    "Tabela_12",  # CONTROLE DE CICLOS NORMAIS
+    "Tabela_13",  # ESTATÍSTICAS DIVERSAS - LOTOFÁCIL - (Todos os resultados)
+]
 
         tabelas = {}
 
