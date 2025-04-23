@@ -24,7 +24,7 @@ def pagina_ia():
         return
     
     if dados_ia.empty:
-    st.error("❌ Os dados carregados estão vazios. Verifique o carregamento das tabelas.")
+        st.error("❌ Os dados carregados estão vazios. Verifique o carregamento das tabelas.")
     return dados_ia
 
 
