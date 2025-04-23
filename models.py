@@ -2,7 +2,8 @@ import numpy as np
 import pandas as pd
 from xgboost import XGBClassifier
 import streamlit as st
-from ajustes import carregar_tabelas_excel_local("tabelas_numeromania.xlsx"), preparar_dados_para_ia  # Certifique-se de que essas funções estão no ajustes.py
+from ajustes import carregar_tabelas_excel_local
+from inteligencia import preparar_dados_para_ia  # Certifique-se de que essas funções estão no ajustes.py
 
 # ⚙️ Função para treinar o modelo XGBoost com estatísticas simples
 def treinar_modelo_xgb(df_stats):
@@ -61,7 +62,7 @@ def preprocessar_dados(df):
 # ⚙️ Carregamento e preparação de dados para IA com cache
 @st.cache_data(ttl=3600)
 def carregar_e_preparar_dados():
-    tabelas = carregar_tabelas_numeromania()
+    tabelas = carregar_tabelas_excel_local()
     dados_ia = preparar_dados_para_ia(tabelas)
     return dados_ia
 
@@ -69,7 +70,7 @@ def carregar_e_preparar_dados():
 def exibir_estatisticas_streamlit():
     st.title("📊 Estatísticas da Lotofácil - Numeromania")
 
-    tabelas = carregar_tabelas_numeromania()
+    tabelas = carregar_tabelas_excel_local()
 
     if tabelas:
         st.success(f"{len(tabelas)} tabelas carregadas com sucesso!")

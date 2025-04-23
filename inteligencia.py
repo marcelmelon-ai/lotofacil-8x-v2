@@ -162,7 +162,7 @@ def exibir_graficos_desempenho(y_test, y_pred, modelo_nome):
 def carregar_e_preparar_dados():
     try:
         # Tenta carregar as tabelas da Numeromania
-        tabelas = carregar_tabelas_numeromania()
+        tabelas = carregar_tabelas_excel_local()
         
         # Garante que o conteúdo necessário foi encontrado
         if not tabelas or 'Tabela_01' not in tabelas or 'Tabela_02' not in tabelas or 'Tabela_03' not in tabelas:
