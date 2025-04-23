@@ -12,7 +12,7 @@ from ajustes import carregar_dados_excel
 from inteligencia import aplicar_ia_para_jogos
 from models import gerar_jogos_otimizados
 from inteligencia import treinar_modelo_xgb, prever_dezenas
-from estatisticas import mostrar_dashboard_estatistico
+from estatisticas import mostrar_dashboard_estatistico, carregar_resultados_lotofacil
 
 # ====== IMPORTAÇÃO DAS PÁGINAS ======
 from paginas.gerador import pagina_gerador
@@ -60,6 +60,10 @@ def processa_upload(uploaded_file) -> Tuple[Optional[pd.DataFrame], Optional[pd.
         st.error(f"Erro ao processar o arquivo: {e}")
         logger.error(f"Erro no processamento do arquivo: {e}")
         return None, None, None
+
+df_resultados = carregar_resultados_lotofacil()
+if not df_resultados.empty:
+    mostrar_dashboard_estatistico(df_resultados)
 
 # ====== EXECUÇÃO DO PROCESSAMENTO DOS DADOS ======
 if uploaded_file is not None:

@@ -8,20 +8,26 @@ from ajustes import carregar_tabelas_excel_local
 # -----------------------------
 # 🔢 Página Estatísticas (Dashboard)
 # -----------------------------
-def pagina_estatisticas(df):
-    st.title("📊 Dashboard de Estatísticas")
-    st.write("Análise completa dos concursos anteriores.")
-    col1, col2 = st.columns(2)
+@st.cache_data
+def carregar_resultados_lotofacil():
+    try:
+        tabelas = pd.read_excel("tabelas_numeromania.xlsx", sheet_name=None)
 
-    with col1:
-        freq = df.drop(columns=["Concurso", "Data", "Dezenas"], errors='ignore').sum().sort_values(ascending=False)
-        st.subheader("Frequência das Dezenas")
-        st.bar_chart(freq)
+        # Supondo que Tabela 1 contém a frequência das dezenas
+        df_base = tabelas['Tabela 1'].copy()
+        df_base.columns = [col.strip().lower() for col in df_base.columns]
+        df_base = df_base.rename(columns={
+            'dezenas': 'Dezena',
+            'numero de vez': 'Frequência'
+        })
+        df_base['Dezena'] = df_base['Dezena'].astype(str).str.zfill(2)
+        df_base.set_index('Dezena', inplace=True)
 
-    with col2:
-        st.subheader("Ocorrência por posição (em construção)")
-        st.info("🔧 Essa funcionalidade está em desenvolvimento.")
+        return df_base
 
+    except Exception as e:
+        st.error(f"Erro ao carregar dados da Tabela 1: {e}")
+        return pd.DataFrame()
 
 # -----------------------------
 # 📈 Estatísticas por frequência geral
