@@ -30,8 +30,7 @@ def preparar_dados_para_ia(tabelas):
             })
             df['Dezena'] = df['Dezena'].astype(str).str.zfill(2)
             df.set_index('Dezena', inplace=True)
-            dados_ia = pd.concat([dados_ia, df['dezenas', 'numero de vezes','Atual','Último','Maior já registrado','Média']]
-					
+            dados_ia = pd.concat([dados_ia, df['dezenas', 'numero de vezes','Atual','Último','Maior já registrado','Média'])					
 ']]], axis=1)
 
     if 'Tabela 9' in tabelas:
@@ -235,4 +234,4 @@ st.success(f"Jogo gerado com IA: {', '.join(jogo_gerado)}")
 # Exemplo de gráfico de calor com seaborn
 fig, ax = plt.subplots()
 sns.heatmap(dados_ia.set_index('Dezena'), annot=True, fmt=".0f", cmap="YlGnBu", ax=ax)
-st.pyplot(fig)
+st.pyplot(fig).
