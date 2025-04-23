@@ -15,35 +15,96 @@ from xgboost import XGBClassifier
 def preparar_dados_para_ia(tabelas):
     dados_ia = pd.DataFrame()
 
-    try:
-        df_freq = tabelas["Tabela 1"].copy()
-        df_freq.columns = ['Dezena', 'Frequência']
-        df_freq['Dezena'] = df_freq['Dezena'].astype(str).str.zfill(2)
-        df_freq['Frequência'] = pd.to_numeric(df_freq['Frequência'], errors='coerce')
-        dados_ia = df_freq.set_index('Dezena')
-    except Exception as e:
-        st.error("Erro ao carregar Tabela 1: Frequência")
+    def padronizar(df):
+        df.columns = [col.strip().lower() for col in df.columns]
+        return df
 
-    try:
-        df_atraso = tabelas["Tabela 2"].copy()
-        df_atraso.columns = ['Dezena', 'Atraso']
-        df_atraso['Dezena'] = df_atraso['Dezena'].astype(str).str.zfill(2)
-        df_atraso['Atraso'] = pd.to_numeric(df_atraso['Atraso'], errors='coerce')
-        dados_ia['Atraso'] = df_atraso.set_index('Dezena')['Atraso']
-    except Exception as e:
-        st.error("Erro ao carregar Tabela 2: Atraso")
+    # Tabelas 1 a 8
+    col_base = ['dezenas', 'numero de vez', 'atual', 'último', 'maior já registrado', 'média']
+    for i in range(1, 9):
+        if f'Tabela {i}' in tabelas:
+            df = tabelas[f'Tabela {i}'].copy()
+            df = padronizar(df)
+            df = df.rename(columns={
+                'dezenas': 'Dezena',
+                'numero de vez': 'Frequência',
+                'atual': 'Atraso',
+                'maior já registrado': 'Maior_Atraso'
+            })
+            df['Dezena'] = df['Dezena'].astype(str).str.zfill(2)
+            if dados_ia.empty:
+                dados_ia = df[['Dezena', 'Frequência', 'Atraso', 'Maior_Atraso']].copy()
+                dados_ia.set_index('Dezena', inplace=True)
+            else:
+                dados_ia.update(df.set_index('Dezena')[['Frequência', 'Atraso', 'Maior_Atraso']])
 
-    try:
-        df_maior_atraso = tabelas["Tabela 3"].copy()
-        df_maior_atraso.columns = ['Dezena', 'Maior_Atraso']
-        df_maior_atraso['Dezena'] = df_maior_atraso['Dezena'].astype(str).str.zfill(2)
-        df_maior_atraso['Maior_Atraso'] = pd.to_numeric(df_maior_atraso['Maior_Atraso'], errors='coerce')
-        dados_ia['Maior_Atraso'] = df_maior_atraso.set_index('Dezena')['Maior_Atraso']
-    except Exception as e:
-        st.error("Erro ao carregar Tabela 3: Maior Atraso")
+    # Tabela 9 – Quantidades por dezena
+    if 'Tabela 9' in tabelas:
+        df = padronizar(tabelas['Tabela 9'].copy())
+        df = df.rename(columns={'dezenas': 'Dezena', 'quantidades': 'Qtd_Sorteios'})
+        df['Dezena'] = df['Dezena'].astype(str).str.zfill(2)
+        dados_ia['Qtd_Sorteios'] = df.set_index('Dezena')['Qtd_Sorteios']
 
-    dados_ia = dados_ia.dropna()
-    return dados_ia.reset_index()
+    # Tabela 10 – Diferença
+    if 'Tabela 10' in tabelas:
+        df = padronizar(tabelas['Tabela 10'].copy())
+        df = df.rename(columns={'dezenas': 'Dezena', 'diferença': 'Diferenca'})
+        df['Dezena'] = df['Dezena'].astype(str).str.zfill(2)
+        dados_ia['Diferenca'] = df.set_index('Dezena')['Diferenca']
+
+    # Tabela 11 – Atraso total
+    if 'Tabela 11' in tabelas:
+        df = padronizar(tabelas['Tabela 11'].copy())
+        df = df.rename(columns={'dezenas': 'Dezena', 'atraso': 'Atraso_Total'})
+        df['Dezena'] = df['Dezena'].astype(str).str.zfill(2)
+        dados_ia['Atraso_Total'] = df.set_index('Dezena')['Atraso_Total']
+
+    # Tabela 12 – Pares/Ímpares
+    if 'Tabela 12' in tabelas:
+        df = padronizar(tabelas['Tabela 12'].copy())
+        df = df.rename(columns={
+            'quantidade pares': 'Qtd_Pares',
+            'quantidade ímpares': 'Qtd_Impares',
+            'quantidade de ocorrências': 'Ocorrencias_P_I'
+        })
+        dados_ia['Qtd_Pares'] = df['Qtd_Pares']
+        dados_ia['Qtd_Impares'] = df['Qtd_Impares']
+        dados_ia['Ocorrencias_P_I'] = df['Ocorrencias_P_I']
+
+    # Tabela 13 – Primos
+    if 'Tabela 13' in tabelas:
+        df = padronizar(tabelas['Tabela 13'].copy())
+        df = df.rename(columns={'quantidade de primos': 'Qtd_Primos'})
+        dados_ia['Qtd_Primos'] = df['Qtd_Primos']
+
+    # Tabela 14 – Múltiplos de 3
+    if 'Tabela 14' in tabelas:
+        df = padronizar(tabelas['Tabela 14'].copy())
+        df = df.rename(columns={'quantidade de múltiplos de 3': 'Qtd_Multiplos3'})
+        dados_ia['Qtd_Multiplos3'] = df['Qtd_Multiplos3']
+
+    # Tabela 15 – Fibonacci
+    if 'Tabela 15' in tabelas:
+        df = padronizar(tabelas['Tabela 15'].copy())
+        df = df.rename(columns={'quantidade n. de fibonacci': 'Qtd_Fibonacci'})
+        dados_ia['Qtd_Fibonacci'] = df['Qtd_Fibonacci']
+
+    # Tabela 16 – Intervalos
+    if 'Tabela 16' in tabelas:
+        df = padronizar(tabelas['Tabela 16'].copy())
+        df = df.rename(columns={'intervalo': 'Intervalo'})
+        dados_ia['Intervalo'] = df['Intervalo']
+
+    # Tabela 17 – Repetidas do concurso anterior
+    if 'Tabela 17' in tabelas:
+        df = padronizar(tabelas['Tabela 17'].copy())
+        df = df.rename(columns={'dezenas repetidas': 'Repetidas'})
+        dados_ia['Repetidas'] = df['Repetidas']
+
+    dados_ia = dados_ia.dropna().reset_index()
+
+    st.write("✅ Dados IA completos:", dados_ia)
+    return dados_ia
 
 # Função para validar se todas as colunas obrigatórias estão presentes e sem dados inválidos
 def validar_colunas(dados_ia):
@@ -160,26 +221,10 @@ def exibir_graficos_desempenho(y_test, y_pred, modelo_nome):
 # Função para carregar e preparar os dados somente após o app estar rodando
 @st.cache_data(ttl=3600)
 def carregar_e_preparar_dados():
-    try:
-        # Tenta carregar as tabelas da Numeromania
-        tabelas = carregar_tabelas_excel_local()
-        
-        # Garante que o conteúdo necessário foi encontrado
-        if not tabelas or 'Tabela_01' not in tabelas or 'Tabela_02' not in tabelas or 'Tabela_03' not in tabelas:
-            st.warning("As tabelas necessárias da Numeromania não foram carregadas corretamente.")
-            return pd.DataFrame()
-
-        # Prepara os dados
-        dados_ia = preparar_dados_para_ia(tabelas)
-
-        # Verifica as colunas obrigatórias
-        validar_colunas(dados_ia)
-
-        return dados_ia
-    
-    except Exception as e:
-        st.error(f"Erro ao carregar e preparar os dados da IA: {e}")
-        return pd.DataFrame()
+    tabelas = pd.read_excel("tabelas_numeromania.xlsx", sheet_name=None)  # ← lê todas as abas
+    dados_ia = preparar_dados_para_ia(tabelas)
+    validar_colunas(dados_ia)
+    return dados_ia
 
 # Carregar os dados antes de treinar
 dados_ia = carregar_e_preparar_dados()
