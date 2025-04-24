@@ -89,12 +89,12 @@ def mostrar_graficos_desempenho(y_test, y_pred, modelo_nome):
 def gerar_jogo(modelo, dados):
     # Seleciona todas as colunas numéricas (exceto 'dezena' e 'label', se existir)
     colunas_numericas = [col for col in dados.columns if col not in ['dezena', 'label'] and dados[col].dtype in ['int64', 'float64']]
-    
+
     X = dados[colunas_numericas].copy()
 
     # Calcula as probabilidades de acerto
     probabilidades = modelo.predict_proba(X)[:, 1]
-    
+
     dados = dados.copy()
     dados['Probabilidade'] = probabilidades
 
@@ -140,14 +140,15 @@ def menu_lateral():
 
                 df_dados = modelos['dados']
                 top_dezenas = gerar_jogo(modelo, df_dados)
-                # Garante que a coluna Dezena está presente
-                if 'Dezena' not in top_dezenas.columns:
-                 top_dezenas = top_dezenas.reset_index()
+
+                # Garante que a coluna 'dezena' está presente
+                if 'dezena' not in top_dezenas.columns:
+                    top_dezenas = top_dezenas.reset_index()
+
                 st.subheader(f"🎯 Dezenas mais prováveis segundo IA ({modelo_selecionado})")
-                st.dataframe(top_dezenas[['Dezena', 'Probabilidade']])
+                st.dataframe(top_dezenas[['dezena', 'Probabilidade']])
 
-
-                jogo_gerado = sorted(top_dezenas['Dezena'].sample(15).tolist())
+                jogo_gerado = sorted(top_dezenas['dezena'].sample(15).tolist())
                 st.success(f"Jogo gerado com IA: {', '.join(map(str, jogo_gerado))}")
 
             elif escolha == "Simulação de Jogos":
