@@ -47,8 +47,8 @@ def mostrar_dashboard_estatistico(df):
 # -----------------------------
 # 📈 Estatísticas por frequência geral
 # -----------------------------
-def mostrar_estatisticas(df):
-    st.subheader("📊 Frequência Geral das Dezenas")
+def mostrar_estatisticas(arquivo):
+    df = pd.read_excel(arquivo)  # ou pd.read_csv(arquivo) dependendo do tipo
     freq = df.iloc[:, 1:].apply(pd.Series.value_counts).sum(axis=1).sort_values(ascending=False)
     st.bar_chart(freq)
 
