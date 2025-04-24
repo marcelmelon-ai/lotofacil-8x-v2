@@ -47,23 +47,25 @@ def mostrar_dashboard_estatistico(df):
 # -----------------------------
 # 📈 Estatísticas por frequência geral
 # -----------------------------
+import pandas as pd
+import streamlit as st
+
 def mostrar_estatisticas(arquivo):
     try:
-        # Verifica se é um UploadedFile e carrega
         if arquivo is not None:
+            # Carrega o arquivo Excel para um DataFrame
             df = pd.read_excel(arquivo)
 
+            # Aplica análise de frequência em colunas de dezenas (D1 a D15)
             freq = df.iloc[:, 1:].apply(pd.Series.value_counts).sum(axis=1).sort_values(ascending=False)
 
-            st.subheader("📊 Frequência das Dezenas nos Concursos")
+            st.subheader("📊 Frequência Geral das Dezenas")
             st.bar_chart(freq)
-
         else:
-            st.warning("Nenhum arquivo foi carregado.")
+            st.warning("⚠️ Nenhum arquivo foi carregado.")
 
     except Exception as e:
-        st.error(f"Erro ao processar o arquivo: {e}")
-
+        st.error(f"❌ Erro ao processar o arquivo: {e}")
 
 # -----------------------------
 # ⏱ Cálculo de atraso
