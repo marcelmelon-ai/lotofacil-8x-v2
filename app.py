@@ -16,8 +16,9 @@ def main():
     escolha = menu_lateral()
     
     if escolha == "Dashboard":
-        from estatisticas import estatisticas
-        estatisticas()
+        from mostrar_dashboard_estatistico import mostrar_dashboard_estatistico
+        df = carregar_resultados_excel("data/resultados.xlsx")
+        mostrar_dashboard_estatistico(df)
     
     elif escolha == "Gerar Jogos":
         from paginas.gerador import pagina_gerador

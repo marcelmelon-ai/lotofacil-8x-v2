@@ -8,8 +8,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
 from xgboost import XGBClassifier
 from ajustes import carregar_dados_excel as carregar_dados
-from estatisticas import mostrar_dashboard_estatistico
-
+from mostrar_dashboard_estatistico import mostrar_dashboard_estatistico
 
 def carregar_dados_e_treinar_modelos(arquivo):
     df = carregar_dados(arquivo)
