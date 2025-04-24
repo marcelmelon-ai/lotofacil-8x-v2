@@ -20,23 +20,53 @@ def calcular_frequencia(df):
     freq["Dezena"] = freq["Dezena"].astype(str).str.zfill(2)
     return freq
 
-def mostrar_dashboard_estatistico(df):
+def carregar_dados_excel(caminho_arquivo):
     """
-    Exibe o dashboard estatístico com gráficos.
-    
+    Carrega os dados de um arquivo Excel.
+
     Args:
-        df (pd.DataFrame): DataFrame com os resultados da Lotofácil.
+        caminho_arquivo (str): Caminho para o arquivo Excel.
+
+    Returns:
+        pd.DataFrame: DataFrame com os dados carregados.
+    """
+    try:
+        return pd.read_excel(caminho_arquivo)
+    except FileNotFoundError:
+        st.error(f"Arquivo não encontrado: {caminho_arquivo}")
+        return pd.DataFrame()
+    except Exception as e:
+        st.error(f"Erro ao carregar o arquivo Excel: {e}")
+        return pd.DataFrame()
+    
+def mostrar_dashboard_estatistico(caminho_arquivo):
+    """
+    Exibe o dashboard estatístico com gráficos baseados nos dados do Excel.
+
+    Args:
+        caminho_arquivo (str): Caminho para o arquivo Excel com os resultados da Lotofácil.
     """
     st.title("📊 Dashboard de Estatísticas")
     st.write("Análise completa dos concursos anteriores.")
-    
+
+    # Carregar os dados do Excel
+    df = carregar_dados_excel(caminho_arquivo)
+
+    # Verificar se o DataFrame está vazio
+    if df.empty:
+        st.warning("⚠️ O arquivo Excel está vazio ou inválido. Por favor, carregue um arquivo válido.")
+        return
+
+    # Dividir a página em duas colunas
     col1, col2 = st.columns(2)
 
     with col1:
+        # Calcular e exibir a frequência das dezenas
         freq = calcular_frequencia(df)
         st.subheader("Frequência das Dezenas")
         st.bar_chart(freq.set_index("Dezena")["Frequência"])
 
     with col2:
+        # Placeholder para futuras funcionalidades
         st.subheader("Ocorrência por posição (em construção)")
         st.info("🔧 Essa funcionalidade está em desenvolvimento.")
