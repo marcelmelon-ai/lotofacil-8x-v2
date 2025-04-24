@@ -18,11 +18,31 @@ def carregar_dados_e_treinar_modelos(arquivo):
         st.write("Prévia do DataFrame:")
         st.dataframe(df.head())
 
-        X = df[['Frequência', 'Atraso', 'Maior_Atraso']]
-        y = [1 if freq > df['Frequência'].median() else 0 for freq in df['Frequência']]
+        # 🔍 Identifica colunas das dezenas
+        colunas_dezenas = [col for col in df.columns if col.startswith('D')]
 
+        if not colunas_dezenas:
+            st.error("❌ Nenhuma coluna de dezenas (D1 a D15) foi encontrada no arquivo.")
+            return None
+
+        # 🔢 Empilha todas as dezenas sorteadas para gerar frequência
+        todas_dezenas = pd.concat([df[col] for col in colunas_dezenas])
+        frequencia = todas_dezenas.value_counts().sort_index()
+
+        # 🧠 Prepara os dados de entrada X e saída y
+        dados_ia = pd.DataFrame({
+            'dezena': frequencia.index.astype(str).str.zfill(2),
+            'frequencia': frequencia.values
+        })
+        dados_ia['label'] = [1 if f > dados_ia['frequencia'].median() else 0 for f in dados_ia['frequencia']]
+
+        X = dados_ia[['frequencia']]
+        y = dados_ia['label']
+
+        # 🔀 Divisão em treino e teste
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
+        # 📈 Modelos
         modelo_xgb = XGBClassifier(use_label_encoder=False, eval_metric='logloss')
         modelo_xgb.fit(X_train, y_train)
         y_pred_xgb = modelo_xgb.predict(X_test)
@@ -42,11 +62,11 @@ def carregar_dados_e_treinar_modelos(arquivo):
             'xgb': (modelo_xgb, accuracy_xgb, y_test, y_pred_xgb),
             'rf': (modelo_rf, accuracy_rf, y_test, y_pred_rf),
             'mlp': (mlp, accuracy_mlp, y_test, y_pred_mlp),
-            'dados': df
+            'dados': dados_ia
         }
     else:
         st.warning("Nenhuma tabela foi carregada.")
-        return None
+
 
 
 def mostrar_graficos_desempenho(y_test, y_pred, modelo_nome):
@@ -64,17 +84,26 @@ def mostrar_graficos_desempenho(y_test, y_pred, modelo_nome):
 
 
 def gerar_jogo(modelo, dados):
-    X = dados[['Frequência', 'Atraso', 'Maior_Atraso']]
+    # Seleciona todas as colunas numéricas (exceto 'dezena' e 'label', se existir)
+    colunas_numericas = [col for col in dados.columns if col not in ['dezena', 'label'] and dados[col].dtype in ['int64', 'float64']]
+    
+    X = dados[colunas_numericas].copy()
+
+    # Calcula as probabilidades de acerto
     probabilidades = modelo.predict_proba(X)[:, 1]
+    
     dados = dados.copy()
     dados['Probabilidade'] = probabilidades
 
-    # Garante que existe uma coluna 'Dezena' para exibição
-    if 'Dezena' not in dados.columns:
-        dados['Dezena'] = dados.index
+    # Garante que existe uma coluna 'dezena' para exibição
+    if 'dezena' not in dados.columns:
+        dados['dezena'] = dados.index.astype(str).str.zfill(2)
 
+    # Seleciona as 15 dezenas mais prováveis
     dezenas_recomendadas = dados.sort_values(by='Probabilidade', ascending=False).head(15)
-    return dezenas_recomendadas
+
+    return dezenas_recomendadas[['dezena', 'Probabilidade']]
+
 
 def menu_lateral():
     st.sidebar.title("Menu")
