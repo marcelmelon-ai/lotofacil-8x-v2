@@ -21,7 +21,7 @@ def carregar_resultados_excel(caminho_arquivo):
         st.error(f"Erro ao carregar o arquivo Excel: {e}")
         return pd.DataFrame()
 
-def carregar_estatisticas_numeromania(carregar-_arquivo):
+def carregar_estatisticas_numeromania(caminho_arquivo_excel):
     """
     Carrega estatísticas do arquivo Excel 'tabelas_numeromania.xlsx'.
     
