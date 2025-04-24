@@ -28,23 +28,23 @@ def carregar_tabelas_excel_local(caminho_excel: str) -> dict:
         xls = pd.ExcelFile(caminho_excel)
 
         nomes_abas = {
-            "Tabela 1",
-            "Tabela 2",
-            "Tabela 3",
-            "Tabela 4",
-            "Tabela 5",
-            "Tabela 6",
-            "Tabela 7",
-            "Tabela 8",
-            "Tabela 9",
-            "Tabela 10",
-            "Tabela 11",
-            "Tabela 12",
-            "Tabela 13",
-            "Tabela 14",
-            "Tabela 15",
-            "Tabela 16",
-            "Tabela 17"
+            "Concurso",
+            "Data Sorteio",
+            "D1",
+            "D2",
+            "D3",
+            "D4",
+            "D5",
+            "D6",
+            "D7",
+            "D8",
+            "D9",
+            "D10",
+            "D11",
+            "D12",
+            "D13",
+            "D14",
+            "D15"
         }
 
         tabelas = {}
