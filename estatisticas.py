@@ -52,21 +52,18 @@ import streamlit as st
 
 def mostrar_estatisticas(arquivo):
     try:
-        if arquivo is not None:
-            # Carrega o arquivo Excel para um DataFrame
-            df = pd.read_excel(arquivo)
+        # 🔽 Correção: ler o Excel usando pandas
+        df = pd.read_excel(arquivo)
 
-            # Aplica análise de frequência em colunas de dezenas (D1 a D15)
-            freq = df.iloc[:, 1:].apply(pd.Series.value_counts).sum(axis=1).sort_values(ascending=False)
+        # ✅ Cálculo de frequência das dezenas (supondo que as colunas de D1 a D15 estão da segunda coluna em diante)
+        freq = df.iloc[:, 1:].apply(pd.Series.value_counts).sum(axis=1).sort_values(ascending=False)
 
-            st.subheader("📊 Frequência Geral das Dezenas")
-            st.bar_chart(freq)
-        else:
-            st.warning("⚠️ Nenhum arquivo foi carregado.")
+        st.subheader("📊 Frequência Geral das Dezenas")
+        st.bar_chart(freq)
 
     except Exception as e:
         st.error(f"❌ Erro ao processar o arquivo: {e}")
-
+        
 # -----------------------------
 # ⏱ Cálculo de atraso
 # -----------------------------
