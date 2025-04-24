@@ -2,25 +2,34 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from xgboost import XGBClassifier
 
-def treinar_modelo_xgb(df):
+def treinar_modelo_xgb(X, y):
     """
-    Treina um modelo XGBoost com base nos dados fornecidos.
+    Treina um modelo XGBoost com os dados fornecidos.
     
     Args:
-        df (pd.DataFrame): DataFrame com as estatísticas das dezenas.
+        X (pd.DataFrame): Dados de entrada.
+        y (pd.Series): Rótulos de saída.
     
     Returns:
         XGBClassifier: Modelo treinado.
     """
-    X = df[["Frequência", "Atraso"]]
-    y = (df["Dezena"].astype(int) <= 15).astype(int)  # Exemplo: Classificar dezenas <= 15 como 1
-    
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     model = XGBClassifier(use_label_encoder=False, eval_metric="logloss")
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     model.fit(X_train, y_train)
-    
     y_pred = model.predict(X_test)
     acc = accuracy_score(y_test, y_pred)
     print(f"Acurácia do modelo: {acc:.2f}")
-    
     return model
+
+def prever_dezenas(model, X):
+    """
+    Faz previsões com base no modelo treinado.
+    
+    Args:
+        model (XGBClassifier): Modelo treinado.
+        X (pd.DataFrame): Dados de entrada para previsão.
+    
+    Returns:
+        np.ndarray: Previsões do modelo.
+    """
+    return model.predict(X)
