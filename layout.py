@@ -27,7 +27,10 @@ def carregar_dados_e_treinar_modelos(arquivo):
 
         # 🔢 Empilha todas as dezenas sorteadas para gerar frequência
         todas_dezenas = pd.concat([df[col] for col in colunas_dezenas])
+        todas_dezenas = todas_dezenas.dropna()
+        todas_dezenas = todas_dezenas.astype(str).str.strip().str.zfill(2)
         frequencia = todas_dezenas.value_counts().sort_index()
+
 
         # 🧠 Prepara os dados de entrada X e saída y
         dados_ia = pd.DataFrame({
