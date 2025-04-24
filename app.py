@@ -32,8 +32,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # ====== MENU DE NAVEGAÇÃO ======
-print("Chamando menu_lateral()")
-pagina = menu_lateral()
+print(pagina = menu_lateral())
 
 # ====== EXECUÇÃO DA PÁGINA SELECIONADA ======
 if pagina == "🎰 Gerador de Jogos":
