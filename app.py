@@ -4,6 +4,8 @@ from layout import menu_lateral, carregar_dados_e_treinar_modelos, mostrar_grafi
 from ajustes import preprocessar_dados, carregar_dados_excel
 from estatisticas import calcular_frequencia, carregar_dados_excel, mostrar_dashboard_estatistico
 from models import gerar_jogos_inteligentes, gerar_jogos_otimizados
+from inteligencia import treinar_modelo, prever_resultados
+from mostrar_dashboard_estatistico import mostrar_dashboard_estatistico
 from paginas.gerador import pagina_gerador
 from paginas.ia import pagina_ia
 from paginas.sobre import pagina_sobre
