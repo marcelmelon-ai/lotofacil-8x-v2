@@ -36,7 +36,7 @@ def mostrar_dashboard_estatistico(df):
     col1, col2 = st.columns(2)
 
     with col1:
-        freq = df.drop(columns=["Concurso", "Data", "Dezenas"], errors='ignore').sum().sort_values(ascending=False)
+        freq = df.drop(columns=["Concurso", "Data sorteio", "D1 a D15"], errors='ignore').sum().sort_values(ascending=False)
         st.subheader("Frequência das Dezenas")
         st.bar_chart(freq)
 
