@@ -2,7 +2,6 @@ import pandas as pd
 import streamlit as st
 from estatisticas import calcular_frequencia
 
-
 @st.cache_data
 def calcular_frequencia(df):
     """
