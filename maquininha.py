@@ -21,7 +21,7 @@ def carregar_resultados_excel(caminho_arquivo):
         st.error(f"Erro ao carregar o arquivo Excel: {e}")
         return pd.DataFrame()
 
-def carregar_estatisticas_numeromania():
+def carregar_estatisticas_numeromania(carregar-_arquivo):
     """
     Carrega estatísticas do arquivo Excel 'tabelas_numeromania.xlsx'.
     
@@ -65,7 +65,7 @@ def carregar_estatisticas_numeromania():
         st.error(f"Erro ao carregar estatísticas: {e}")
         return {}
 
-def reconstruir_estatisticas_basicas(planilha):
+def reconstruir_estatisticas_basicas(planilha_excel):
     """
     Reconstrói estatísticas básicas (frequência e atraso) a partir de uma planilha.
     

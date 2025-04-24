@@ -1,6 +1,6 @@
 import pandas as pd
 import streamlit as st
-from estatisticas import calcular_frequencia
+from estatisticas import carregar_dados_excel
 
 
 @st.cache_data
