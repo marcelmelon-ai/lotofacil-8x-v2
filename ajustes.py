@@ -28,23 +28,23 @@ def carregar_tabelas_excel_local(caminho_excel: str) -> dict:
         xls = pd.ExcelFile(caminho_excel)
 
         nomes_abas = {
-            "tabela1 - atraso": "Tabela_01",
-            "tabela 2 - duplas mais sairam": "Tabela_02",
-            "tabela 3 - duplas que - sairam": "Tabela_03",
-            "tabela 4 - tricas mais sairam": "Tabela_04",
-            "tabela 5 quadras que + sairam": "Tabela_05",
-            "tabela 6 -repetição consecutiva": "Tabela_06",
-            "tabela 7 - AUSÊNCIA CONSECUTIVA": "Tabela_07",
-            "tabela 8 - CONTROLE DE CICLOS": "Tabela_08",
-            "tabela 9 Dezenas mais sorteadas": "Tabela_09",
-            "tabela 10 - Média das dezenas": "Tabela_10",
-            "tabela 11 - Dezenas + atrasadas": "Tabela_11",
-            "tabela 12 - Pares e ímpares": "Tabela_12",
-            "tabela 13 - Números primos": "Tabela_13",
-            "tabela 14 - multiplos de 3": "Tabela_14",
-            "tabela 15 -Números de Fibonacci": "Tabela_15",
-            "tabela 16 Soma das dezenas": "Tabela_16",
-            "tabela 17 repetidas do concurso": "Tabela_17"
+            "Tabela 1",
+            "Tabela 2",
+            "Tabela 3",
+            "Tabela 4",
+            "Tabela 5",
+            "Tabela 6",
+            "Tabela 7",
+            "Tabela 8",
+            "Tabela 9",
+            "Tabela 10",
+            "Tabela 11",
+            "Tabela 12",
+            "Tabela 13",
+            "Tabela 14",
+            "Tabela 15",
+            "Tabela 16",
+            "Tabela 17"
         }
 
         tabelas = {}
