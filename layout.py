@@ -140,8 +140,12 @@ def menu_lateral():
 
                 df_dados = modelos['dados']
                 top_dezenas = gerar_jogo(modelo, df_dados)
-                st.write("Top 15 dezenas mais prováveis:")
+                # Garante que a coluna Dezena está presente
+                if 'Dezena' not in top_dezenas.columns:
+                 top_dezenas = top_dezenas.reset_index()
+                st.subheader(f"🎯 Dezenas mais prováveis segundo IA ({modelo_selecionado})")
                 st.dataframe(top_dezenas[['Dezena', 'Probabilidade']])
+
 
                 jogo_gerado = sorted(top_dezenas['Dezena'].sample(15).tolist())
                 st.success(f"Jogo gerado com IA: {', '.join(map(str, jogo_gerado))}")
