@@ -14,10 +14,6 @@ from models import gerar_jogos_otimizados
 from inteligencia import treinar_modelo_xgb, prever_dezenas
 from estatisticas import mostrar_dashboard_estatistico, carregar_resultados_lotofacil
 
-df_resultados = carregar_resultados_lotofacil()
-if not df_resultados.empty:
-    mostrar_dashboard_estatistico(df_resultados)
-
 # ====== IMPORTAÇÃO DAS PÁGINAS ======
 from mostrar_dashboard_estatistico import mostrar_dashboard_estatistico
 from paginas.gerador import pagina_gerador
@@ -26,14 +22,14 @@ from paginas.ia import pagina_ia
 from paginas.dados_online import pagina_dados_online
 from paginas.sobre import pagina_sobre
 
-# ====== LOGGING ======
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
 # ====== CONFIGURAÇÃO INICIAL DO STREAMLIT ======
 st.set_page_config(page_title="🎯 Lotofácil 8X", layout="wide")
 st.markdown("<h1 style='text-align: center; color: #6C63FF;'>🎯 Lotofácil 8X - Geração Inteligente</h1>", unsafe_allow_html=True)
 st.markdown("<h4 style='text-align: center; color: gray;'>App com estatísticas + inteligência artificial</h4><br>", unsafe_allow_html=True)
+
+# ====== LOGGING ======
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # ====== MENU DE NAVEGAÇÃO ======
 pagina = menu_lateral()
