@@ -3,7 +3,6 @@ from ajustes import carregar_dados_excel, preprocessar_dados
 from estatisticas import calcular_frequencia
 from models import gerar_jogos_otimizados
 from paginas.gerador import pagina_gerador
-from paginas.estatisticas import pagina_estatisticas
 import streamlit as st
 
 def test_carregar_dados_excel():

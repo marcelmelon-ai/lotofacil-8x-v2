@@ -8,7 +8,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
 from xgboost import XGBClassifier
 from ajustes import carregar_dados_excel as carregar_dados
-from paginas.estatisticas import mostrar_estatisticas
+from estatisticas import mostrar_dashboard_estatistico
 
 
 def carregar_dados_e_treinar_modelos(arquivo):
@@ -123,7 +123,7 @@ def menu_lateral():
                 st.write("Escolha uma opção no menu lateral para começar.")
 
             elif escolha == "Estatísticas":
-                mostrar_estatisticas(modelos['dados'])
+                mostrar_dashboard_estatistico(modelos['dados'])
 
             elif escolha == "Gerar Jogos":
                 st.subheader("🔮 Gerador de Jogos com IA")

@@ -16,8 +16,8 @@ def main():
     escolha = menu_lateral()
     
     if escolha == "Dashboard":
-        from paginas.estatisticas import pagina_estatisticas
-        pagina_estatisticas()
+        from estatisticas import estatisticas
+        estatisticas()
     
     elif escolha == "Gerar Jogos":
         from paginas.gerador import pagina_gerador
