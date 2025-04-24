@@ -10,39 +10,41 @@ def carregar_resultados_excel(caminho_arquivo):
 # Função para carregar e nomear todas as 12 tabelas do site Numeromania
 def carregar_estatisticas_numeromania():
     try:
-        xls = pd.ExcelFile("tabelas_numeromania.xlsx")  # Certifique-se que o Excel esteja no mesmo diretório do app
+        xls = pd.ExcelFile("tabelas_numeromania.xlsx")  # O arquivo deve estar na mesma pasta do app
 
         nomes_abas = {
-            "tabela1 - atraso": "Frequencia",
-            "tabela 2 - duplas mais sairam": "Duplas_Mais_Frequentes",
-            "tabela 3 - duplas que - sairam": "Duplas_Menos_Frequentes",
-            "tabela 4 - tricas mais sairam": "Trincas_Mais_Frequentes",
-            "tabela 5 quadras que + sairam": "Quadras_Mais_Frequentes",
-            "tabela 6 -repetição consecutiva": "Repeticoes_Consecutivas",
-            "tabela 7 - AUSÊNCIA CONSECUTIVA": "Ausencias_Consecutivas",
-            "tabela 8 - CONTROLE DE CICLOS": "Controle_de_Ciclos",
-            "tabela 9 Dezenas mais sorteadas": "Dezenas_Mais_Sorteadas",
-            "tabela 10 - Média das dezenas": "Media_das_Dezenas",
-            "tabela 11 - Dezenas + atrasadas": "Dezenas_Mais_Atrasadas",
-            "tabela 12 - Pares e ímpares": "Pares_Impares",
-            "tabela 13 - Números primos": "Numeros_Primos",
-            "tabela 14 - multiplos de 3": "Multiplos_de_3",
-            "tabela 15 -Números de Fibonacci": "Fibonacci",
-            "tabela 16 Soma das dezenas": "Soma_das_Dezenas",
-            "tabela 17 repetidas do concurso": "Repetidas_do_Concurso"
+            "Tabela 1": "Frequencia",
+            "Tabela 2": "Duplas_Mais_Frequentes",
+            "Tabela 3": "Duplas_Menos_Frequentes",
+            "Tabela 4": "Trincas_Mais_Frequentes",
+            "Tabela 5": "Quadras_Mais_Frequentes",
+            "Tabela 6": "Repeticoes_Consecutivas",
+            "Tabela 7": "Ausencias_Consecutivas",
+            "Tabela 8": "Controle_de_Ciclos",
+            "Tabela 9": "Dezenas_Mais_Sorteadas",
+            "Tabela 10": "Media_das_Dezenas",
+            "Tabela 11": "Dezenas_Mais_Atrasadas",
+            "Tabela 12": "Pares_Impares",
+            "Tabela 13": "Numeros_Primos",
+            "Tabela 14": "Multiplos_de_3",
+            "Tabela 15": "Fibonacci",
+            "Tabela 16": "Soma_das_Dezenas",
+            "Tabela 17": "Repetidas_do_Concurso"
         }
 
         estatisticas = {}
-
-        for aba_excel, nome_tabela in nomes_abas.items():
-            if aba_excel in xls.sheet_names:
-                df = xls.parse(aba_excel)
-                df.columns = [str(c).strip() for c in df.columns]
-                estatisticas[nome_tabela] = df
-            else:
-                st.warning(f"Aba '{aba_excel}' não foi encontrada no Excel!")
+        for aba_original, nome_padronizado in nomes_abas.items():
+            try:
+                df = xls.parse(aba_original)
+                estatisticas[nome_padronizado] = df
+            except Exception as e:
+                print(f"Erro ao carregar a aba {aba_original}: {e}")
 
         return estatisticas
+
+    except FileNotFoundError:
+        print("❌ Arquivo 'tabelas_numeromania.xlsx' não encontrado.")
+        return {}
 
     except Exception as e:
         st.error(f"Erro ao carregar estatísticas: {e}")
