@@ -2,98 +2,170 @@
 
 **Geração Inteligente de Jogos com Estatísticas e Inteligência Artificial**
 
-![banner](https://img.shields.io/badge/Projeto-Streamlit-brightgreen) ![GitHub](https://img.shields.io/badge/IA-Ativada-blue) ![Status](https://img.shields.io/badge/status-Em%20Desenvolvimento-yellow)
+## 📋 Descrição do Projeto
 
-## 🔍 Descrição
+O **Lotofácil 8X** é um aplicativo desenvolvido em Python que utiliza estatísticas e inteligência artificial para gerar jogos otimizados da Lotofácil. O projeto analisa dados históricos de resultados e estatísticas para criar combinações inteligentes, aumentando as chances de acerto.
 
-Lotofácil 8X é um aplicativo interativo desenvolvido com **Streamlit** que combina estatísticas históricas e **modelos de IA** para gerar jogos inteligentes da Lotofácil. A plataforma permite ao usuário:
+## 🚀 Funcionalidades
 
-- Enviar arquivos Excel com resultados.
-- Visualizar análises e tabelas estatísticas.
-- Aplicar inteligência artificial para prever dezenas com base em dados históricos.
-- Gerar jogos otimizados.
+- **Dashboard Estatístico**: Visualize a frequência das dezenas, atrasos e outras análises.
+- **Gerador de Jogos**: Crie combinações otimizadas com base em dados estatísticos.
+- **Simulação de Jogos**: Teste combinações geradas contra resultados históricos.
+- **IA e Previsões**: Treine modelos de inteligência artificial para prever dezenas mais prováveis.
+- **Importação de Dados Online**: (Em breve) Carregue dados diretamente da internet.
 
-## 📁 Estrutura do Projeto
+## 🛠️ Tecnologias Utilizadas
+
+- **Linguagem**: Python 3
+- **Bibliotecas**:
+  - [Streamlit](https://streamlit.io/) - Interface interativa
+  - [Pandas](https://pandas.pydata.org/) - Manipulação de dados
+  - [Scikit-learn](https://scikit-learn.org/) - Modelos de aprendizado de máquina
+  - [XGBoost](https://xgboost.readthedocs.io/) - Algoritmos de boosting
+  - [Matplotlib](https://matplotlib.org/) e [Seaborn](https://seaborn.pydata.org/) - Visualização de dados
+  - [OpenPyXL](https://openpyxl.readthedocs.io/) - Manipulação de arquivos Excel
+
+## 📂 Estrutura do Projeto
+### Revisão do README.md
+
+Aqui está uma versão revisada e mais detalhada do README.md para o projeto:
+
+```markdown
+# 🎯 Lotofácil 8X
+
+**Geração Inteligente de Jogos com Estatísticas e Inteligência Artificial**
+
+## 📋 Descrição do Projeto
+
+O **Lotofácil 8X** é um aplicativo desenvolvido em Python que utiliza estatísticas e inteligência artificial para gerar jogos otimizados da Lotofácil. O projeto analisa dados históricos de resultados e estatísticas para criar combinações inteligentes, aumentando as chances de acerto.
+
+## 🚀 Funcionalidades
+
+- **Dashboard Estatístico**: Visualize a frequência das dezenas, atrasos e outras análises.
+- **Gerador de Jogos**: Crie combinações otimizadas com base em dados estatísticos.
+- **Simulação de Jogos**: Teste combinações geradas contra resultados históricos.
+- **IA e Previsões**: Treine modelos de inteligência artificial para prever dezenas mais prováveis.
+- **Importação de Dados Online**: (Em breve) Carregue dados diretamente da internet.
+
+## 🛠️ Tecnologias Utilizadas
+
+- **Linguagem**: Python 3
+- **Bibliotecas**:
+  - [Streamlit](https://streamlit.io/) - Interface interativa
+  - [Pandas](https://pandas.pydata.org/) - Manipulação de dados
+  - [Scikit-learn](https://scikit-learn.org/) - Modelos de aprendizado de máquina
+  - [XGBoost](https://xgboost.readthedocs.io/) - Algoritmos de boosting
+  - [Matplotlib](https://matplotlib.org/) e [Seaborn](https://seaborn.pydata.org/) - Visualização de dados
+  - [OpenPyXL](https://openpyxl.readthedocs.io/) - Manipulação de arquivos Excel
+
+## 📂 Estrutura do Projeto
 
 ```
 lotofacil-8x/
 │
-├── App.py                         # Arquivo principal do Streamlit
-├── ajustes.py                     # Funções auxiliares e carregamento de dados
-├── estatisticas.py                # Dashboard estatístico com tabelas e gráficos
-├── inteligencia.py                # Algoritmos de IA e validação
-├── layout.py                      # Layout e menu lateral
-├── maquininha.py                  # Geração de features e processamento
-├── modelos.py                     # Modelos de ML como XGBoost, RandomForest, MLP
-│
-├── paginas/
+├── app.py                     # Arquivo principal do Streamlit
+├── ajustes.py                 # Funções auxiliares (carregamento e pré-processamento de dados)
+├── estatisticas.py            # Processamento e análise estatística
+├── inteligencia.py            # Algoritmos de IA e validação
+├── models.py                  # Modelos de IA e geração de jogos
+├── paginas/                   # Páginas do Streamlit
 │   ├── __init__.py
-│   ├── gerador.py                 # Página para gerar jogos
-│   ├── estatisticas.py           # Página de estatísticas
-│   ├── ia.py                      # Página de previsões com IA
-│   ├── dados_online.py            # Página para leitura de dados externos
-│   └── sobre.py                   # Informações sobre o app
-│
-└── README.md                      # Este arquivo
+│   ├── gerador.py
+│   ├── estatisticas.py
+│   ├── ia.py
+│   ├── dados_online.py
+│   └── sobre.py
+├── data/                      # Dados de entrada
+│   ├── resultados.xlsx
+│   ├── estatisticas.xlsx
+├── requirements.txt           # Dependências do projeto
+└── README.md                  # Documentação
 ```
 
-## 🚀 Como Rodar o Projeto
+## ⚙️ Como Executar o Projeto
+
+### Pré-requisitos
+
+- Python 3 instalado
+- Dependências listadas no `requirements.txt`
+
+### Passos
 
 1. Clone o repositório:
-
-```bash
-git clone https://github.com/marcelmelon-ai/lotofacil-8x.git
-cd lotofacil-8x
-```
+   ```bash
+   git clone https://github.com/seu-usuario/lotofacil-8x.git
+   cd lotofacil-8x
+   ```
 
 2. Instale as dependências:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. Execute o aplicativo:
+   ```bash
+   streamlit run app.py
+   ```
+
+4. Acesse o aplicativo no navegador em: [http://localhost:8501](http://localhost:8501)
+
+## 🧪 Testes
+
+Para executar os testes unitários, use o comando:
 
 ```bash
-pip install -r requirements.txt
+pytest test_functionos.py
 ```
 
-3. Rode a aplicação:
+## 📈 Exemplos de Uso
 
-```bash
-streamlit run App.py
+- **Dashboard Estatístico**: Carregue os dados históricos e visualize gráficos de frequência e atraso.
+- **Gerador de Jogos**: Gere combinações otimizadas com base em análises estatísticas.
+- **IA e Previsões**: Treine modelos de IA para prever as dezenas mais prováveis.
+
+## 📝 Licença
+
+Este projeto está sob a licença MIT. Consulte o arquivo `LICENSE` para mais informações.
+
+## 👨‍💻 Autor
+
+- **Seu Nome** - [GitHub](https://github.com/seu-usuario)
 ```
 
-4. Acesse o navegador:
+---
 
+### Revisão do requirements.txt
+
+Aqui está uma versão revisada e organizada do requirements.txt:
+
+```plaintext
+# Bibliotecas para interface
+streamlit
+
+# Manipulação de dados
+pandas
+numpy
+
+# Visualização de dados
+matplotlib
+seaborn
+
+# Manipulação de arquivos Excel
+openpyxl
+
+# Aprendizado de máquina
+scikit-learn
+xgboost
+
+# Web scraping (opcional, para dados online)
+beautifulsoup4
+requests
+lxml
 ```
-http://localhost:8501
-```
 
-## 📦 Requisitos
+---
 
-- Python 3.8+
-- Pandas, Scikit-learn, Streamlit, XGBoost, entre outros
-
-> Você pode gerar automaticamente os requisitos com:
-```bash
-pip freeze > requirements.txt
-```
-
-## 📊 Fontes de Dados
-
-- Planilhas da Lotofácil em `.xlsx`
-- Dados estatísticos do site [Numeromania](https://www.numeromania.com.br/fa9912.html)
-
-## 🤖 Modelos Utilizados
-
-- XGBoost
-- RandomForest
-- Multi-Layer Perceptron (MLP)
-
-## ✨ Funcionalidades Futuras
-
-- Integração com banco de dados
-- Exportação de jogos para PDF ou TXT
-- Otimizações de IA com ensemble learning
-- Deploy na Web com GitHub Pages ou alternativa
-
-## 👨‍💻 Desenvolvedor
-
-**Marcel Ribeiro Ártico Melon**  
-8X Agro | Inteligência para o Agro e além  
-📧 marcelribeiroarticomelon@gmail.com
+### **Próximos Passos**
+1. **Atualizar o README.md com links e informações específicas do projeto.**
+2. **Testar o requirements.txt para garantir que todas as dependências estão corretas.**
+3. **Executar o aplicativo e validar a funcionalidade completa.**

@@ -1,10 +1,12 @@
 import streamlit as st
 
 def pagina_sobre():
+    """
+    Página sobre o projeto Lotofácil 8X.
+    """
     st.subheader("ℹ️ Sobre o Projeto Lotofácil 8X")
-    st.markdown("""
-**Desenvolvedor**: Marcel Ribeiro Ártico Melon  
-**Empresa**: 8X Agro  
-**Propósito**: Este app visa aplicar estatísticas e inteligência artificial para sugerir jogos otimizados da Lotofácil.  
-**Tecnologias**: Python, Streamlit, IA (XGBoost, Random Forest), Pandas e outras bibliotecas úteis.
-""")
+    st.write("""
+    O Lotofácil 8X é um aplicativo que utiliza estatísticas e inteligência artificial para gerar jogos inteligentes.
+    Desenvolvido com Python e Streamlit, o projeto tem como objetivo ajudar os usuários a criar combinações otimizadas
+    com base em análises de dados históricos.
+    """)

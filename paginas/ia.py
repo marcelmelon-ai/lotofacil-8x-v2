@@ -1,56 +1,21 @@
 import streamlit as st
-from inteligencia import (
-    carregar_e_preparar_dados,
-    treinar_modelo_xgb,
-    treinar_modelo_rf,
-    treinar_modelo_mlp,
-    prever_dezenas,
-    exibir_graficos_desempenho
-)
-import seaborn as sns
-import matplotlib.pyplot as plt
+from inteligencia import treinar_modelo_xgb
 
 def pagina_ia():
+    """
+    Página para treinar modelos de IA e prever dezenas.
+    """
     st.header("🧠 IA e Previsões")
+    st.write("Treine modelos de IA para prever as dezenas mais prováveis.")
 
-    try:
-        dados_ia = carregar_e_preparar_dados()
-    except Exception as e:
-        st.error(f"Erro ao carregar e preparar dados: {e}")
+    # Simulação de dados (substituir com dados reais)
+    df_stats = st.session_state.get("frequencia", None)
+    if df_stats is None:
+        st.warning("⚠️ Dados estatísticos não encontrados. Por favor, carregue os dados na aba 'Dashboard'.")
         return
 
-    if dados_ia.empty:
-        st.warning("Nenhum dado disponível para treinar a IA.")
-        return
-
-    # Selecionar o modelo
-    modelo_selecionado = st.selectbox("Selecione o modelo:", ['XGBoost', 'Random Forest', 'MLP'])
-
-    try:
-        # Treinar e avaliar o modelo escolhido
-        if modelo_selecionado == 'XGBoost':
-            modelo, accuracy, y_test, y_pred = treinar_modelo_xgb(dados_ia)
-        elif modelo_selecionado == 'Random Forest':
-            modelo, accuracy, y_test, y_pred = treinar_modelo_rf(dados_ia)
-        else:
-            modelo, accuracy, y_test, y_pred = treinar_modelo_mlp(dados_ia)
-
-        st.write(f"Acurácia do modelo {modelo_selecionado}: {accuracy:.2%}")
-        exibir_graficos_desempenho(y_test, y_pred, modelo_selecionado)
-
-        # Prever dezenas
-        top_dezenas = prever_dezenas(modelo, dados_ia)
-        st.subheader(f"🎯 Dezenas mais prováveis segundo IA ({modelo_selecionado})")
-        st.dataframe(top_dezenas[['Dezena', 'Probabilidade']])
-
-        # Gerar um jogo com base nas top 15
-        jogo_gerado = sorted(top_dezenas['Dezena'].sample(15).tolist())
-        st.success(f"Jogo gerado com IA: {', '.join(jogo_gerado)}")
-
-        # Gráfico de calor
-        fig, ax = plt.subplots()
-        sns.heatmap(dados_ia.set_index('Dezena'), annot=True, fmt=".0f", cmap="YlGnBu", ax=ax)
-        st.pyplot(fig)
-
-    except Exception as e:
-        st.error(f"Erro ao treinar ou exibir os resultados do modelo: {e}")
+    # Treinar modelo
+    if st.button("Treinar Modelo"):
+        modelo = treinar_modelo_xgb(df_stats)
+        st.success("Modelo treinado com sucesso!")
+        st.write("Use o modelo para prever as dezenas mais prováveis (em breve).")
