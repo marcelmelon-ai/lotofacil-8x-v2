@@ -4,12 +4,14 @@ import matplotlib.pyplot as plt
 from sklearn.ensemble import GradientBoostingClassifier
 from ajustes import carregar_tabelas_excel_local
 
-
 # -----------------------------
 # 🔢 Página Estatísticas (Dashboard)
 # -----------------------------
 @st.cache_data
 def carregar_resultados_lotofacil():
+    """
+    Carrega os resultados da Lotofácil a partir de um arquivo Excel.
+    """
     try:
         tabelas = pd.read_excel("tabelas_numeromania.xlsx", sheet_name=None)
 
@@ -28,8 +30,11 @@ def carregar_resultados_lotofacil():
     except Exception as e:
         st.error(f"Erro ao carregar dados da Tabela 1: {e}")
         return pd.DataFrame()
-    
+
 def mostrar_dashboard_estatistico(df):
+    """
+    Exibe o dashboard estatístico com gráficos.
+    """
     st.title("📊 Dashboard de Estatísticas")
     st.write("Análise completa dos concursos anteriores.")
     
@@ -43,43 +48,47 @@ def mostrar_dashboard_estatistico(df):
     with col2:
         st.subheader("Ocorrência por posição (em construção)")
         st.info("🔧 Essa funcionalidade está em desenvolvimento.")
-        
+
 # -----------------------------
 # 📈 Estatísticas por frequência geral
 # -----------------------------
-import pandas as pd
-import streamlit as st
-
 def mostrar_estatisticas(arquivo):
-    # Carregar o DataFrame (exemplo, ajuste conforme necessário)
-    df = pd.read_csv(arquivo)  # Certifique-se de que o arquivo existe e está correto
-
-    # Verificar se o DataFrame está vazio
-    if df.empty:
-        raise ValueError("O DataFrame está vazio. Verifique os dados de entrada.")
-
-    # Verificar as colunas do DataFrame
-    print("Colunas do DataFrame:", df.columns)
-
-    # Processar o DataFrame
+    """
+    Processa o arquivo enviado e exibe as estatísticas.
+    """
     try:
+        # Carregar o arquivo como DataFrame
+        df = pd.read_excel(arquivo) if arquivo.name.endswith('.xlsx') else pd.read_csv(arquivo)
+
+        # Verificar se o DataFrame está vazio
+        if df.empty:
+            raise ValueError("O DataFrame está vazio. Verifique os dados de entrada.")
+
+        # Processar o DataFrame
         freq = df.iloc[:, 1:].apply(pd.Series.value_counts).sum(axis=1).sort_values(ascending=False)
-        print(freq)  # Exibir o resultado para depuração
+        st.write(freq)  # Exibir o resultado no Streamlit
+        return freq
+
     except Exception as e:
-        print(f"Erro ao processar o DataFrame: {e}")
-        raise
-        
+        st.error(f"Erro ao processar o arquivo: {e}")
+        return None
+
 # -----------------------------
 # ⏱ Cálculo de atraso
 # -----------------------------
 def calcular_atraso(dezena, df, col_dezenas):
+    """
+    Calcula o atraso de uma dezena.
+    """
     for i, row in df[::-1].iterrows():
         if dezena in row[col_dezenas].astype(str).str.zfill(2).values:
             return len(df) - i - 1
     return len(df)
 
-
 def calcular_maior_atraso(dezena, df, col_dezenas):
+    """
+    Calcula o maior atraso de uma dezena.
+    """
     atraso = 0
     max_atraso = 0
     for _, row in df.iterrows():
@@ -90,12 +99,14 @@ def calcular_maior_atraso(dezena, df, col_dezenas):
             atraso += 1
     return max(max_atraso, atraso)
 
-
 # -----------------------------
 # 📊 Processamento do Excel com estatísticas
 # -----------------------------
 @st.cache_data
 def processar_excel_resultados(df_excel):
+    """
+    Processa os resultados do Excel e calcula estatísticas.
+    """
     col_dezenas = [col for col in df_excel.columns if col.upper().startswith('D')]
     dezenas_flat = df_excel[col_dezenas].values.flatten()
     df_freq = pd.Series(dezenas_flat).value_counts().sort_index().reset_index()
@@ -107,29 +118,35 @@ def processar_excel_resultados(df_excel):
 
     return df_freq.sort_values(by='Dezena')
 
-
 # -----------------------------
 # 🤖 Modelo de previsão com IA (XGBoost)
 # -----------------------------
 def treinar_modelo_xgb(df_stats):
+    """
+    Treina um modelo de IA com base nas estatísticas.
+    """
     X = df_stats[['Frequência', 'Atraso', 'Maior_Atraso']]
     y = [1 if int(d) <= 15 else 0 for d in df_stats['Dezena']]
     model = GradientBoostingClassifier()
     model.fit(X, y)
     return model
 
-
 def prever_dezenas(model, df_stats):
+    """
+    Faz previsões de dezenas com base no modelo treinado.
+    """
     X = df_stats[['Frequência', 'Atraso', 'Maior_Atraso']]
     probs = model.predict_proba(X)[:, 1]
     df_stats['Probabilidade'] = probs
     return df_stats.sort_values(by='Probabilidade', ascending=False).head(25)
 
-
 # -----------------------------
 # 📤 Interface da aba de Estatísticas
 # -----------------------------
 def interface_estatisticas(tab):
+    """
+    Interface da aba de estatísticas no Streamlit.
+    """
     with tab:
         if 'df_excel' in st.session_state:
             df_excel = st.session_state['df_excel']
