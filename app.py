@@ -1,9 +1,13 @@
 import streamlit as st
-from maquininha import carregar_resultados_excel
-from layout import menu_lateral
-from ajustes import preprocessar_dados
-from estatisticas import calcular_frequencia
-from models import gerar_jogos_inteligentes
+from maquininha import carregar_resultados_excel, carregar_estatisticas_numeromania, reconstruir_estatisticas_basicas
+from layout import menu_lateral, carregar_dados_e_treinar_modelos, gerar_jogos_otimizados, mostrar_graficos_desempenho, gerar_jogo
+from ajustes import preprocessar_dados, carregar_dados_excel
+from estatisticas import calcular_frequencia, carregar_dados_excel, mostrar_dashboard_estatistico
+from models import gerar_jogos_inteligentes, gerar_jogos_otimizados
+from paginas.gerador import pagina_gerador
+from paginas.ia import pagina_ia
+from paginas.sobre import pagina_sobre
+from paginas.dados_online import pagina_dados_online
 
 def main():
     """
