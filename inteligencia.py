@@ -13,7 +13,8 @@ def treinar_modelo_xgb(X, y):
     Returns:
         XGBClassifier: Modelo treinado.
     """
-    model = XGBClassifier(use_label_encoder=False, eval_metric="logloss")
+    # Removido o parâmetro `use_label_encoder` para evitar avisos
+    model = XGBClassifier(eval_metric="logloss")
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
