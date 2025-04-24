@@ -123,7 +123,7 @@ def menu_lateral():
                 st.write("Escolha uma opção no menu lateral para começar.")
 
             elif escolha == "Estatísticas":
-                mostrar_estatisticas(arquivo)
+                mostrar_estatisticas("✅ Estatísticas calculadas com base no histórico.")
 
             elif escolha == "Gerar Jogos":
                 st.subheader("🔮 Gerador de Jogos com IA")
