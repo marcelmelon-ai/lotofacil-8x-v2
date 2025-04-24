@@ -1,6 +1,6 @@
 import streamlit as st
 from maquininha import carregar_resultados_excel, carregar_estatisticas_numeromania, reconstruir_estatisticas_basicas
-from layout import menu_lateral, carregar_dados_e_treinar_modelos, gerar_jogos_otimizados, mostrar_graficos_desempenho, gerar_jogo
+from layout import menu_lateral, carregar_dados_e_treinar_modelos, mostrar_graficos_desempenho, gerar_jogo
 from ajustes import preprocessar_dados, carregar_dados_excel
 from estatisticas import calcular_frequencia, carregar_dados_excel, mostrar_dashboard_estatistico
 from models import gerar_jogos_inteligentes, gerar_jogos_otimizados
