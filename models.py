@@ -15,7 +15,7 @@ def menu_lateral():
     )
     return escolha
 
-def gerar_jogos_otimizados(frequencia, num_jogos=10):
+def gerar_jogos_otimizados(frequencia, num_jogos=15):
     """
     Gera combinações de jogos otimizados com base na frequência das dezenas.
     
@@ -33,4 +33,26 @@ def gerar_jogos_otimizados(frequencia, num_jogos=10):
         jogo = sorted(random.sample(dezenas, 15))
         jogos.append(jogo)
     
+    return jogos
+
+def gerar_jogos_inteligentes(frequencia, num_jogos=15):
+    """
+    Gera combinações de jogos inteligentes com base nas estatísticas fornecidas.
+
+    Args:
+        frequencia (pd.DataFrame): DataFrame com a frequência das dezenas.
+        num_jogos (int): Número de jogos a serem gerados.
+
+    Returns:
+        list: Lista de jogos gerados.
+    """
+    # Ordenar as dezenas pela frequência (mais frequentes primeiro)
+    dezenas_ordenadas = frequencia.sort_values(by="Frequência", ascending=False)["Dezena"].tolist()
+
+    jogos = []
+    for _ in range(num_jogos):
+        # Selecionar as 15 dezenas mais prováveis
+        jogo = sorted(random.sample(dezenas_ordenadas[:20], 15))  # Exemplo: usar as 20 mais frequentes
+        jogos.append(jogo)
+
     return jogos
