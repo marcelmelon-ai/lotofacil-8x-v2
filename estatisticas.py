@@ -48,9 +48,21 @@ def mostrar_dashboard_estatistico(df):
 # 📈 Estatísticas por frequência geral
 # -----------------------------
 def mostrar_estatisticas(arquivo):
-    df = pd.read_excel(arquivo)  # ou pd.read_csv(arquivo) dependendo do tipo
-    freq = df.iloc[:, 1:].apply(pd.Series.value_counts).sum(axis=1).sort_values(ascending=False)
-    st.bar_chart(freq)
+    try:
+        # Verifica se é um UploadedFile e carrega
+        if arquivo is not None:
+            df = pd.read_excel(arquivo)
+
+            freq = df.iloc[:, 1:].apply(pd.Series.value_counts).sum(axis=1).sort_values(ascending=False)
+
+            st.subheader("📊 Frequência das Dezenas nos Concursos")
+            st.bar_chart(freq)
+
+        else:
+            st.warning("Nenhum arquivo foi carregado.")
+
+    except Exception as e:
+        st.error(f"Erro ao processar o arquivo: {e}")
 
 
 # -----------------------------
