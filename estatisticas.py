@@ -51,18 +51,23 @@ import pandas as pd
 import streamlit as st
 
 def mostrar_estatisticas(arquivo):
+    # Carregar o DataFrame (exemplo, ajuste conforme necessário)
+    df = pd.read_csv(arquivo)  # Certifique-se de que o arquivo existe e está correto
+
+    # Verificar se o DataFrame está vazio
+    if df.empty:
+        raise ValueError("O DataFrame está vazio. Verifique os dados de entrada.")
+
+    # Verificar as colunas do DataFrame
+    print("Colunas do DataFrame:", df.columns)
+
+    # Processar o DataFrame
     try:
-        # 🔽 Correção: ler o Excel usando pandas
-        df = pd.read_excel(arquivo)
-
-        # ✅ Cálculo de frequência das dezenas (supondo que as colunas de D1 a D15 estão da segunda coluna em diante)
         freq = df.iloc[:, 1:].apply(pd.Series.value_counts).sum(axis=1).sort_values(ascending=False)
-
-        st.subheader("📊 Frequência Geral das Dezenas")
-        st.bar_chart(freq)
-
+        print(freq)  # Exibir o resultado para depuração
     except Exception as e:
-        st.error(f"❌ Erro ao processar o arquivo: {e}")
+        print(f"Erro ao processar o DataFrame: {e}")
+        raise
         
 # -----------------------------
 # ⏱ Cálculo de atraso
