@@ -68,17 +68,17 @@ def main():
             for i, jogo in enumerate(jogos, 1):
                 st.write(f"Jogo {i}: {', '.join(jogo)}")
 
-           # Gerar jogos
-        num_jogos = st.number_input("Quantos jogos deseja gerar?", min_value=1, max_value=100, value=10)
-        if st.button("Gerar Jogos"):
-            if tipo_jogo == "Jogos Inteligentes":
-                jogos = gerar_jogo(frequencia, num_jogos)
-            elif tipo_jogo == "Jogos com Fechamento":
-                jogos = gerar_jogos_com_fechamento(frequencia, num_jogos)
+          # Gerar jogos
+    num_jogos = st.number_input("Quantos jogos deseja gerar?", min_value=1, max_value=100, value=10)
+    if st.button("Gerar Jogos"):
+        if escolha == "Jogos Inteligentes":
+            jogos = gerar_jogo(modelo, frequencia, num_jogos)
+        else:  # Caso "Jogos com Fechamento"
+            jogos = gerar_jogos_com_fechamento(frequencia, num_jogos)
 
-            st.success(f"{num_jogos} jogos gerados com sucesso!")
-            for i, jogo in enumerate(jogos, 1):
-                st.write(f"Jogo {i}: {', '.join(jogo)}")
+        st.success(f"{num_jogos} jogos gerados com sucesso!")
+        for i, jogo in enumerate(jogos, 1):
+            st.write(f"Jogo {i}: {', '.join(jogo)}")
 
         # Prever dezenas mais prováveis
         st.write("🔮 Prevendo dezenas mais prováveis...")
