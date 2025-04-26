@@ -20,6 +20,18 @@ def main():
     
     # Menu lateral
     escolha = menu_lateral()
+
+    # Carregar tabelas do arquivo 'Tabelas_numeromania.xlsx'
+    tabelas = carregar_tabelas_numeromania("data/Tabelas_numeromania.xlsx")
+    if not tabelas:
+        st.error("Erro ao carregar as tabelas do arquivo 'Tabelas_numeromania.xlsx'.")
+        return
+
+    # Exibir as tabelas carregadas
+    st.title("📊 Tabelas Estatísticas")
+    for nome, tabela in tabelas.items():
+        st.subheader(nome)
+        st.dataframe(tabela)
     
     if escolha == "Dashboard":
         from mostrar_dashboard_estatistico import mostrar_dashboard_estatistico
@@ -38,18 +50,6 @@ def main():
         
         # Calcular frequência
         frequencia = calcular_frequencia(df)
-
-        # Carregar tabelas do arquivo 'Tabelas_numeromania.xlsx'
-        tabelas = carregar_tabelas_numeromania("data/Tabelas_numeromania.xlsx")
-        if not tabelas:
-        st.error("Erro ao carregar as tabelas do arquivo 'Tabelas_numeromania.xlsx'.")
-        return
-
-         # Exibir as tabelas carregadas
-        st.title("📊 Tabelas Estatísticas")
-        for nome, tabela in tabelas.items():
-        st.subheader(nome)
-        st.dataframe(tabela)
 
         # Gerar jogos inteligentes
         num_jogos = st.number_input("Quantos jogos deseja gerar?", min_value=1, max_value=100, value=10)
