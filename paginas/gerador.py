@@ -1,25 +1,44 @@
-import streamlit as st
-from models import gerar_jogos_otimizados
+import random
 
-def pagina_gerador():
+def gerar_jogo(modelo, frequencia, num_jogos=10):
     """
-    Página para gerar jogos inteligentes com base em estatísticas.
+    Gera jogos inteligentes com base no modelo treinado e na frequência das dezenas.
+
+    Args:
+        modelo: Modelo treinado de IA.
+        frequencia (pd.DataFrame): DataFrame com a frequência das dezenas.
+        num_jogos (int): Número de jogos a serem gerados.
+
+    Returns:
+        list: Lista de jogos gerados.
     """
-    st.subheader("🎰 Gerador de Jogos Inteligentes")
-    st.write("Nesta página você poderá gerar jogos da Lotofácil com base em estatísticas e IA.")
+    probabilidades = modelo.predict_proba(frequencia[["Frequência"]])[:, 1]
+    frequencia["Probabilidade"] = probabilidades
+    dezenas_ordenadas = frequencia.sort_values(by="Probabilidade", ascending=False)["Dezena"].tolist()
 
-    # Entrada do número de jogos
-    num_jogos = st.number_input("Quantos jogos deseja gerar?", min_value=1, max_value=100, value=10)
+    jogos = []
+    for _ in range(num_jogos):
+        jogo = sorted(random.sample(dezenas_ordenadas[:20], 15))  # Seleciona as 20 mais prováveis
+        jogos.append(jogo)
 
-    # Simulação de dados de frequência (substituir com dados reais)
-    frequencia = st.session_state.get("frequencia", None)
-    if frequencia is None:
-        st.warning("⚠️ Dados de frequência não encontrados. Por favor, carregue os dados na aba 'Dashboard'.")
-        return
+    return jogos
 
-    # Gerar jogos
-    if st.button("Gerar Jogos"):
-        jogos = gerar_jogos_otimizados(frequencia, num_jogos=num_jogos)
-        st.success(f"{num_jogos} jogos gerados com sucesso!")
-        for i, jogo in enumerate(jogos, 1):
-            st.write(f"Jogo {i}: {', '.join(jogo)}")
+def gerar_jogos_com_fechamento(frequencia, num_jogos=10):
+    """
+    Gera jogos com fechamento baseado nas dezenas mais frequentes.
+
+    Args:
+        frequencia (pd.DataFrame): DataFrame com a frequência das dezenas.
+        num_jogos (int): Número de jogos a serem gerados.
+
+    Returns:
+        list: Lista de jogos gerados com fechamento.
+    """
+    dezenas_ordenadas = frequencia.sort_values(by="Frequência", ascending=False)["Dezena"].tolist()
+
+    jogos = []
+    for _ in range(num_jogos):
+        jogo = sorted(random.sample(dezenas_ordenadas[:25], 15))  # Seleciona as 25 mais frequentes
+        jogos.append(jogo)
+
+    return jogos
