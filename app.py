@@ -63,7 +63,7 @@ def main():
         # Gerar jogos inteligentes
         num_jogos = st.number_input("Quantos jogos deseja gerar?", min_value=1, max_value=100, value=10)
         if st.button("Gerar Jogos"):
-            jogos = gerar_jogos_inteligentes(frequencia, num_jogos)
+            jogos = gerar_jogo(frequencia, num_jogos)
             st.success(f"{num_jogos} jogos gerados com sucesso!")
             for i, jogo in enumerate(jogos, 1):
                 st.write(f"Jogo {i}: {', '.join(jogo)}")
