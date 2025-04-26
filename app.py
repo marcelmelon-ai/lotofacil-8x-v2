@@ -25,8 +25,8 @@ def main():
 
       # Upload manual dos arquivos Excel
     st.sidebar.subheader("📤 Upload dos Arquivos Excel")
-    resultados_file = st.sidebar.file_uploader("Envie o arquivo 'tabelas_numeromania.xlsx'", type=["xlsx"])
-    tabelas_file = st.sidebar.file_uploader("Envie o arquivo 'resultados_lotofacil.xlsx'", type=["xlsx"])
+    resultados_file = st.sidebar.file_uploader("Envie o arquivo 'resultados_lotofacil.xlsx'", type=["xlsx"])
+    tabelas_file = st.sidebar.file_uploader("Envie o arquivo 'tabelas_numeromania.xlsx'", type=["xlsx"])
 
     if not resultados_file or not tabelas_file:
         st.sidebar.warning("Por favor, envie os dois arquivos Excel para continuar.")
