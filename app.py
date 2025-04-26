@@ -2,7 +2,7 @@ import streamlit as st
 from estatisticas import carregar_tabelas_numeromania, carregar_dados_excel, calcular_frequencia
 from inteligencia import treinar_modelo_xgb, prever_dezenas
 from ajustes import preprocessar_dados
-from models import gerar_jogos_inteligentes
+from models import gerar_jogo
 from paginas.gerador import pagina_gerador
 from paginas.ia import pagina_ia
 from paginas.sobre import pagina_sobre
