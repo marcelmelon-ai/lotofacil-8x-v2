@@ -34,7 +34,7 @@ def main():
 
     # Carregar os dados dos arquivos enviados
     try:
-        resultados_df = pd.read_excel(resultados_file)
+        resultados_df = carregar_dados_resultados(resultados_file)
         tabelas = carregar_tabelas_numeromania(tabelas_file)
     except Exception as e:
         st.error(f"Erro ao carregar os arquivos Excel: {e}")
