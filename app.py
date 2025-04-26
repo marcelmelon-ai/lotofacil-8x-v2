@@ -7,6 +7,7 @@ from paginas.gerador import pagina_gerador
 from paginas.ia import pagina_ia
 from paginas.sobre import pagina_sobre
 from paginas.dados_online import pagina_dados_online
+from mostrar_dashboard_estatistico import mostrar_dashboard_estatistico
 
 def main():
     """
