@@ -68,6 +68,13 @@ def main():
             for i, jogo in enumerate(jogos, 1):
                 st.write(f"Jogo {i}: {', '.join(jogo)}")
 
+        # Prever dezenas mais prováveis
+        st.write("🔮 Prevendo dezenas mais prováveis...")
+        top_n = st.slider("Quantas dezenas mais prováveis deseja prever?", min_value=1, max_value=15, value=10)
+        dezenas_previstas = prever_dezenas(modelo, frequencia, top_n=top_n)
+
+        st.write(f"### Dezenas mais prováveis: {', '.join(dezenas_previstas)}")        
+
     elif escolha == "Simulação de Jogos":
         st.title("🎲 Simulação de Jogos")
         st.write("Simule os jogos gerados com base nos resultados históricos.")
