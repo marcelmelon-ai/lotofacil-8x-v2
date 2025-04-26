@@ -2,7 +2,7 @@ import streamlit as st
 from maquininha import carregar_resultados_excel, carregar_estatisticas_numeromania, reconstruir_estatisticas_basicas
 from layout import menu_lateral, carregar_dados_e_treinar_modelos, mostrar_graficos_desempenho, gerar_jogo
 from ajustes import preprocessar_dados, carregar_dados_excel
-from estatisticas import calcular_frequencia, carregar_dados_excel, mostrar_dashboard_estatistico
+from estatisticas import calcular_frequencia, carregar_dados_excel, carregar_tabelas_numeromania
 from models import gerar_jogos_inteligentes, gerar_jogos_otimizados
 from inteligencia import treinar_modelo_xgb, prever_dezenas
 from mostrar_dashboard_estatistico import mostrar_dashboard_estatistico
@@ -38,6 +38,18 @@ def main():
         
         # Calcular frequência
         frequencia = calcular_frequencia(df)
+
+        # Carregar tabelas do arquivo 'Tabelas_numeromania.xlsx'
+        tabelas = carregar_tabelas_numeromania("data/Tabelas_numeromania.xlsx")
+        if not tabelas:
+        st.error("Erro ao carregar as tabelas do arquivo 'Tabelas_numeromania.xlsx'.")
+        return
+
+         # Exibir as tabelas carregadas
+        st.title("📊 Tabelas Estatísticas")
+        for nome, tabela in tabelas.items():
+        st.subheader(nome)
+        st.dataframe(tabela)
 
         # Gerar jogos inteligentes
         num_jogos = st.number_input("Quantos jogos deseja gerar?", min_value=1, max_value=100, value=10)

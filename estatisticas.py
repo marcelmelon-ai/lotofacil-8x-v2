@@ -2,7 +2,6 @@ import pandas as pd
 import streamlit as st
 from estatisticas import carregar_dados_excel
 
-
 @st.cache_data
 def calcular_frequencia(df):
     """
@@ -20,53 +19,70 @@ def calcular_frequencia(df):
     freq["Dezena"] = freq["Dezena"].astype(str).str.zfill(2)
     return freq
 
-def carregar_dados_excel(caminho_arquivo):
+@st.cache_data
+def carregar_dados_excel(caminho_arquivo_excel):
     """
     Carrega os dados de um arquivo Excel.
 
     Args:
-        caminho_arquivo (str): Caminho para o arquivo Excel.
+        caminho_arquivo_excel (str): Caminho para o arquivo Excel.
 
     Returns:
         pd.DataFrame: DataFrame com os dados carregados.
     """
     try:
-        return pd.read_excel(caminho_arquivo)
+        return pd.read_excel(caminho_arquivo_excel)
     except FileNotFoundError:
-        st.error(f"Arquivo não encontrado: {caminho_arquivo}")
+        st.error(f"Arquivo não encontrado: {caminho_arquivo_excel}")
         return pd.DataFrame()
     except Exception as e:
         st.error(f"Erro ao carregar o arquivo Excel: {e}")
         return pd.DataFrame()
-    
-def mostrar_dashboard_estatistico(caminho_arquivo):
+
+@st.cache_data
+def carregar_tabelas_numeromania(caminho_arquivo_excel):
     """
-    Exibe o dashboard estatístico com gráficos baseados nos dados do Excel.
+    Carrega as tabelas do arquivo 'Tabelas_numeromania.xlsx'.
 
     Args:
-        caminho_arquivo (str): Caminho para o arquivo Excel com os resultados da Lotofácil.
+        caminho_arquivo_excel (str): Caminho para o arquivo Excel.
+
+    Returns:
+        dict: Dicionário com DataFrames das tabelas carregadas.
     """
-    st.title("📊 Dashboard de Estatísticas")
-    st.write("Análise completa dos concursos anteriores.")
+    try:
+        xls = pd.ExcelFile(caminho_arquivo_excel)
+        tabelas = {
+            "Tabela 1": "Frequencia",
+            "Tabela 2": "Duplas maiores frequencias",
+            "Tabela 3": "Duplas menores frequencias",
+            "Tabela 4": "Trios maiores frequencias",
+            "Tabela 5": "Quadras maiores frequencias",
+            "Tabela 6": "Dezenas repetição consecutiva",
+            "Tabela 7": "Dezenas ausência consecutiva",
+            "Tabela 8": "Controle de ciclos normais",
+            "Tabela 9": "Mais sorteadas",
+            "Tabela 10": "Média das dezenas",
+            "Tabela 11": "Dezenas mais atrasadas",
+            "Tabela 12": "Pares e Ímpares",
+            "Tabela 13": "Números primos",
+            "Tabela 14": "Múltiplos de 3",
+            "Tabela 15": "Fibonacci",
+            "Tabela 16": "Soma das dezenas",
+            "Tabela 17": "Dezenas repetidas do jogo anterior",
+        }
 
-    # Carregar os dados do Excel
-    df = carregar_dados_excel(caminho_arquivo)
+        dados_tabelas = {}
+        for aba, nome in tabelas.items():
+            try:
+                dados_tabelas[nome] = xls.parse(aba)
+            except Exception as e:
+                st.warning(f"Erro ao carregar a aba {aba}: {e}")
 
-    # Verificar se o DataFrame está vazio
-    if df.empty:
-        st.warning("⚠️ O arquivo Excel está vazio ou inválido. Por favor, carregue um arquivo válido.")
-        return
-
-    # Dividir a página em duas colunas
-    col1, col2 = st.columns(2)
-
-    with col1:
-        # Calcular e exibir a frequência das dezenas
-        freq = calcular_frequencia(df)
-        st.subheader("Frequência das Dezenas")
-        st.bar_chart(freq.set_index("Dezena")["Frequência"])
-
-    with col2:
-        # Placeholder para futuras funcionalidades
-        st.subheader("Ocorrência por posição (em construção)")
-        st.info("🔧 Essa funcionalidade está em desenvolvimento.")
+        return dados_tabelas
+    except FileNotFoundError:
+        st.error(f"Arquivo '{caminho_arquivo_excel}' não encontrado.")
+        return {}
+    except Exception as e:
+        st.error(f"Erro ao carregar o arquivo Excel: {e}")
+        return {}
