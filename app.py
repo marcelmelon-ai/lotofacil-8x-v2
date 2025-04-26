@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 from estatisticas import carregar_tabelas_numeromania, carregar_dados_excel, calcular_frequencia
 from inteligencia import treinar_modelo_xgb, prever_dezenas
 from ajustes import preprocessar_dados
@@ -22,16 +23,21 @@ def main():
         ["Dashboard", "Gerar Jogos", "Simulação de Jogos", "Sobre"]
     )
 
-    # Carregar os dados dos arquivos Excel
-    st.sidebar.write("🔄 Carregando dados...")
-    resultados_path = "data/resultados_lotofacil.xlsx"
-    tabelas_path = "data/tabelas_numeromania.xlsx"
+      # Upload manual dos arquivos Excel
+    st.sidebar.subheader("📤 Upload dos Arquivos Excel")
+    resultados_file = st.sidebar.file_uploader("Envie o arquivo 'resultados_lotofacil.xlsx'", type=["xlsx"])
+    tabelas_file = st.sidebar.file_uploader("Envie o arquivo 'tabelas_numeromania.xlsx'", type=["xlsx"])
 
-    resultados_df = carregar_dados_excel(resultados_path)
-    tabelas = carregar_tabelas_numeromania(tabelas_path)
+    if not resultados_file or not tabelas_file:
+        st.sidebar.warning("Por favor, envie os dois arquivos Excel para continuar.")
+        return
 
-    if resultados_df.empty or not tabelas:
-        st.error("Erro ao carregar os dados. Verifique os arquivos Excel.")
+    # Carregar os dados dos arquivos enviados
+    try:
+        resultados_df = pd.read_excel(resultados_file)
+        tabelas = carregar_tabelas_numeromania(tabelas_file)
+    except Exception as e:
+        st.error(f"Erro ao carregar os arquivos Excel: {e}")
         return
 
     # Calcular frequência das dezenas
