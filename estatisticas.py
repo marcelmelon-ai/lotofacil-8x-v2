@@ -1,23 +1,5 @@
 import pandas as pd
 import streamlit as st
-from estatisticas import carregar_dados_excel
-
-@st.cache_data
-def calcular_frequencia(df):
-    """
-    Calcula a frequência de cada dezena em um DataFrame.
-    
-    Args:
-        df (pd.DataFrame): DataFrame com os resultados da Lotofácil.
-    
-    Returns:
-        pd.DataFrame: DataFrame com a frequência de cada dezena.
-    """
-    dezenas = df.filter(like="D").values.flatten()
-    freq = pd.Series(dezenas).value_counts().sort_index().reset_index()
-    freq.columns = ["Dezena", "Frequência"]
-    freq["Dezena"] = freq["Dezena"].astype(str).str.zfill(2)
-    return freq
 
 @st.cache_data
 def carregar_dados_excel(caminho_arquivo_excel):
@@ -86,3 +68,80 @@ def carregar_tabelas_numeromania(caminho_arquivo_excel):
     except Exception as e:
         st.error(f"Erro ao carregar o arquivo Excel: {e}")
         return {}
+
+@st.cache_data
+def calcular_frequencia(df):
+    """
+    Calcula a frequência de cada dezena em um DataFrame.
+
+    Args:
+        df (pd.DataFrame): DataFrame com os resultados da Lotofácil.
+
+    Returns:
+        pd.DataFrame: DataFrame com a frequência de cada dezena.
+    """
+    dezenas = df.filter(like="D").values.flatten()
+    freq = pd.Series(dezenas).value_counts().sort_index().reset_index()
+    freq.columns = ["Dezena", "Frequência"]
+    freq["Dezena"] = freq["Dezena"].astype(str).str.zfill(2)
+    return freq
+
+def calcular_estatisticas_avancadas(resultados_df, tabelas):
+    """
+    Calcula estatísticas avançadas com base nos resultados e nas tabelas de estatísticas.
+
+    Args:
+        resultados_df (pd.DataFrame): DataFrame com os resultados da Lotofácil.
+        tabelas (dict): Dicionário com DataFrames das tabelas carregadas.
+
+    Returns:
+        dict: Dicionário com estatísticas calculadas.
+    """
+    estatisticas = {}
+
+    # Frequência das dezenas
+    estatisticas["Frequencia"] = calcular_frequencia(resultados_df)
+
+    # Estatísticas baseadas nas tabelas
+    if "Frequencia" in tabelas:
+        tabela_frequencia = tabelas["Frequencia"]
+        estatisticas["Mais Sorteadas"] = tabela_frequencia.nlargest(10, "Frequência")
+        estatisticas["Menos Sorteadas"] = tabela_frequencia.nsmallest(10, "Frequência")
+
+    if "Pares e Ímpares" in tabelas:
+        pares_impares = tabelas["Pares e Ímpares"]
+        estatisticas["Pares e Ímpares"] = pares_impares
+
+    if "Dezenas mais atrasadas" in tabelas:
+        atrasadas = tabelas["Dezenas mais atrasadas"]
+        estatisticas["Mais Atrasadas"] = atrasadas.nlargest(10, "Atraso")
+
+    # Adicione mais cálculos conforme necessário
+    # Exemplo: Soma das dezenas, Fibonacci, etc.
+    if "Soma das dezenas" in tabelas:
+        soma_dezenas = tabelas["Soma das dezenas"]
+        estatisticas["Soma das Dezenas"] = soma_dezenas
+
+    return estatisticas
+
+def preparar_dados_para_ia(resultados_df, estatisticas):
+    """
+    Prepara os dados para treinamento de modelos de IA.
+
+    Args:
+        resultados_df (pd.DataFrame): DataFrame com os resultados da Lotofácil.
+        estatisticas (dict): Dicionário com estatísticas calculadas.
+
+    Returns:
+        tuple: Dados de entrada (X) e saída (y) para treinamento.
+    """
+    # Exemplo de preparação de dados
+    X = resultados_df.filter(like="D").copy()
+    y = resultados_df["Resultado"] if "Resultado" in resultados_df.columns else None
+
+    # Adicione colunas de estatísticas ao conjunto de dados
+    if "Frequencia" in estatisticas:
+        frequencia = estatisticas["Frequencia"]
+        X = X.merge(frequencia, left_on="D1", right_on="Dezena", how="left")
+
+    return X, y

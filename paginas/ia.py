@@ -1,5 +1,6 @@
 import streamlit as st
-from inteligencia import treinar_modelo_xgb
+from inteligencia import treinar_modelo_xgb, preparar_dados_para_treinamento, prever_dezenas
+from estatisticas import calcular_estatisticas_avancadas
 
 def pagina_ia():
     """
@@ -8,14 +9,31 @@ def pagina_ia():
     st.header("🧠 IA e Previsões")
     st.write("Treine modelos de IA para prever as dezenas mais prováveis.")
 
-    # Simulação de dados (substituir com dados reais)
-    df_stats = st.session_state.get("frequencia", None)
-    if df_stats is None:
-        st.warning("⚠️ Dados estatísticos não encontrados. Por favor, carregue os dados na aba 'Dashboard'.")
+    # Carregar dados do estado da sessão
+    resultados_df = st.session_state.get("resultados_df", None)
+    tabelas = st.session_state.get("tabelas", None)
+
+    if resultados_df is None or tabelas is None:
+        st.warning("⚠️ Dados não encontrados. Por favor, carregue os dados na aba 'Dashboard'.")
+        return
+
+    # Calcular estatísticas avançadas
+    estatisticas = calcular_estatisticas_avancadas(resultados_df, tabelas)
+
+    # Preparar dados para treinamento
+    st.write("🔄 Preparando dados para treinamento...")
+    X, y = preparar_dados_para_treinamento(resultados_df, estatisticas)
+
+    if y is None:
+        st.error("⚠️ Dados de saída (y) não encontrados. Verifique os dados carregados.")
         return
 
     # Treinar modelo
     if st.button("Treinar Modelo"):
-        modelo = treinar_modelo_xgb(df_stats)
+        modelo = treinar_modelo_xgb(X, y)
         st.success("Modelo treinado com sucesso!")
-        st.write("Use o modelo para prever as dezenas mais prováveis (em breve).")
+
+        # Prever dezenas mais prováveis
+        top_n = st.slider("Quantas dezenas mais prováveis deseja prever?", min_value=1, max_value=15, value=10)
+        dezenas_previstas = prever_dezenas(modelo, estatisticas, top_n=top_n)
+        st.write(f"### Dezenas mais prováveis: {', '.join(dezenas_previstas)}")
