@@ -2,38 +2,42 @@ import pandas as pd
 import streamlit as st
 
 @st.cache_data
-def carregar_dados_excel(caminho_arquivo_excel):
+def carregar_dados_resultados(resultados_file):
     """
-    Carrega os dados de um arquivo Excel.
+    Carrega os dados do arquivo 'resultados_lotofacil.xlsx' enviado manualmente.
 
     Args:
-        caminho_arquivo_excel (str): Caminho para o arquivo Excel.
+        resultados_file: Arquivo Excel enviado pelo usuário.
 
     Returns:
-        pd.DataFrame: DataFrame com os dados carregados.
+        pd.DataFrame: DataFrame com os dados dos resultados da Lotofácil.
     """
     try:
-        return pd.read_excel(caminho_arquivo_excel)
-    except FileNotFoundError:
-        st.error(f"Arquivo não encontrado: {caminho_arquivo_excel}")
-        return pd.DataFrame()
+        df = pd.read_excel(resultados_file)
+        # Ajustar a nomenclatura das colunas
+        colunas_esperadas = [
+            "Concurso", "Data do sorteio", "D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8",
+            "D9", "D10", "D11", "D12", "D13", "D14", "D15"
+        ]
+        df.columns = colunas_esperadas
+        return df
     except Exception as e:
-        st.error(f"Erro ao carregar o arquivo Excel: {e}")
+        st.error(f"Erro ao carregar o arquivo de resultados: {e}")
         return pd.DataFrame()
 
 @st.cache_data
-def carregar_tabelas_numeromania(caminho_arquivo_excel):
+def carregar_tabelas_numeromania(tabelas_file):
     """
-    Carrega as tabelas do arquivo 'Tabelas_numeromania.xlsx'.
+    Carrega as tabelas do arquivo 'tabelas_numeromania.xlsx' enviado manualmente.
 
     Args:
-        caminho_arquivo_excel (str): Caminho para o arquivo Excel.
+        tabelas_file: Arquivo Excel enviado pelo usuário.
 
     Returns:
         dict: Dicionário com DataFrames das tabelas carregadas.
     """
     try:
-        xls = pd.ExcelFile(caminho_arquivo_excel)
+        xls = pd.ExcelFile(tabelas_file)
         tabelas = {
             "Tabela 1": "Frequencia",
             "Tabela 2": "Duplas maiores frequencias",
@@ -62,29 +66,30 @@ def carregar_tabelas_numeromania(caminho_arquivo_excel):
                 st.warning(f"Erro ao carregar a aba {aba}: {e}")
 
         return dados_tabelas
-    except FileNotFoundError:
-        st.error(f"Arquivo '{caminho_arquivo_excel}' não encontrado.")
-        return {}
     except Exception as e:
-        st.error(f"Erro ao carregar o arquivo Excel: {e}")
+        st.error(f"Erro ao carregar o arquivo de tabelas: {e}")
         return {}
 
 @st.cache_data
-def calcular_frequencia(df):
+def calcular_frequencia(resultados_df):
     """
-    Calcula a frequência de cada dezena em um DataFrame.
+    Calcula a frequência de cada dezena no DataFrame de resultados.
 
     Args:
-        df (pd.DataFrame): DataFrame com os resultados da Lotofácil.
+        resultados_df (pd.DataFrame): DataFrame com os resultados da Lotofácil.
 
     Returns:
         pd.DataFrame: DataFrame com a frequência de cada dezena.
     """
-    dezenas = df.filter(like="D").values.flatten()
-    freq = pd.Series(dezenas).value_counts().sort_index().reset_index()
-    freq.columns = ["Dezena", "Frequência"]
-    freq["Dezena"] = freq["Dezena"].astype(str).str.zfill(2)
-    return freq
+    try:
+        dezenas = resultados_df.filter(like="D").values.flatten()
+        freq = pd.Series(dezenas).value_counts().sort_index().reset_index()
+        freq.columns = ["Dezena", "Frequência"]
+        freq["Dezena"] = freq["Dezena"].astype(str).str.zfill(2)
+        return freq
+    except Exception as e:
+        st.error(f"Erro ao calcular a frequência das dezenas: {e}")
+        return pd.DataFrame()
 
 def calcular_estatisticas_avancadas(resultados_df, tabelas):
     """
@@ -124,6 +129,7 @@ def calcular_estatisticas_avancadas(resultados_df, tabelas):
 
     return estatisticas
 
+    return X, y
 def preparar_dados_para_ia(resultados_df, estatisticas):
     """
     Prepara os dados para treinamento de modelos de IA.
@@ -135,13 +141,17 @@ def preparar_dados_para_ia(resultados_df, estatisticas):
     Returns:
         tuple: Dados de entrada (X) e saída (y) para treinamento.
     """
-    # Exemplo de preparação de dados
-    X = resultados_df.filter(like="D").copy()
-    y = resultados_df["Resultado"] if "Resultado" in resultados_df.columns else None
+    try:
+        # Selecionar as colunas de dezenas
+        X = resultados_df.filter(like="D").copy()
+        y = resultados_df["Concurso"] if "Concurso" in resultados_df.columns else None
 
-    # Adicione colunas de estatísticas ao conjunto de dados
-    if "Frequencia" in estatisticas:
-        frequencia = estatisticas["Frequencia"]
-        X = X.merge(frequencia, left_on="D1", right_on="Dezena", how="left")
+        # Adicionar colunas de estatísticas ao conjunto de dados
+        if "Frequencia" in estatisticas:
+            frequencia = estatisticas["Frequencia"]
+            X = X.merge(frequencia, left_on="D1", right_on="Dezena", how="left")
 
-    return X, y
+        return X, y
+    except Exception as e:
+        st.error(f"Erro ao preparar os dados para IA: {e}")
+        return pd.DataFrame(), None
