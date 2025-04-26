@@ -2,6 +2,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from xgboost import XGBClassifier
 import pandas as pd
+from estatisticas import preparar_dados_para_treinamento
 
 def treinar_modelo_xgb(X, y):
     """

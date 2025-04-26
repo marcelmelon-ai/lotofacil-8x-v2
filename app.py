@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from estatisticas import carregar_tabelas_numeromania, carregar_dados_excel, calcular_frequencia
+from estatisticas import carregar_tabelas_numeromania, carregar_dados_resultados, calcular_frequencia
 from inteligencia import treinar_modelo_xgb, prever_dezenas
 from ajustes import preprocessar_dados
 from models import gerar_jogo

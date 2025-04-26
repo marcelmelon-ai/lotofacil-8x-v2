@@ -130,7 +130,7 @@ def calcular_estatisticas_avancadas(resultados_df, tabelas):
     return estatisticas
 
     return X, y
-def preparar_dados_para_ia(resultados_df, estatisticas):
+def preparar_dados_para_treinamento(resultados_df, estatisticas):
     """
     Prepara os dados para treinamento de modelos de IA.
 
