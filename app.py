@@ -41,6 +41,9 @@ def main():
         st.title("📊 Dashboard de Estatísticas")
         st.write("Análise completa dos concursos anteriores.")
 
+         # Exibir o dashboard
+        mostrar_dashboard_estatistico(resultados_df)
+
         # Exibir frequência das dezenas
         st.subheader("Frequência das Dezenas")
         st.bar_chart(frequencia.set_index("Dezena")["Frequência"])
