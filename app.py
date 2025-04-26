@@ -34,21 +34,21 @@ def main():
 
     # Carregar os dados dos arquivos enviados
     try:
-        resultados_df = carregar_dados_resultados(resultados_file)
+        resultados = carregar_dados_resultados(resultados_file)
         tabelas = carregar_tabelas_numeromania(tabelas_file)
     except Exception as e:
         st.error(f"Erro ao carregar os arquivos Excel: {e}")
         return
 
     # Calcular frequência das dezenas
-    frequencia = calcular_frequencia(resultados_df)
+    frequencia = calcular_frequencia(resultados)
 
     if escolha == "Dashboard":
         st.title("📊 Dashboard de Estatísticas")
         st.write("Análise completa dos concursos anteriores.")
 
          # Exibir o dashboard
-        mostrar_dashboard_estatistico(resultados_df)
+        mostrar_dashboard_estatistico(resultados, tabelas)
 
         # Exibir frequência das dezenas
         st.subheader("Frequência das Dezenas")
@@ -66,7 +66,7 @@ def main():
 
         # Treinar modelo de IA
         st.write("🔄 Treinando modelo de IA...")
-        X, y = preprocessar_dados(resultados_df)  # Prepara os dados para IA
+        X, y = preprocessar_dados(resultados, tabelas_file)  # Prepara os dados para IA
         modelo = treinar_modelo_xgb(X, y)
 
         # Gerar jogos inteligentes
