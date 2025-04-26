@@ -3,7 +3,7 @@ from estatisticas import carregar_tabelas_numeromania, carregar_dados_excel, cal
 from inteligencia import treinar_modelo_xgb, prever_dezenas
 from ajustes import preprocessar_dados
 from models import gerar_jogo
-from paginas.gerador import pagina_gerador
+from paginas.gerador import gerar_jogo, gerar_jogos_com_fechamento
 from paginas.ia import pagina_ia
 from paginas.sobre import pagina_sobre
 from paginas.dados_online import pagina_dados_online
