@@ -19,7 +19,7 @@ if not image_list:
 chunk.addPhotos(image_list)
 
 # Checa quantas imagens adicionadas
-print(f"📸 {len(chunk.cameras)} imagens carregadas.")
+print("📸 {} imagens carregadas.".format(len(chunk.cameras)))
 
 # Alinhamento das fotos
 chunk.matchPhotos(accuracy=Metashape.HighAccuracy, generic_preselection=True, reference_preselection=True)
@@ -29,13 +29,14 @@ chunk.alignCameras()
 chunk.buildDenseCloud(quality=Metashape.MediumQuality, filtering=Metashape.MildFiltering)
 
 # Construir o Modelo de Superfície (DEM)
-chunk.buildDem(surface=Metashape.DenseCloudData)
+chunk.buildDem(source_data=Metashape.DenseCloudData)
 
 # Construir o Ortomosaico
-chunk.buildOrthomosaic(surface=Metashape.ElevationData, blending=Metashape.MosaicBlending)
+chunk.buildOrthomosaic(surface_data=Metashape.ElevationData, blending_mode=Metashape.MosaicBlending)
 
 # Salvar o projeto
 project_path = Metashape.app.getSaveFileName("Salvar projeto como:")
 doc.save(project_path)
 
 print("✅ Processamento completo!")
+
