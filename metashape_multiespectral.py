@@ -4,10 +4,10 @@ import os
 # === CONFIGURAÇÕES INICIAIS ===
 # Configurar os comprimentos de onda
 wavelengths = {
-    "BLUE": 475,
-    "GREEN": 560,
-    "RED": 668,
-    "RED_EDGE": 717,
+    "B": 475,
+    "G": 560,
+    "R": 668,
+    "RE": 717,
     "NIR": 840
 }
 
