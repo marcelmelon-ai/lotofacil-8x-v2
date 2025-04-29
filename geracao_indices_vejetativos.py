@@ -17,47 +17,36 @@ chunk = doc.chunk
 # === SELECIONAR PASTA DE SAÍDA ===
 output_folder = Metashape.app.getExistingDirectory("Selecione a pasta para salvar os índices")
 
-# === FUNÇÃO PARA CRIAR E EXPORTAR ÍNDICE ===
-def create_index(name, expression):
-    raster_transform = Metashape.RasterTransform()
-    raster_transform.expression = expression
-
+# === FUNÇÃO PARA CALCULAR E EXPORTAR ÍNDICE ===
+def export_index(name, formula):
     tif_path = os.path.join(output_folder, f"{name}.tif")
     csv_path = os.path.join(output_folder, f"{name}.csv")
 
-    chunk.exportRaster(transform=raster_transform, path=tif_path, image_format=Metashape.ImageFormatTIFF)
-    chunk.exportRaster(transform=raster_transform, path=csv_path, format=Metashape.RasterFormatCSV)
+    chunk.raster_calculator(formula=formula, bands=chunk.orthomosaic, result_name=name)
+    chunk.exportRaster(path=tif_path, raster=chunk.raster_layers[name], image_format=Metashape.ImageFormatTIFF)
+    chunk.exportRaster(path=csv_path, raster=chunk.raster_layers[name], format=Metashape.RasterFormatCSV)
 
-    print(f"✅ {name} exportado: .tif e .csv")
+    print(f"✅ {name} exportado com sucesso!")
 
 # === GERAR ÍNDICES ===
 print("🧪 Gerando índices vegetativos...")
 
-create_index("NDVI",     f"(B{band_map['NIR']} - B{band_map['Red']}) / (B{band_map['NIR']} + B{band_map['Red']})")
-create_index("GNDVI",    f"(B{band_map['NIR']} - B{band_map['Green']}) / (B{band_map['NIR']} + B{band_map['Green']})")
-create_index("NDRE",     f"(B{band_map['NIR']} - B{band_map['RedEdge']}) / (B{band_map['NIR']} + B{band_map['RedEdge']})")
-create_index("RENDVI",   f"(B{band_map['NIR']} - B{band_map['Red']}) / (B{band_map['NIR']} + B{band_map['RedEdge']})")
-create_index("SAVI",     f"1.5 * (B{band_map['NIR']} - B{band_map['Red']}) / (B{band_map['NIR']} + B{band_map['Red']} + 0.5)")
-create_index("MSAVI",    f"(2 * B{band_map['NIR']} + 1 - sqrt((2 * B{band_map['NIR']} + 1)^2 - 8 * (B{band_map['NIR']} - B{band_map['Red']}))) / 2")
+export_index("NDVI",   f"(b{band_map['NIR']} - b{band_map['Red']}) / (b{band_map['NIR']} + b{band_map['Red']})")
+export_index("GNDVI",  f"(b{band_map['NIR']} - b{band_map['Green']}) / (b{band_map['NIR']} + b{band_map['Green']})")
+export_index("NDRE",   f"(b{band_map['NIR']} - b{band_map['RedEdge']}) / (b{band_map['NIR']} + b{band_map['RedEdge']})")
+export_index("RENDVI", f"(b{band_map['NIR']} - b{band_map['Red']}) / (b{band_map['NIR']} + b{band_map['RedEdge']})")
+export_index("SAVI",   f"1.5 * (b{band_map['NIR']} - b{band_map['Red']}) / (b{band_map['NIR']} + b{band_map['Red']} + 0.5)")
+export_index("MSAVI",  f"(2 * b{band_map['NIR']} + 1 - sqrt((2 * b{band_map['NIR']} + 1)^2 - 8 * (b{band_map['NIR']} - b{band_map['Red']}))) / 2")
 
-# === CLASSIFICAÇÃO DE NDVI ===
+# === CLASSIFICAR NDVI EM 3 NÍVEIS ===
 print("📊 Classificando NDVI...")
 
-classification_expr = (
-    f"(B{band_map['NIR']} - B{band_map['Red']}) / (B{band_map['NIR']} + B{band_map['Red']}) < 0.2 ? 1 : "
-    f"(B{band_map['NIR']} - B{band_map['Red']}) / (B{band_map['NIR']} + B{band_map['Red']}) < 0.5 ? 2 : 3"
+class_formula = (
+    f"(b{band_map['NIR']} - b{band_map['Red']}) / (b{band_map['NIR']} + b{band_map['Red']}) < 0.2 ? 1 : "
+    f"(b{band_map['NIR']} - b{band_map['Red']}) / (b{band_map['NIR']} + b{band_map['Red']}) < 0.5 ? 2 : 3"
 )
 
-raster_transform = Metashape.RasterTransform()
-raster_transform.expression = classification_expr
-
-tif_class = os.path.join(output_folder, "NDVI_Classificado.tif")
-csv_class = os.path.join(output_folder, "NDVI_Classificado.csv")
-
-chunk.exportRaster(transform=raster_transform, path=tif_class, image_format=Metashape.ImageFormatTIFF)
-chunk.exportRaster(transform=raster_transform, path=csv_class, format=Metashape.RasterFormatCSV)
-
-print("🎯 Classificação NDVI exportada com sucesso: .tif e .csv")
+export_index("NDVI_Classificado", class_formula)
 
 # === SALVAR PROJETO ===
 project_path = Metashape.app.getSaveFileName("Salvar projeto como:")
