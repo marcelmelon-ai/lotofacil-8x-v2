@@ -1,17 +1,18 @@
 import Metashape
 import os
 
-def process_multispectral_images(image_folder, project_name="projeto_multiespectral"):
+def process_multispectral_images(image_folder):
     Metashape.app.settings.log_enable = True
 
-    # Caminhos
-    output_dir = os.path.join("D:/")
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
+    # Verifica se a pasta existe
+    if not os.path.exists(image_folder):
+        print(f"❌ Caminho não encontrado: {image_folder}")
+        return
 
-    project_path = os.path.join(output_dir, f"{project_name}.pmz")
+    # Caminho do projeto
+    project_path = os.path.join(image_folder, "projeto_multiespectral.pmz")
 
-    # Iniciar projeto
+    # Iniciar novo documento
     doc = Metashape.app.document
     doc.clear()
 
@@ -20,8 +21,10 @@ def process_multispectral_images(image_folder, project_name="projeto_multiespect
     chunk.label = "Chunk_1"
 
     # Importar imagens
-    image_list = [os.path.join(image_folder, f) for f in os.listdir(image_folder) if f.lower().endswith(('.tif', '.tiff', '.jpg', '.jpeg', '.png'))]
-    image_list.sort()  # para manter a ordem
+    image_list = [os.path.join(image_folder, f) for f in os.listdir(image_folder)
+                  if f.lower().endswith(('.tif', '.tiff', '.jpg', '.jpeg', '.png'))]
+    image_list.sort()
+
     if not image_list:
         print("❌ Nenhuma imagem encontrada na pasta.")
         return
@@ -35,7 +38,7 @@ def process_multispectral_images(image_folder, project_name="projeto_multiespect
     print(f"\n📸 {len(image_list)} imagens importadas.")
     print("▶ Iniciando processamento...")
 
-    # Agrupar por linha de voo
+    # Agrupar câmeras
     try:
         chunk.groupCameras(by=Metashape.Chunk.GroupByFlightLines)
         print("  - Câmeras agrupadas por linha de voo.")
@@ -59,7 +62,7 @@ def process_multispectral_images(image_folder, project_name="projeto_multiespect
         print("  ⚠️ Alinhamento fraco ou erro alto. Verifique imagens ou GCPs.")
         return
 
-    # Nuvem de pontos esparsa
+    # Nuvem de pontos
     print("  - Gerando nuvem de pontos esparsa...")
     chunk.buildPointCloud()
 
@@ -67,7 +70,7 @@ def process_multispectral_images(image_folder, project_name="projeto_multiespect
     print("  - Construindo ortomosaico multiespectral...")
     chunk.buildOrthomosaic(surface_data=Metashape.PointCloudData)
 
-    ortho_path = os.path.join(output_dir, f"{chunk.label}_ortho.tif")
+    ortho_path = os.path.join(image_folder, f"{chunk.label}_ortho.tif")
     chunk.exportOrthomosaic(
         path=ortho_path,
         format=Metashape.RasterFormat.RasterFormatTiles,
@@ -81,10 +84,10 @@ def process_multispectral_images(image_folder, project_name="projeto_multiespect
     # NDVI
     print("  - Calculando NDVI...")
     ndvi_index = Metashape.CalibrationIndex()
-    ndvi_index.expression = "(B4 - B1) / (B4 + B1)"  # Assumindo: B4 = NIR, B1 = Red
+    ndvi_index.expression = "(B4 - B1) / (B4 + B1)"  # Red = B1, NIR = B4
     chunk.addRasterTransform(ndvi_index)
 
-    ndvi_path = os.path.join(output_dir, f"{chunk.label}_ndvi.tif")
+    ndvi_path = os.path.join(image_folder, f"{chunk.label}_ndvi.tif")
     chunk.exportRaster(
         path=ndvi_path,
         source_data=Metashape.RasterTransform,
@@ -95,12 +98,10 @@ def process_multispectral_images(image_folder, project_name="projeto_multiespect
     )
     print(f"  - NDVI exportado: {ndvi_path}")
 
-
-    # Salvar projeto final
+    # Salvar projeto
     doc.save(path=project_path)
     print(f"✅ Projeto salvo em: {project_path}")
     print("🎯 Processamento completo.")
 
-# Exemplo de uso
-# Substitua abaixo com o caminho real onde estão suas imagens
-process_multispectral_images("D:/fotos_drones_mapa1", project_name="MapaPastagem_Abril2025")
+# Exemplo de uso — apenas chame a função com o caminho das imagens
+process_multispectral_images("D:/fotos_drones_mapa1")
