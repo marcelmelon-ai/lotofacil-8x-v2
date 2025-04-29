@@ -3,13 +3,16 @@ import os
 
 # === CONFIGURAÇÕES INICIAIS ===
 
-# Mapeamento de bandas e seus comprimentos de onda
-band_wavelengths = {
-    "B": 475,    # Blue
-    "G": 560,    # Green
-    "R": 668,    # Red
-    "RE": 717,   # Red Edge
-    "NIR": 840   # Near Infrared
+# Mapeamento das bandas do Mavic 3M com os índices (conforme a ordem que o Metashape usa: B1, B2, etc.)
+# Supondo que a ordem das bandas no ortomosaico seja:
+# B1 = Green, B2 = Red, B3 = RedEdge, B4 = NIR
+# (Blue não é capturado no Mavic 3M)
+
+band_map = {
+    "Green": 1,
+    "Red": 2,
+    "RedEdge": 3,
+    "NIR": 4
 }
 
 # === INÍCIO DO PROCESSAMENTO ===
@@ -23,39 +26,13 @@ chunk = doc.addChunk()
 
 # Selecionar pasta de imagens
 image_folder = Metashape.app.getExistingDirectory("Selecione a pasta com as imagens")
-
-# Carregar imagens
-image_list = [os.path.join(image_folder, img) for img in os.listdir(image_folder) if img.lower().endswith(('.tif', '.jpg', '.jpeg', '.png'))]
+image_list = [os.path.join(image_folder, f) for f in os.listdir(image_folder) if f.lower().endswith(('.tif', '.jpg', '.jpeg', '.png'))]
 
 if not image_list:
     raise Exception("⚠️ Nenhuma imagem encontrada no diretório!")
 
 chunk.addPhotos(image_list)
 print(f"📸 {len(chunk.cameras)} imagens carregadas.")
-
-# === CONFIGURAR SENSORES ===
-print("🔧 Configurando sensores...")
-sensors = {}
-for band, wl in band_wavelengths.items():
-    sensor = chunk.addSensor()
-    sensor.label = band
-    sensor.type = Metashape.Sensor.Type.Frame
-    sensor.wavelengths = [wl]   # ✅ CORRETO para Metashape 2.2
-    sensors[band] = sensor
-
-# Atribuir sensores às câmeras
-for camera in chunk.cameras:
-    name_upper = camera.label.upper()
-    assigned = False
-    for band in band_wavelengths.keys():
-        if band in name_upper:
-            camera.sensor = sensors[band]
-            assigned = True
-            break
-    if not assigned:
-        print(f"⚠️ Atenção: {camera.label} não corresponde a nenhuma banda conhecida.")
-
-print("✅ Sensores configurados e atribuídos.")
 
 # === PROCESSAMENTO AUTOMÁTICO ===
 
@@ -85,7 +62,6 @@ print(f"✅ Ortomosaico exportado para: {ortho_path}")
 
 # === GERAR ÍNDICES VEGETATIVOS ===
 
-# Função para criar índices
 def create_index(name, expression):
     raster_transform = Metashape.RasterTransform()
     raster_transform.expression = expression
@@ -95,19 +71,19 @@ def create_index(name, expression):
 
 print("🧪 Gerando índices vegetativos...")
 
-# Notação:
-# B1: B (Blue)
-# B2: G (Green)
-# B3: R (Red)
-# B4: RE (Red Edge)
-# B5: NIR (Near Infrared)
+# NDVI = (NIR - Red) / (NIR + Red)
+# GNDVI = (NIR - Green) / (NIR + Green)
+# NDRE = (NIR - RedEdge) / (NIR + RedEdge)
+# RENDVI = (NIR - Red) / (NIR + RedEdge)
+# SAVI = 1.5 * (NIR - Red) / (NIR + Red + 0.5)
+# MSAVI = (2 * NIR + 1 - sqrt((2 * NIR + 1)^2 - 8 * (NIR - Red))) / 2
 
-create_index("NDVI", "(B5 - B3) / (B5 + B3)")
-create_index("GNDVI", "(B5 - B2) / (B5 + B2)")
-create_index("NDRE", "(B5 - B4) / (B5 + B4)")
-create_index("RENDVI", "(B5 - B3) / (B5 + B4)")
-create_index("SAVI", "1.5 * (B5 - B3) / (B5 + B3 + 0.5)")
-create_index("MSAVI", "(2 * B5 + 1 - sqrt((2 * B5 + 1)^2 - 8 * (B5 - B3))) / 2")
+create_index("NDVI",     f"(B{band_map['NIR']} - B{band_map['Red']}) / (B{band_map['NIR']} + B{band_map['Red']})")
+create_index("GNDVI",    f"(B{band_map['NIR']} - B{band_map['Green']}) / (B{band_map['NIR']} + B{band_map['Green']})")
+create_index("NDRE",     f"(B{band_map['NIR']} - B{band_map['RedEdge']}) / (B{band_map['NIR']} + B{band_map['RedEdge']})")
+create_index("RENDVI",   f"(B{band_map['NIR']} - B{band_map['Red']}) / (B{band_map['NIR']} + B{band_map['RedEdge']})")
+create_index("SAVI",     f"1.5 * (B{band_map['NIR']} - B{band_map['Red']}) / (B{band_map['NIR']} + B{band_map['Red']} + 0.5)")
+create_index("MSAVI",    f"(2 * B{band_map['NIR']} + 1 - sqrt((2 * B{band_map['NIR']} + 1)^2 - 8 * (B{band_map['NIR']} - B{band_map['Red']}))) / 2")
 
 print("🎯 Todos os índices vegetativos gerados com sucesso!")
 
