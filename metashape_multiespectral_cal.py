@@ -5,7 +5,7 @@ def process_multispectral_images(image_folder, project_name="projeto_multiespect
     Metashape.app.settings.log_enable = True
 
     # Caminhos
-    output_dir = os.path.join("D:/", project_name)
+    output_dir = os.path.join("D:/",)
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
