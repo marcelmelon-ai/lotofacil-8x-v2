@@ -1,33 +1,29 @@
 import Metashape
 import os
+import math
 
-def process_multispectral_images(image_folder):
-    Metashape.app.settings.log_enable = True
+# === CONFIGURAÇÕES ===
+band_map = {
+    "Blue": 1,
+    "Green": 2,
+    "Red": 3,
+    "RedEdge": 4,
+    "NIR": 5
+}
 
-    # Verifica se a pasta existe
-    if not os.path.exists(image_folder):
-        print(f"❌ Caminho não encontrado: {image_folder}")
-        return
+# === INÍCIO ===
+doc = Metashape.app.document
+doc.clear()
+chunk = doc.addChunk()
 
-    # Caminho do projeto
-    project_path = os.path.join(image_folder, "projeto_multiespectral.pmz")
+# === INPUT ===
+image_folder = Metashape.app.getExistingDirectory("📂 Selecione a pasta com as imagens")
+image_list = [os.path.join(image_folder, f) for f in os.listdir(image_folder) if f.lower().endswith(('.tif', '.jpg', '.jpeg', '.png'))]
+if not image_list:
+    raise Exception("❌ Nenhuma imagem encontrada na pasta!")
 
-    # Iniciar novo documento
-    doc = Metashape.app.document
-    doc.clear()
-
-    # Criar novo chunk
-    chunk = doc.addChunk()
-    chunk.label = "Chunk_1"
-
-    # Importar imagens
-    image_list = [os.path.join(image_folder, f) for f in os.listdir(image_folder)
-                  if f.lower().endswith(('.tif', '.tiff', '.jpg', '.jpeg', '.png'))]
-    image_list.sort()
-
-    if not image_list:
-        print("❌ Nenhuma imagem encontrada na pasta.")
-        return
+chunk.addPhotos(image_list)
+print(f"📸 {len(chunk.cameras)} imagens carregadas.")
 
     chunk.addPhotos(image_list, layout=Metashape.MultiplaneLayout)
 

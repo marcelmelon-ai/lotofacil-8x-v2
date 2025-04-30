@@ -1,54 +1,25 @@
-import Metashape
+import rasterio
+import numpy as np
 import os
 
-# === MAPA DE BANDAS ===
-band_map = {
-    "Blue": 1,
-    "Green": 2,
-    "Red": 3,
-    "RedEdge": 4,
-    "NIR": 5
-}
+# Caminho do ortomosaico multibanda exportado pelo Metashape
+input_path = "ortomosaico_multibanda.tif"
+output_path = "NDVI.tif"
 
-# === PROJETO ATUAL ===
-doc = Metashape.app.document
-chunk = doc.chunk
+# Carrega o raster multibanda
+with rasterio.open(input_path) as src:
+    nir = src.read(5).astype('float32')  # Banda 5: NIR
+    red = src.read(3).astype('float32')  # Banda 3: Red
+    profile = src.profile
 
-# === SELECIONAR PASTA DE SAÍDA ===
-output_folder = Metashape.app.getExistingDirectory("Selecione a pasta para salvar os índices")
+# Calcula NDVI
+ndvi = (nir - red) / (nir + red + 1e-5)  # evita divisão por zero
 
-# === FUNÇÃO PARA CALCULAR E EXPORTAR ÍNDICE ===
-def export_index(name, formula):
-    tif_path = os.path.join(output_folder, f"{name}.tif")
-    csv_path = os.path.join(output_folder, f"{name}.csv")
+# Atualiza metadados para salvar como imagem de 1 banda
+profile.update(dtype=rasterio.float32, count=1)
 
-    chunk.raster_calculator(formula=formula, bands=chunk.orthomosaic, result_name=name)
-    chunk.exportRaster(path=tif_path, raster=chunk.raster_layers[name], image_format=Metashape.ImageFormatTIFF)
-    chunk.exportRaster(path=csv_path, raster=chunk.raster_layers[name], format=Metashape.RasterFormatCSV)
+# Salva o NDVI como novo GeoTIFF
+with rasterio.open(output_path, 'w', **profile) as dst:
+    dst.write(ndvi, 1)
 
-    print(f"✅ {name} exportado com sucesso!")
-
-# === GERAR ÍNDICES ===
-print("🧪 Gerando índices vegetativos...")
-
-export_index("NDVI",   f"(b{band_map['NIR']} - b{band_map['Red']}) / (b{band_map['NIR']} + b{band_map['Red']})")
-export_index("GNDVI",  f"(b{band_map['NIR']} - b{band_map['Green']}) / (b{band_map['NIR']} + b{band_map['Green']})")
-export_index("NDRE",   f"(b{band_map['NIR']} - b{band_map['RedEdge']}) / (b{band_map['NIR']} + b{band_map['RedEdge']})")
-export_index("RENDVI", f"(b{band_map['NIR']} - b{band_map['Red']}) / (b{band_map['NIR']} + b{band_map['RedEdge']})")
-export_index("SAVI",   f"1.5 * (b{band_map['NIR']} - b{band_map['Red']}) / (b{band_map['NIR']} + b{band_map['Red']} + 0.5)")
-export_index("MSAVI",  f"(2 * b{band_map['NIR']} + 1 - sqrt((2 * b{band_map['NIR']} + 1)^2 - 8 * (b{band_map['NIR']} - b{band_map['Red']}))) / 2")
-
-# === CLASSIFICAR NDVI EM 3 NÍVEIS ===
-print("📊 Classificando NDVI...")
-
-class_formula = (
-    f"(b{band_map['NIR']} - b{band_map['Red']}) / (b{band_map['NIR']} + b{band_map['Red']}) < 0.2 ? 1 : "
-    f"(b{band_map['NIR']} - b{band_map['Red']}) / (b{band_map['NIR']} + b{band_map['Red']}) < 0.5 ? 2 : 3"
-)
-
-export_index("NDVI_Classificado", class_formula)
-
-# === SALVAR PROJETO ===
-project_path = Metashape.app.getSaveFileName("Salvar projeto como:")
-doc.save(project_path)
-print("💾 Projeto salvo com sucesso.")
+print(f"✅ NDVI salvo em: {output_path}")
