@@ -1,6 +1,5 @@
 import Metashape
 import os
-import math
 
 # === CONFIGURAÇÕES ===
 band_map = {
@@ -11,30 +10,29 @@ band_map = {
     "NIR": 5
 }
 
-# === INÍCIO ===
-doc = Metashape.app.document
-doc.clear()
-chunk = doc.addChunk()
+# === PROCESSAMENTO ===
+def process_images():
+    doc = Metashape.app.document
+    doc.clear()
+    chunk = doc.addChunk()
 
-# === INPUT ===
-image_folder = Metashape.app.getExistingDirectory("📂 Selecione a pasta com as imagens")
-image_list = [os.path.join(image_folder, f) for f in os.listdir(image_folder) if f.lower().endswith(('.tif', '.jpg', '.jpeg', '.png'))]
-if not image_list:
-    raise Exception("❌ Nenhuma imagem encontrada na pasta!")
+    # === INPUT DO USUÁRIO ===
+    image_folder = Metashape.app.getExistingDirectory("📂 Selecione a pasta com as imagens")
+    image_list = [os.path.join(image_folder, f) for f in os.listdir(image_folder) if f.lower().endswith(('.tif', '.jpg', '.jpeg', '.png'))]
+    if not image_list:
+        raise Exception("❌ Nenhuma imagem encontrada na pasta!")
 
-chunk.addPhotos(image_list)
-print(f"📸 {len(chunk.cameras)} imagens carregadas.")
-
+    # Importar imagens
     chunk.addPhotos(image_list, layout=Metashape.MultiplaneLayout)
+    print(f"📸 {len(chunk.cameras)} imagens carregadas.")
 
     # Definir sistema de referência
     crs = Metashape.CoordinateSystem("EPSG::31982")  # SIRGAS 2000 / UTM Zone 22S
     chunk.crs = crs
 
-    print(f"\n📸 {len(image_list)} imagens importadas.")
-    print("▶ Iniciando processamento...")
+    print("\n▶ Iniciando processamento...")
 
-    # Agrupar câmeras
+    # Agrupar câmeras por linha de voo
     try:
         chunk.groupCameras(by=Metashape.Chunk.GroupByFlightLines)
         print("  - Câmeras agrupadas por linha de voo.")
@@ -55,10 +53,10 @@ print(f"📸 {len(chunk.cameras)} imagens carregadas.")
     print(f"  - Câmeras alinhadas: {len(aligned)}/{total} | Erro médio: {media_erro:.2f} px")
 
     if len(aligned) / total < 0.8 or media_erro > 1.5:
-        print("  ⚠️ Alinhamento fraco ou erro alto. Verifique imagens ou GCPs.")
+        print("⚠️ Alinhamento fraco ou erro alto. Verifique as imagens.")
         return
 
-    # Nuvem de pontos
+    # Nuvem de pontos esparsa
     print("  - Gerando nuvem de pontos esparsa...")
     chunk.buildPointCloud()
 
@@ -95,9 +93,9 @@ print(f"📸 {len(chunk.cameras)} imagens carregadas.")
     print(f"  - NDVI exportado: {ndvi_path}")
 
     # Salvar projeto
-    doc.save(path=project_path)
-    print(f"✅ Projeto salvo em: {project_path}")
-    print("🎯 Processamento completo.")
+    project_path = Metashape.app.getSaveFileName("💾 Salvar projeto como:")
+    doc.save(project_path)
+    print("🎉 Projeto completo e salvo com sucesso!")
 
-# Exemplo de uso — apenas chame a função com o caminho das imagens
-process_multispectral_images("D:/fotos_drones_mapa1")
+# Executar função
+process_images()
