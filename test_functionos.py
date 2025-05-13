@@ -30,7 +30,7 @@ def test_preprocessar_dados():
     assert X.shape[1] == 4, "Número incorreto de colunas relevantes em X!"
     assert y.name == "D15", "A última coluna não foi definida como alvo corretamente!"
     assert y.between(1, 25).all(), "Valores de y fora do intervalo esperado (1 a 25)!"
-
+    
 def test_calcular_frequencia():
     """
     Testa o cálculo da frequência das dezenas.

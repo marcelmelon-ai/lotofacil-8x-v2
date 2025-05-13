@@ -54,8 +54,14 @@ def preprocessar_dados(df):
         # Supondo que a última coluna contenha as dezenas sorteadas (y)
         y = df.iloc[:, -1]  # Última coluna como alvo
         
+        # Tratar valores inválidos em y
+        if y.dtype == 'object':
+            y = pd.to_numeric(y, errors='coerce')  # Converter para numérico, substituindo inválidos por NaN
+        y = y.dropna()  # Remover valores NaN
+        y = y.astype(int)  # Garantir que y seja inteiro
+        
         # Validar se os valores de y estão no intervalo esperado (1 a 25)
-        if not y.apply(lambda valor: 1 <= valor <= 25).all():
+        if not y.between(1, 25).all():
             raise ValueError(f"Valores inválidos encontrados em y. Esperado: números entre 1 e 25, obtido: {y.unique()}")
         
         logging.info("Pré-processamento concluído com sucesso.")
