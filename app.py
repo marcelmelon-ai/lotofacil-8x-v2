@@ -94,16 +94,32 @@ def main():
 
         # Treinar modelo de IA
         st.write("🔄 Treinando modelo de IA...")
-        X, y = preprocessar_dados(resultados)  # Prepara os dados para IA
-        modelo = treinar_modelo_xgb(X, y)
+    try:
+        X, y = preprocessar_dados(resultados)
+        if X.empty or y is None:
+            st.error("Erro: Dados insuficientes para treinar o modelo de IA.")
+            return
+        modelo = treinar_modelo_xgb(X, y)  # Armazena o modelo treinado na variável "modelo"
+    except ValueError as e:
+        st.error(f"Erro ao pré-processar os dados: {e}")
+        return
+    except Exception as e:
+        st.error(f"Erro ao treinar o modelo de IA: {e}")
+        return
 
         # Gerar jogos inteligentes
-        num_jogos = st.number_input("Quantos jogos deseja gerar?", min_value=1, max_value=100, value=10)
-        if st.button("Gerar Jogos"):
-            jogos = gerar_jogo(frequencia, num_jogos)
-            st.success(f"{num_jogos} jogos gerados com sucesso!")
-            for i, jogo in enumerate(jogos, 1):
-                st.write(f"Jogo {i}: {', '.join(jogo)}")
+    num_jogos = st.number_input("Quantos jogos deseja gerar?", min_value=1, max_value=100, value=10)
+    if st.button("Gerar Jogos"):
+        jogos = gerar_jogo(frequencia, num_jogos)  # Aqui você pode usar o modelo, se necessário
+        st.success(f"{num_jogos} jogos gerados com sucesso!")
+        for i, jogo in enumerate(jogos, 1):
+            st.write(f"Jogo {i}: {', '.join(jogo)}")
+
+        # Prever dezenas mais prováveis
+    st.write("🔮 Prevendo dezenas mais prováveis...")
+    top_n = st.slider("Quantas dezenas mais prováveis deseja prever?", min_value=1, max_value=15, value=10)
+    dezenas_previstas = prever_dezenas(modelo, frequencia, top_n=top_n)  # Agora "modelo" está definido
+    st.write(f"### Dezenas mais prováveis: {', '.join(dezenas_previstas)}")
 
           # Gerar jogos
     num_jogos = st.number_input("Quantos jogos deseja gerar?", min_value=1, max_value=100, value=10)

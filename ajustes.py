@@ -31,6 +31,9 @@ def preprocessar_dados(df):
     Returns:
         pd.DataFrame: DataFrame pré-processado.
     """
-    # Exemplo de pré-processamento: remover colunas desnecessárias
+    # Verificar se existem colunas que começam com "D"
     colunas_relevantes = [col for col in df.columns if col.startswith("D")]
+    if not colunas_relevantes:
+        raise ValueError("Nenhuma coluna de dezenas encontrada no DataFrame.")
+    
     return df[colunas_relevantes]
