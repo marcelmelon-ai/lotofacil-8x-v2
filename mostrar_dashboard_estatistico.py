@@ -3,15 +3,21 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-def mostrar_dashboard_estatistico(df):
+def mostrar_dashboard_estatistico(resultados, tabelas, df):
     """
-    Exibe o dashboard estatístico com gráficos interativos baseados nos dados fornecidos.
+    Exibe o dashboard estatístico com base nos resultados e tabelas fornecidos.
 
     Args:
-        df (pd.DataFrame): DataFrame com os resultados da Lotofácil.
+        resultados (pd.DataFrame): DataFrame com os resultados da Lotofácil.
+        tabelas (dict): Dicionário com DataFrames das tabelas carregadas.
     """
-    st.title("📊 Dashboard de Estatísticas Interativo")
-    st.write("Análise completa e interativa dos concursos anteriores da Lotofácil.")
+    st.write("### Resultados")
+    st.dataframe(resultados)
+
+    st.write("### Tabelas Estatísticas")
+    for nome, tabela in tabelas.items():
+        st.write(f"#### {nome}")
+        st.dataframe(tabela)
 
     # Verificar se o DataFrame está vazio
     if df.empty:

@@ -23,7 +23,7 @@ def main():
         ["Dashboard", "Gerar Jogos", "Simulação de Jogos", "Sobre"]
     )
 
-      # Upload manual dos arquivos Excel
+    # Upload manual dos arquivos Excel
     st.sidebar.subheader("📤 Upload dos Arquivos Excel")
     resultados_file = st.sidebar.file_uploader("Envie o arquivo 'resultados_lotofacil.xlsx'", type=["xlsx"])
     tabelas_file = st.sidebar.file_uploader("Envie o arquivo 'tabelas_numeromania.xlsx'", type=["xlsx"])
@@ -47,8 +47,8 @@ def main():
         st.title("📊 Dashboard de Estatísticas")
         st.write("Análise completa dos concursos anteriores.")
 
-         # Exibir o dashboard
-        mostrar_dashboard_estatistico(resultados, tabelas)
+        # Exibir o dashboard
+        mostrar_dashboard_estatistico(resultados, tabelas)  # Linha corrigida
 
         # Exibir frequência das dezenas
         st.subheader("Frequência das Dezenas")
