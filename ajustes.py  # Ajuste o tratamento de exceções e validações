@@ -1,0 +1,31 @@
+import pandas as pd
+import logging
+
+@st.cache_data
+def carregar_dados_excel(caminho_arquivo):
+    try:
+        logging.info(f"Carregando dados do arquivo: {caminho_arquivo}")
+        return pd.read_excel(caminho_arquivo)
+    except FileNotFoundError:
+        logging.error(f"Arquivo não encontrado: {caminho_arquivo}")
+        raise FileNotFoundError(f"Arquivo não encontrado: {caminho_arquivo}")
+
+def preprocessar_dados(df):
+    logging.info("Iniciando o pré-processamento dos dados...")
+    
+    if df.empty:
+        raise ValueError("O DataFrame fornecido está vazio.")
+    
+    colunas_relevantes = [col for col in df.columns if col.startswith("D")]
+    if not colunas_relevantes:
+        raise ValueError("Nenhuma coluna de dezenas encontrada no DataFrame.")
+    
+    X = df[colunas_relevantes]
+    y = df.iloc[:, -1]
+    
+    if y.dtype == 'object':
+        y = pd.to_numeric(y, errors='coerce')
+    y = y.dropna().astype(int)
+    
+    if not y.between(1, 25).all():
+        raise ValueError(f"Valores inválidos encontrados em y. Esperado: números entre 1 e 25, obtido: {y.unique()}")

@@ -1,0 +1,10 @@
+import pandas as pd
+
+def pagina_gerador():
+    st.header("🎲 Gerador de Jogos Inteligentes")
+    st.write("Crie combinações de jogos otimizados com base em estatísticas e modelos de IA.")
+    
+    frequencia = pd.DataFrame({
+        "Dezena": [i for i in range(1, 25)],
+        "Frequência": [100 - i for i in range(1, 25)]
+    })
