@@ -34,7 +34,7 @@ def preprocessar_dados(df):
         df (pd.DataFrame): DataFrame com os dados brutos.
 
     Returns:
-        pd.DataFrame: DataFrame pré-processado.
+        tuple: (X, y) onde X são as colunas relevantes e y é a coluna alvo.
     """
     try:
         logging.info("Iniciando o pré-processamento dos dados...")
@@ -48,8 +48,12 @@ def preprocessar_dados(df):
         if not colunas_relevantes:
             raise ValueError("Nenhuma coluna de dezenas encontrada no DataFrame.")
         
+        # Supondo que a última coluna seja a coluna alvo (y)
+        X = df[colunas_relevantes]
+        y = df.iloc[:, -1]  # Última coluna como alvo
+        
         logging.info("Pré-processamento concluído com sucesso.")
-        return df[colunas_relevantes]
+        return X, y
     except Exception as e:
         logging.error(f"Erro durante o pré-processamento dos dados: {e}")
         raise
@@ -66,10 +70,14 @@ def main():
         dados = carregar_dados_excel(caminho_arquivo)
         
         # Pré-processar os dados
-        dados_processados = preprocessar_dados(dados)
+        X, y = preprocessar_dados(dados)
         
         # Exibir os dados processados (ou realizar outras operações)
-        st.write(dados_processados)
+        st.write("Dados de entrada (X):")
+        st.write(X)
+        st.write("Coluna alvo (y):")
+        st.write(y)
+        
         logging.info("Execução concluída com sucesso.")
     except Exception as e:
         logging.critical(f"Erro crítico na execução do programa: {e}")
