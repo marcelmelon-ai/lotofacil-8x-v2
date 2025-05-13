@@ -66,6 +66,20 @@ def carregar_tabelas_numeromania(tabelas_file):
     except Exception as e:
         st.error(f"Erro ao carregar o arquivo de tabelas: {e}")
         return {}
+    
+def calcular_frequencia_das_dezenas(resultados):
+    frequencia = {}
+    for resultado in resultados:
+        for dezena in resultado:
+            try:
+                dezena = int(dezena)
+                if dezena in frequencia:
+                    frequencia[dezena] += 1
+                else:
+                    frequencia[dezena] = 1
+            except ValueError:
+                print(f"Valor inválido encontrado: {dezena}. Ignorando...")
+    return frequencia    
 
 @st.cache_data
 def calcular_frequencia(resultados_df):
