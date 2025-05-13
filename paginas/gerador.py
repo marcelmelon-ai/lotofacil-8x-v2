@@ -18,7 +18,7 @@ def gerar_jogo(modelo, frequencia, num_jogos=10):
 
     jogos = []
     for _ in range(num_jogos):
-        jogo = sorted(random.sample(dezenas_ordenadas[:20], 15))  # Seleciona as 20 mais prováveis
+        jogo = sorted(random.sample(dezenas_ordenadas[:15], 25))  # Seleciona as 15 mais prováveis
         jogos.append(jogo)
 
     return jogos
@@ -38,7 +38,7 @@ def gerar_jogos_com_fechamento(frequencia, num_jogos=10):
 
     jogos = []
     for _ in range(num_jogos):
-        jogo = sorted(random.sample(dezenas_ordenadas[:25], 15))  # Seleciona as 25 mais frequentes
+        jogo = sorted(random.sample(dezenas_ordenadas[:15], 25))  # Seleciona as 15 mais frequentes
         jogos.append(jogo)
 
     return jogos
