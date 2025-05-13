@@ -71,6 +71,19 @@ def test_gerar_jogos_otimizados():
     Testa a geração de jogos otimizados para garantir que os jogos gerados estão corretos.
     """
     df = pd.DataFrame({
+        f"D{i}": [random.randint(1, 25) for _ in range(25)] for i in range(1, 16)
+    })
+    jogos = gerar_jogos_otimizados(df, num_jogos=2)
+    assert len(jogos) == 2, "Número de jogos gerados está incorreto!"
+    assert all(len(jogo) == 15 for jogo in jogos), "Cada jogo deve ter 15 dezenas!"
+    for jogo in jogos:
+        assert all(1 <= dezena <= 25 for dezena in jogo), "Dezenas fora do intervalo permitido!"
+
+def test_gerar_jogos_otimizados():
+    """
+    Testa a geração de jogos otimizados para garantir que os jogos gerados estão corretos.
+    """
+    df = pd.DataFrame({
         "D1": [random.randint(1, 25) for _ in range(25)],
         "D2": [random.randint(1, 25) for _ in range(25)],
         "D3": [random.randint(1, 25) for _ in range(25)],

@@ -91,7 +91,7 @@ def calcular_frequencia(df):
     frequencia["Dezena"] = pd.to_numeric(frequencia["Dezena"], errors="coerce")  # Garantir valores numéricos
     frequencia.dropna(subset=["Dezena"], inplace=True)
     frequencia["Dezena"] = frequencia["Dezena"].astype(int)
-    return frequencia  
+    return frequencia
 
 @st.cache_data
 def calcular_frequencia(resultados_df):
