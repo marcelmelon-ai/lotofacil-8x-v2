@@ -1,3 +1,4 @@
+import streamlit as st
 import random
 
 def gerar_jogo(modelo, frequencia, num_jogos=10):

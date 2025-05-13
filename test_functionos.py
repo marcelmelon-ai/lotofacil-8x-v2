@@ -22,11 +22,11 @@ def test_preprocessar_dados():
         "D1": [random.randint(1, 25) for _ in range(10)],
         "D2": [random.randint(1, 25) for _ in range(10)],
         "D3": [random.randint(1, 25) for _ in range(10)],
-        "D15": [random.randint(1, 25) for _ in range(10)],
-        "Outros": [random.randint(100, 200) for _ in range(10)]
+        "D15": [random.randint(1, 25) for _ in range(10)],  # Valores válidos
+        "Soma das dezenas": [random.randint(100, 200) for _ in range(10)]
     })
     X, y = preprocessar_dados(df)
-    assert "Outros" not in X.columns, "Coluna irrelevante não foi removida!"
+    assert "Soma das dezenas" not in X.columns, "Coluna irrelevante não foi removida!"
     assert X.shape[1] == 4, "Número incorreto de colunas relevantes em X!"
     assert y.name == "D15", "A última coluna não foi definida como alvo corretamente!"
     assert y.between(1, 25).all(), "Valores de y fora do intervalo esperado (1 a 25)!"
@@ -71,8 +71,10 @@ def test_gerar_jogos_otimizados():
     Testa a geração de jogos otimizados para garantir que os jogos gerados estão corretos.
     """
     df = pd.DataFrame({
-        "Dezena": [i for i in range(1, 25)],
-        "Frequência": [random.randint(1, 100) for _ in range(1, 25)]
+        "D1": [random.randint(1, 25) for _ in range(25)],
+        "D2": [random.randint(1, 25) for _ in range(25)],
+        "D3": [random.randint(1, 25) for _ in range(25)],
+        "D15": [random.randint(1, 25) for _ in range(25)]
     })
     jogos = gerar_jogos_otimizados(df, num_jogos=2)
     assert len(jogos) == 2, "Número de jogos gerados está incorreto!"

@@ -17,7 +17,7 @@ def carregar_dados_resultados(resultados_file):
         # Ajustar a nomenclatura das colunas
         colunas_esperadas = [
             "Concurso", "Data do sorteio", "D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8",
-            "D9", "D10", "D11", "D12", "D13", "D14", "D15"
+            "D9", "D10", "D11", "D12", "D13", "D14", "D15", "Soma das dezenas"
         ]
         df.columns = colunas_esperadas
         return df
@@ -79,7 +79,19 @@ def calcular_frequencia_das_dezenas(resultados):
                     frequencia[dezena] = 1
             except ValueError:
                 print(f"Valor inválido encontrado: {dezena}. Ignorando...")
-    return frequencia    
+    return frequencia  
+
+def calcular_frequencia(df):
+    """
+    Calcula a frequência das dezenas em um DataFrame.
+    """
+    frequencia = pd.DataFrame(df.stack().value_counts(), columns=["Frequência"])
+    frequencia.index.name = "Dezena"
+    frequencia.reset_index(inplace=True)
+    frequencia["Dezena"] = pd.to_numeric(frequencia["Dezena"], errors="coerce")  # Garantir valores numéricos
+    frequencia.dropna(subset=["Dezena"], inplace=True)
+    frequencia["Dezena"] = frequencia["Dezena"].astype(int)
+    return frequencia  
 
 @st.cache_data
 def calcular_frequencia(resultados_df):
