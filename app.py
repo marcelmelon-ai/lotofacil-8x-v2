@@ -40,6 +40,23 @@ def main():
         st.error(f"Erro ao carregar os arquivos Excel: {e}")
         return
 
+    # Garantir que as colunas estão no formato correto
+    try:
+        colunas_esperadas = [
+            "Concurso", "Data do sorteio", "D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8",
+            "D9", "D10", "D11", "D12", "D13", "D14", "D15"
+        ]
+        resultados = resultados[colunas_esperadas]  # Garantir que apenas as colunas esperadas sejam usadas
+        for coluna in colunas_esperadas:
+            if coluna.startswith("D"):
+                resultados[coluna] = pd.to_numeric(resultados[coluna], errors="coerce")  # Converter para números
+    except KeyError as e:
+        st.error(f"Erro ao processar os resultados: Coluna ausente - {e}")
+        return
+    except Exception as e:
+        st.error(f"Erro inesperado ao processar os resultados: {e}")
+        return
+
      # Calcular frequência das dezenas
     try:
         frequencia = calcular_frequencia(resultados)

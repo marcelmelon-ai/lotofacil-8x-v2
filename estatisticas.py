@@ -93,10 +93,18 @@ def calcular_frequencia(resultados_df):
         pd.DataFrame: DataFrame com a frequência de cada dezena.
     """
     try:
-        dezenas = resultados_df.filter(like="D").values.flatten()
+        # Selecionar apenas as colunas de dezenas (D1 a D15)
+        colunas_dezenas = [col for col in resultados_df.columns if col.startswith("D")]
+        dezenas = resultados_df[colunas_dezenas].values.flatten()
+
+        # Converter para números inteiros, ignorando valores inválidos
+        dezenas = pd.to_numeric(dezenas, errors="coerce")
+        dezenas = dezenas[~pd.isnull(dezenas)]  # Remover valores NaN
+
+        # Calcular a frequência
         freq = pd.Series(dezenas).value_counts().sort_index().reset_index()
         freq.columns = ["Dezena", "Frequência"]
-        freq["Dezena"] = freq["Dezena"].astype(str).str.zfill(2)
+        freq["Dezena"] = freq["Dezena"].astype(int).astype(str).str.zfill(2)  # Formatar como string com 2 dígitos
         return freq
     except Exception as e:
         st.error(f"Erro ao calcular a frequência das dezenas: {e}")
