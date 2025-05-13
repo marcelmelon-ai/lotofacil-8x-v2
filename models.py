@@ -114,6 +114,65 @@ def gerar_jogo(modelo, dados):
 
     return dezenas_recomendadas[['dezena', 'Probabilidade']]
 
+def gerar_jogos_otimizados(resultados, num_jogos=10):
+    """
+    Gera jogos otimizados com base em estatísticas e fechamento das 20 dezenas mais prováveis.
+
+    Args:
+        resultados (pd.DataFrame): DataFrame com os últimos 25 resultados da Lotofácil.
+        num_jogos (int): Número de jogos a serem gerados.
+
+    Returns:
+        list: Lista de jogos gerados.
+    """
+    # Verificar se há pelo menos 25 resultados
+    if len(resultados) < 25:
+        raise ValueError("É necessário pelo menos 25 resultados para gerar estatísticas.")
+
+    # Estatísticas básicas
+    def calcular_estatisticas(dezenas):
+        pares = sum(1 for d in dezenas if d % 2 == 0)
+        impares = sum(1 for d in dezenas if d % 2 != 0)
+        primos = sum(1 for d in dezenas if d in {2, 3, 5, 7, 11, 13, 17, 19, 23})
+        fibonacci = sum(1 for d in dezenas if d in {1, 2, 3, 5, 8, 13, 21})
+        soma = sum(dezenas)
+        return pares, impares, primos, fibonacci, soma
+
+    # Calcular frequência das dezenas nos últimos 25 resultados
+    dezenas = [f"D{i}" for i in range(1, 16)]
+    frequencia = pd.DataFrame(resultados[dezenas].stack().value_counts(), columns=["Frequência"])
+    frequencia.index.name = "Dezena"
+    frequencia.reset_index(inplace=True)
+    frequencia["Dezena"] = frequencia["Dezena"].astype(int)
+
+    # Ordenar as dezenas pela frequência
+    dezenas_ordenadas = frequencia.sort_values(by="Frequência", ascending=False)["Dezena"].tolist()
+
+    # Selecionar as 20 dezenas mais prováveis
+    dezenas_mais_provaveis = dezenas_ordenadas[:20]
+
+    # Gerar jogos otimizados
+    jogos = []
+    for _ in range(num_jogos):
+        # Selecionar 15 dezenas aleatórias das 20 mais prováveis
+        jogo = sorted(random.sample(dezenas_mais_provaveis, 15))
+        
+        # Calcular estatísticas do jogo
+        pares, impares, primos, fibonacci, soma = calcular_estatisticas(jogo)
+        
+        # Garantir que o jogo atende critérios estatísticos
+        if 6 <= pares <= 9 and 6 <= impares <= 9 and 3 <= primos <= 6 and 2 <= fibonacci <= 5 and 180 <= soma <= 225:
+            jogos.append(jogo)
+
+    # Garantir que o número de jogos gerados seja igual ao solicitado
+    while len(jogos) < num_jogos:
+        jogo = sorted(random.sample(dezenas_mais_provaveis, 15))
+        pares, impares, primos, fibonacci, soma = calcular_estatisticas(jogo)
+        if 6 <= pares <= 9 and 6 <= impares <= 9 and 3 <= primos <= 6 and 2 <= fibonacci <= 5 and 180 <= soma <= 225:
+            jogos.append(jogo)
+
+    return jogos
+
 
 def menu_lateral():
     """
