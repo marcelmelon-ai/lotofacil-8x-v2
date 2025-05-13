@@ -30,6 +30,14 @@ def pagina_ia():
     classes_esperadas = [0, 1, 2, 3, 4]
     if not set(y.unique()).issubset(classes_esperadas):
         raise ValueError(f"Invalid classes inferred from unique values of y. Expected: {classes_esperadas}, got {y.unique()}")
+    
+    # Mapeamento dinâmico de classes
+    mapeamento_classes = {21: 0, 22: 1, 23: 2, 24: 3, 25: 4}  # Ajuste conforme necessário
+    y = y.map(mapeamento_classes)
+
+    # Verifique se o mapeamento foi bem-sucedido
+    if y.isnull().any():
+        raise ValueError("Erro no mapeamento de classes. Verifique os valores de entrada.")
 
     # Preparar dados para treinamento
     st.write("🔄 Preparando dados para treinamento...")
