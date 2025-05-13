@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from estatisticas import carregar_tabelas_numeromania, carregar_dados_resultados, calcular_frequencia
 from inteligencia import treinar_modelo_xgb, prever_dezenas
-from ajustes import preprocessar_dados
+from ajustes import preprocessar_dados, carregar_dados_excel
 from models import gerar_jogo
 from paginas.gerador import gerar_jogo, gerar_jogos_com_fechamento
 from paginas.ia import pagina_ia
@@ -31,6 +31,15 @@ def main():
     if not resultados_file or not tabelas_file:
         st.sidebar.warning("Por favor, envie os dois arquivos Excel para continuar.")
         return
+    
+    # Carregar o arquivo Excel
+    caminho_arquivo = "data/resultados.xlsx"
+    try:
+        df = carregar_dados_excel(caminho_arquivo)
+        print("Dados carregados com sucesso!")
+        print(df.head())
+    except FileNotFoundError:
+        print(f"Arquivo não encontrado: {caminho_arquivo}")
 
     # Carregar os dados dos arquivos enviados
     try:
