@@ -1,4 +1,5 @@
 import streamlit as st
+import logging
 from inteligencia import treinar_modelo_xgb, preparar_dados_para_treinamento, prever_dezenas
 from estatisticas import calcular_estatisticas_avancadas
 
@@ -19,6 +20,16 @@ def pagina_ia():
 
     # Calcular estatísticas avançadas
     estatisticas = calcular_estatisticas_avancadas(resultados_df, tabelas)
+
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+    # Antes de treinar o modelo, verifique os valores de y
+    logging.info(f"Valores únicos em y antes do treinamento: {y.unique()}")
+
+    # Verifique se os valores estão no formato esperado
+    classes_esperadas = [0, 1, 2, 3, 4]
+    if not set(y.unique()).issubset(classes_esperadas):
+        raise ValueError(f"Invalid classes inferred from unique values of y. Expected: {classes_esperadas}, got {y.unique()}")
 
     # Preparar dados para treinamento
     st.write("🔄 Preparando dados para treinamento...")
