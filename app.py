@@ -48,7 +48,7 @@ def main():
         st.write("Análise completa dos concursos anteriores.")
 
         # Exibir o dashboard
-        mostrar_dashboard_estatistico(resultados, tabelas)  # Linha corrigida
+        mostrar_dashboard_estatistico(resultados, tabelas, resultados)  # Linha corrigida
 
         # Exibir frequência das dezenas
         st.subheader("Frequência das Dezenas")
@@ -66,7 +66,7 @@ def main():
 
         # Treinar modelo de IA
         st.write("🔄 Treinando modelo de IA...")
-        X, y = preprocessar_dados(resultados, tabelas_file)  # Prepara os dados para IA
+        X, y = preprocessar_dados(resultados)  # Prepara os dados para IA
         modelo = treinar_modelo_xgb(X, y)
 
         # Gerar jogos inteligentes
