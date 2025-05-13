@@ -1,5 +1,8 @@
+import pandas as pd
 import streamlit as st
 import random
+
+from models import gerar_jogos_otimizados
 
 def gerar_jogo(modelo, frequencia, num_jogos=10):
     """
@@ -68,3 +71,12 @@ def pagina_gerador():
         st.write("Jogos Gerados:")
         for i, jogo in enumerate(jogos, 1):
             st.write(f"Jogo {i}: {jogo}")
+
+def pagina_gerador():
+    st.header("🎲 Gerador de Jogos Inteligentes")
+    st.write("Crie combinações de jogos otimizados com base em estatísticas e modelos de IA.")
+    
+    frequencia = pd.DataFrame({
+        "Dezena": [i for i in range(1, 25)],
+        "Frequência": [100 - i for i in range(1, 25)]
+    })
