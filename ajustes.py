@@ -69,28 +69,3 @@ def preprocessar_dados(df):
     except Exception as e:
         logging.error(f"Erro durante o pré-processamento dos dados: {e}")
         raise
-
-def main():
-    """
-    Função principal para carregar e processar os dados.
-    """
-    try:
-        caminho_arquivo = "dados.xlsx"  # Substitua pelo caminho real do arquivo
-        logging.info("Iniciando o programa...")
-        
-        # Carregar os dados
-        dados = carregar_dados_excel(caminho_arquivo)
-        
-        # Pré-processar os dados
-        X, y = preprocessar_dados(dados)
-        
-        # Exibir os dados processados (ou realizar outras operações)
-        st.write("Dados de entrada (X):")
-        st.write(X)
-        st.write("Coluna alvo (y):")
-        st.write(y)
-        
-        logging.info("Execução concluída com sucesso.")
-    except Exception as e:
-        logging.critical(f"Erro crítico na execução do programa: {e}")
-        st.error(f"Erro crítico: {e}")

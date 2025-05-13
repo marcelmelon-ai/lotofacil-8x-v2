@@ -44,12 +44,20 @@ def main():
     try:
         colunas_esperadas = [
             "Concurso", "Data do sorteio", "D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8",
-            "D9", "D10", "D11", "D12", "D13", "D14", "D15"
-        ]
+            "D9", "D10", "D11", "D12", "D13", "D14", "D15", "Concurso da última ocorrência"
+    ]
         resultados = resultados[colunas_esperadas]  # Garantir que apenas as colunas esperadas sejam usadas
+    
+    # Tratar valores inválidos na coluna "Concurso da última ocorrência"
+        resultados["Concurso da última ocorrência"] = pd.to_numeric(
+        resultados["Concurso da última ocorrência"], errors="coerce"
+    )
+        resultados = resultados.dropna(subset=["Concurso da última ocorrência"])  # Remover linhas inválidas
+        resultados["Concurso da última ocorrência"] = resultados["Concurso da última ocorrência"].astype(int)
+    
         for coluna in colunas_esperadas:
             if coluna.startswith("D"):
-                resultados[coluna] = pd.to_numeric(resultados[coluna], errors="coerce")  # Converter para números
+               resultados[coluna] = pd.to_numeric(resultados[coluna], errors="coerce")  # Converter para números
     except KeyError as e:
         st.error(f"Erro ao processar os resultados: Coluna ausente - {e}")
         return
