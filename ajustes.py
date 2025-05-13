@@ -26,6 +26,18 @@ def carregar_dados_excel(caminho_arquivo):
         logging.error(f"Erro ao carregar o arquivo Excel: {e}")
         raise
 
+def preprocessar_dados(resultados):
+    # ... código existente ...
+    
+    # Remover linhas com valores ausentes ou inválidos
+    resultados = resultados.dropna()
+    
+    # Separar X e y
+    X = resultados[["D1", "D2", "D3", "D4", "D5"]]  # Exemplo de colunas de entrada
+    y = resultados["Soma das dezenas"]  # Exemplo de coluna de saída
+    
+    return X, y
+
 def preprocessar_dados(df):
     """
     Pré-processa os dados carregados do Excel.
