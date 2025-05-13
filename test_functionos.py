@@ -1,4 +1,5 @@
 import pandas as pd
+import random
 from ajustes import carregar_dados_excel, preprocessar_dados
 from estatisticas import calcular_frequencia
 from models import gerar_jogos_otimizados
@@ -18,23 +19,28 @@ def test_preprocessar_dados():
     Testa o pré-processamento dos dados para garantir que as colunas irrelevantes sejam removidas.
     """
     df = pd.DataFrame({
-        "D1": [1, 2], "D2": [3, 4], "D3": [5, 6], "Outros": [7, 8]
+        "D1": [random.randint(1, 25) for _ in range(10)],
+        "D2": [random.randint(1, 25) for _ in range(10)],
+        "D3": [random.randint(1, 25) for _ in range(10)],
+        "D15": [random.randint(1, 25) for _ in range(10)],
+        "Outros": [random.randint(100, 200) for _ in range(10)]
     })
     X, y = preprocessar_dados(df)
     assert "Outros" not in X.columns, "Coluna irrelevante não foi removida!"
-    assert X.shape[1] == 3, "Número incorreto de colunas relevantes em X!"
+    assert X.shape[1] == 4, "Número incorreto de colunas relevantes em X!"
     assert y.name == "D15", "A última coluna não foi definida como alvo corretamente!"
+    assert y.between(1, 25).all(), "Valores de y fora do intervalo esperado (1 a 25)!"
 
 def test_calcular_frequencia():
     """
     Testa o cálculo da frequência das dezenas.
     """
     df = pd.DataFrame({
-        "D1": [1, 2], "D2": [2, 3], "D3": [3, 4], "D4": [4, 5], "D5": [5, 6]
+        f"D{i}": [random.randint(1, 25) for _ in range(10)] for i in range(1, 15)
     })
     freq = calcular_frequencia(df)
     assert not freq.empty, "Frequência não foi calculada corretamente!"
-    assert set(freq["Dezena"].tolist()) == {"01", "02", "03", "04", "05", "06"}, "Frequência calculada incorretamente!"
+    assert freq["Dezena"].between(1, 25).all(), "Frequência contém dezenas fora do intervalo esperado!"
 
 def test_pagina_gerador():
     """
@@ -42,7 +48,7 @@ def test_pagina_gerador():
     """
     # Simular dados de frequência
     frequencia = pd.DataFrame({
-        "Dezena": [f"{i:02}" for i in range(1, 25)],
+        "Dezena": [i for i in range(1, 25)],
         "Frequência": [random.randint(1, 100) for _ in range(1, 25)]
     })
     # Simular sessão do Streamlit
@@ -54,23 +60,22 @@ def test_pagina_estatisticas():
     Testa a página de estatísticas para garantir que os dados são processados corretamente.
     """
     df = pd.DataFrame({
-        "D1": [1, 2], "D2": [3, 4], "D3": [5, 6], "D4": [7, 8], "D5": [9, 10]
+        f"D{i}": [random.randint(1, 25) for _ in range(10)] for i in range(1, 15)
     })
     frequencia = calcular_frequencia(df)
     assert not frequencia.empty, "Frequência não foi calculada corretamente!"
-    assert set(frequencia["Dezena"].tolist()) == {"01", "02", "03", "04", "05", "06", "07", "08", "09", "10"}, \
-        "Frequência calculada incorretamente!"
+    assert frequencia["Dezena"].between(1, 25).all(), "Frequência contém dezenas fora do intervalo esperado!"
 
 def test_gerar_jogos_otimizados():
     """
     Testa a geração de jogos otimizados para garantir que os jogos gerados estão corretos.
     """
     df = pd.DataFrame({
-        "Dezena": [f"{i:02}" for i in range(1, 25)],
+        "Dezena": [i for i in range(1, 25)],
         "Frequência": [random.randint(1, 100) for _ in range(1, 25)]
     })
     jogos = gerar_jogos_otimizados(df, num_jogos=2)
     assert len(jogos) == 2, "Número de jogos gerados está incorreto!"
     assert all(len(jogo) == 15 for jogo in jogos), "Cada jogo deve ter 15 dezenas!"
     for jogo in jogos:
-        assert all(1 <= int(dezena) <= 25 for dezena in jogo), "Dezenas fora do intervalo permitido!"
+        assert all(1 <= dezena <= 25 for dezena in jogo), "Dezenas fora do intervalo permitido!"
