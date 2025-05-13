@@ -40,8 +40,19 @@ def main():
         st.error(f"Erro ao carregar os arquivos Excel: {e}")
         return
 
-    # Calcular frequência das dezenas
-    frequencia = calcular_frequencia(resultados)
+     # Calcular frequência das dezenas
+    try:
+        frequencia = calcular_frequencia(resultados)
+    # Garantir que as colunas estão no formato correto
+        frequencia["Dezena"] = frequencia["Dezena"].astype(str)  # Converter para string
+        frequencia["Frequência"] = pd.to_numeric(frequencia["Frequência"], errors="coerce")  # Converter para número
+        frequencia = frequencia.dropna()  # Remover linhas inválidas
+    except KeyError as e:
+        st.error(f"Erro ao calcular a frequência das dezenas: Coluna ausente - {e}")
+        return
+    except Exception as e:
+        st.error(f"Erro inesperado ao calcular a frequência: {e}")
+        return
 
     if escolha == "Dashboard":
         st.title("📊 Dashboard de Estatísticas")
