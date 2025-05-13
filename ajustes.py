@@ -57,8 +57,7 @@ def preprocessar_dados(df):
         # Tratar valores inválidos em y
         if y.dtype == 'object':
             y = pd.to_numeric(y, errors='coerce')  # Converter para numérico, substituindo inválidos por NaN
-        y = y.dropna()  # Remover valores NaN
-        y = y.astype(int)  # Garantir que y seja inteiro
+        y = y[(y >= 1) & (y <= 25)]
         
         # Validar se os valores de y estão no intervalo esperado (1 a 25)
         if not y.between(1, 25).all():
