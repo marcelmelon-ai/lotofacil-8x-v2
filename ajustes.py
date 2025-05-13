@@ -1,5 +1,6 @@
 import pandas as pd
 import streamlit as st
+import logging
 
 @st.cache_data
 def carregar_dados_excel(caminho_arquivo):
@@ -37,3 +38,30 @@ def preprocessar_dados(df):
         raise ValueError("Nenhuma coluna de dezenas encontrada no DataFrame.")
     
     return df[colunas_relevantes]
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+def preprocessar_dados(resultados):
+    try:
+        logging.info("Iniciando o pré-processamento dos dados...")
+        # Verifique o formato dos dados
+        if not resultados or not isinstance(resultados, list):
+            raise ValueError("Os dados fornecidos para preprocessar_dados são inválidos ou estão vazios.")
+        
+        # ... código de pré-processamento existente ...
+        X, y = [], []  # Substitua pelo processamento real
+        logging.info("Pré-processamento concluído com sucesso.")
+        return X, y
+    except Exception as e:
+        logging.error(f"Erro durante o pré-processamento dos dados: {e}")
+        raise
+
+def main():
+    try:
+        # ... código existente ...
+        resultados = []  # Substitua pela obtenção real dos resultados
+        X, y = preprocessar_dados(resultados)  # Prepara os dados para IA
+        # ... restante do código ...
+    except Exception as e:
+        logging.critical(f"Erro crítico na execução do programa: {e}")
+        raise
