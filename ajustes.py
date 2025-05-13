@@ -43,14 +43,20 @@ def preprocessar_dados(df):
         if df.empty:
             raise ValueError("O DataFrame fornecido está vazio.")
         
-        # Verificar se existem colunas que começam com "D"
+        # Verificar se existem colunas que começam com "D" (dezenas)
         colunas_relevantes = [col for col in df.columns if col.startswith("D")]
         if not colunas_relevantes:
             raise ValueError("Nenhuma coluna de dezenas encontrada no DataFrame.")
         
-        # Supondo que a última coluna seja a coluna alvo (y)
+        # Selecionar as colunas relevantes (X)
         X = df[colunas_relevantes]
+        
+        # Supondo que a última coluna contenha as dezenas sorteadas (y)
         y = df.iloc[:, -1]  # Última coluna como alvo
+        
+        # Validar se os valores de y estão no intervalo esperado (1 a 25)
+        if not y.apply(lambda valor: 1 <= valor <= 25).all():
+            raise ValueError(f"Valores inválidos encontrados em y. Esperado: números entre 1 e 25, obtido: {y.unique()}")
         
         logging.info("Pré-processamento concluído com sucesso.")
         return X, y
