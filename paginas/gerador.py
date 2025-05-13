@@ -18,7 +18,7 @@ def gerar_jogo(modelo, frequencia, num_jogos=10):
 
     jogos = []
     for _ in range(num_jogos):
-        jogo = sorted(random.sample(dezenas_ordenadas[:15], 25))  # Seleciona as 15 mais prováveis
+        jogo = sorted(random.sample(dezenas_ordenadas[:20], 15))  # Seleciona as 20 mais prováveis
         jogos.append(jogo)
 
     return jogos
@@ -38,7 +38,32 @@ def gerar_jogos_com_fechamento(frequencia, num_jogos=10):
 
     jogos = []
     for _ in range(num_jogos):
-        jogo = sorted(random.sample(dezenas_ordenadas[:15], 25))  # Seleciona as 15 mais frequentes
+        jogo = sorted(random.sample(dezenas_ordenadas[:20], 15))  # Seleciona as 20 mais frequentes
         jogos.append(jogo)
 
     return jogos
+
+def pagina_gerador():
+    """
+    Página para gerar jogos otimizados.
+    """
+    st.header("🎲 Gerador de Jogos Inteligentes")
+    st.write("Crie combinações de jogos otimizados com base em estatísticas e modelos de IA.")
+
+    # Simular dados de frequência
+    frequencia = pd.DataFrame({
+        "Dezena": [i for i in range(1, 25)],
+        "Frequência": [100 - i for i in range(1, 25)]  # Exemplo de frequência decrescente
+    })
+
+    # Exibir tabela de frequência
+    st.write("Frequência das dezenas:")
+    st.dataframe(frequencia)
+
+    # Gerar jogos
+    num_jogos = st.slider("Número de jogos a gerar:", min_value=1, max_value=20, value=10)
+    if st.button("Gerar Jogos"):
+        jogos = gerar_jogos_otimizados(frequencia, num_jogos=num_jogos)
+        st.write("Jogos Gerados:")
+        for i, jogo in enumerate(jogos, 1):
+            st.write(f"Jogo {i}: {jogo}")
