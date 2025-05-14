@@ -20,7 +20,7 @@ dados = {
     "D13": [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
     "D14": [13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
     "D15": [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
-    "Soma das dezenas": [100 and 250, 200 and 300, 300 and 400],
+    "Soma das dezenas": [100 for _ in 400],
 }
 
 # Ajustar os comprimentos das listas no dicionário 'dados'
