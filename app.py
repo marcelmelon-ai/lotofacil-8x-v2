@@ -7,7 +7,6 @@ from models import gerar_jogo
 from paginas.gerador import gerar_jogo, gerar_jogos_com_fechamento
 from paginas.ia import pagina_ia
 from paginas.sobre import pagina_sobre
-from paginas.dados import pagina_dados
 from mostrar_dashboard_estatistico import mostrar_dashboard_estatistico
 
 def main():

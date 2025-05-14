@@ -1,6 +1,7 @@
 import pandas as pd
 import streamlit as st
 import logging
+from paginas.dados import dados
 
 # Configuração de logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -9,32 +10,33 @@ caminho_arquivo = 'data/resultados.xlsx'
 arquivo_enviado = None
 
 @st.cache_data
-def carregar_dados_excel(caminho_arquivo=None, arquivo_enviado=None):
-    """
-    Carrega os dados de um arquivo Excel.
-    
-    Args:
-        caminho_arquivo (str): Caminho para o arquivo Excel.
-        arquivo_enviado (UploadedFile): Arquivo enviado pelo usuário.
-    
-    Returns:
-        pd.DataFrame: DataFrame com os dados carregados.
-    """
+def carregar_dados_excel(caminho_arquivo):
     try:
-        if arquivo_enviado:
-            logging.info("Carregando dados do arquivo enviado pelo usuário.")
-            return pd.read_excel(arquivo_enviado)
-        elif caminho_arquivo:
-            logging.info(f"Carregando dados do arquivo: {caminho_arquivo}")
-            return pd.read_excel(caminho_arquivo)
-        else:
-            raise ValueError("Nenhum arquivo fornecido para carregar os dados.")
+        logging.info(f"Carregando dados do arquivo: {caminho_arquivo}")
+        return pd.read_excel(caminho_arquivo)
     except FileNotFoundError:
         logging.error(f"Arquivo não encontrado: {caminho_arquivo}")
-        raise
-    except Exception as e:
-        logging.error(f"Erro ao carregar o arquivo Excel: {e}")
-        raise
+        raise FileNotFoundError(f"Arquivo não encontrado: {caminho_arquivo}")
+
+def preprocessar_dados(df):
+    logging.info("Iniciando o pré-processamento dos dados...")
+    
+    if df.empty:
+        raise ValueError("O DataFrame fornecido está vazio.")
+    
+    colunas_relevantes = [col for col in df.columns if col.startswith("D")]
+    if not colunas_relevantes:
+        raise ValueError("Nenhuma coluna de dezenas encontrada no DataFrame.")
+    
+    X = df[colunas_relevantes]
+    y = df.iloc[:, -1]
+    
+    if y.dtype == 'object':
+        y = pd.to_numeric(y, errors='coerce')
+    y = y.dropna().astype(int)
+    
+    if not y.between(1, 25).all():
+        raise ValueError(f"Valores inválidos encontrados em y. Esperado: números entre 1 e 25, obtido: {y.unique()}")
 
 def preprocessar_dados(df):
     """
