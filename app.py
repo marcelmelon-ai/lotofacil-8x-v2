@@ -40,6 +40,27 @@ def main():
     except FileNotFoundError:
         print(f"Arquivo não encontrado: {caminho_arquivo}")
 
+    # Processar os dados
+    try:
+        X, y = preprocessar_dados(df)
+        st.write("Dados pré-processados com sucesso!")
+    except Exception as e:
+        st.error(f"Erro ao processar os dados: {e}")
+        return
+
+    if escolha == "Dashboard":
+        st.title("📊 Dashboard de Estatísticas")
+        st.write("Análise completa dos concursos anteriores.")
+        st.dataframe(df)
+
+    elif escolha == "Gerar Jogos":
+        st.title("🎲 Gerar Jogos Inteligentes")
+        st.write("Crie combinações de jogos otimizados com base em estatísticas e modelos de IA.")
+
+    elif escolha == "Sobre":
+        st.title("ℹ️ Sobre")
+        st.write("Informações sobre o projeto.")
+
     # Carregar os dados dos arquivos enviados
     try:
         resultados = carregar_dados_resultados(resultados_file)

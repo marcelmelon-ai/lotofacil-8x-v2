@@ -1,14 +1,6 @@
 import streamlit as st
 import pandas as pd
-import pytest
 import os
-
-@pytest.fixture
-def setup_test_environment(tmp_path):
-    # Setup a temporary directory for testing
-    test_dir = tmp_path / "data"
-    test_dir.mkdir()
-    return test_dir
 
 def carregar_dados_excel(output_file):
     # Verifica se está no ambiente online
@@ -23,7 +15,7 @@ def test_dataframe_creation():
     # Sample data to mimic the 'dados' dictionary
     dados = {
     "Concurso": [3000 for _ in range(4000)],
-    "Data do sorteio": ["2025-01-01" for _ in range (2025-12-12)],
+    "Data do sorteio": pd.date_range(start="2025-01-01", end="2025-12-31").strftime("%Y-%m-%d").tolist(),
     "D1": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
     "D2": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
     "D3": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17],
@@ -54,7 +46,7 @@ def test_excel_file_creation(setup_test_environment):
     # Sample data to mimic the 'dados' dictionary
     dados = {
     "Concurso": [3000 for _ in range(4000)],
-    "Data do sorteio": ["2025-01-01" for _ in range (2025-12-12)],
+    "Data do sorteio": pd.date_range(start="2025-01-01", end="2025-12-31").strftime("%Y-%m-%d").tolist(),
     "D1": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
     "D2": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
     "D3": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17],
