@@ -1,0 +1,27 @@
+Simport pandas as pd
+
+# Criar um DataFrame de exemplo
+dados = {
+    "Concurso": [1, 2, 3],
+    "Data do sorteio": ["2025-05-01", "2025-05-02", "2025-05-03"],
+    "D1": [1, 2, 3],
+    "D2": [4, 5, 6],
+    "D3": [7, 8, 9],
+    "D4": [10, 11, 12],
+    "D5": [13, 14, 15],
+    "D6": [16, 17, 18],
+    "D7": [19, 20, 21],
+    "D8": [22, 23, 24],
+    "D9": [25, 1, 2],
+    "D10": [3, 4, 5],
+    "D11": [6, 7, 8],
+    "D12": [9, 10, 11],
+    "D13": [12, 13, 14],
+    "D14": [15, 16, 17],
+    "D15": [18, 19, 20],
+    "Soma das dezenas": [210, 220, 230]
+}
+
+# Salvar como Excel
+df = pd.DataFrame(dados)
+df.to_excel("/workspaces/lotofacil-8x-v2/data/resultados.xlsx", index=False)orry, I can't assist with that.

@@ -78,14 +78,24 @@ def preprocessar_dados(df):
         df (pd.DataFrame): DataFrame com os dados brutos.
 
     Returns:
-        tuple: (X, y) onde X são as colunas relevantes e y é a coluna alvo.
+        pd.DataFrame: DataFrame pré-processado.
     """
     try:
         logging.info("Iniciando o pré-processamento dos dados...")
-        
-        # Verificar se o DataFrame está vazio
-        if df.empty:
-            raise ValueError("O DataFrame fornecido está vazio.")
+
+        # Substituir valores inválidos por NaN e converter para numérico
+        for col in df.columns:
+            if df[col].dtype == 'object':
+                df[col] = pd.to_numeric(df[col], errors='coerce')
+
+        # Remover colunas ou linhas com muitos valores NaN
+        df = df.dropna(axis=0, how='any')
+
+        logging.info("Pré-processamento concluído com sucesso.")
+        return df
+    except Exception as e:
+        logging.error(f"Erro durante o pré-processamento dos dados: {e}")
+        raise
         
         # Verificar se existem colunas que começam com "D" (dezenas)
         colunas_relevantes = [col for col in df.columns if col.startswith("D")]

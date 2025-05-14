@@ -1,4 +1,5 @@
 import random
+import logging
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -125,31 +126,49 @@ def gerar_jogos_otimizados(resultados, num_jogos=10):
     Returns:
         list: Lista de jogos gerados.
     """
-    # Verificar se há pelo menos 25 resultados
-    if len(resultados) < 25:
-        raise ValueError("É necessário pelo menos 25 resultados para gerar estatísticas.")
+    try:
+        # Verificar se há pelo menos 25 resultados
+        if len(resultados) < 25:
+            raise ValueError("É necessário pelo menos 25 resultados para gerar estatísticas.")
 
-    # Estatísticas básicas
-    def calcular_estatisticas(dezenas):
-        pares = sum(1 for d in dezenas if d % 2 == 0)
-        impares = sum(1 for d in dezenas if d % 2 != 0)
-        primos = sum(1 for d in dezenas if d in {2, 3, 5, 7, 11, 13, 17, 19, 23})
-        fibonacci = sum(1 for d in dezenas if d in {1, 2, 3, 5, 8, 13, 21})
-        soma = sum(dezenas)
-        return pares, impares, primos, fibonacci, soma
+        # Verificar se as colunas de dezenas estão presentes
+        dezenas = [f"D{i}" for i in range(1, 16)]
+        for dezena in dezenas:
+            if dezena not in resultados.columns:
+                raise KeyError(f"Coluna {dezena} não encontrada no DataFrame.")
+
+        # Calcular frequência das dezenas
+        frequencia = pd.DataFrame(resultados[dezenas].stack().value_counts(), columns=["Frequência"])
+        frequencia.index.name = "Dezena"
+        frequencia.reset_index(inplace=True)
+        frequencia["Dezena"] = frequencia["Dezena"].astype(int)
+
+        # Selecionar as 20 dezenas mais frequentes
+        dezenas_ordenadas = frequencia.sort_values(by="Frequência", ascending=False)["Dezena"].tolist()
+        dezenas_mais_provaveis = dezenas_ordenadas[:20]
+
+        # Gerar jogos
+        jogos = []
+        for _ in range(num_jogos):
+            jogo = sorted(random.sample(dezenas_mais_provaveis, 15))
+            jogos.append(jogo)
+
+        return jogos
+    except Exception as e:
+        logging.error(f"Erro ao gerar jogos otimizados: {e}")
+        raise
+
+# Estatísticas básicas
+def calcular_estatisticas(dezenas, resultados):
+    pares = sum(1 for d in dezenas if d % 2 == 0)
+    impares = sum(1 for d in dezenas if d % 2 != 0)
+    primos = sum(1 for d in dezenas if d in {2, 3, 5, 7, 11, 13, 17, 19, 23})
+    fibonacci = sum(1 for d in dezenas if d in {1, 2, 3, 5, 8, 13, 21})
+    soma = sum(dezenas)
+    return pares, impares, primos, fibonacci, soma
 
     # Calcular frequência das dezenas nos últimos 25 resultados
-    dezenas = [f"D{i}" for i in range(1, 16)]
-    frequencia = pd.DataFrame(resultados[dezenas].stack().value_counts(), columns=["Frequência"])
-    frequencia.index.name = "Dezena"
-    frequencia.reset_index(inplace=True)
-    frequencia["Dezena"] = frequencia["Dezena"].astype(int)
-
-    # Ordenar as dezenas pela frequência
-    dezenas_ordenadas = frequencia.sort_values(by="Frequência", ascending=False)["Dezena"].tolist()
-
-    # Selecionar as 20 dezenas mais prováveis
-    dezenas_mais_provaveis = dezenas_ordenadas[:20]
+    dezenas_mais_provaveis = [f"D{i}" for i in range(1, 16)]
 
     # Gerar jogos otimizados
     jogos = []
@@ -158,7 +177,7 @@ def gerar_jogos_otimizados(resultados, num_jogos=10):
         jogo = sorted(random.sample(dezenas_mais_provaveis, 15))
         
         # Calcular estatísticas do jogo
-        pares, impares, primos, fibonacci, soma = calcular_estatisticas(jogo)
+        pares, impares, primos, fibonacci, soma = calcular_estatisticas(jogo, resultados)
         
         # Garantir que o jogo atende critérios estatísticos
         if 6 <= pares <= 9 and 6 <= impares <= 9 and 3 <= primos <= 6 and 2 <= fibonacci <= 5 and 180 <= soma <= 225:
@@ -167,7 +186,7 @@ def gerar_jogos_otimizados(resultados, num_jogos=10):
     # Garantir que o número de jogos gerados seja igual ao solicitado
     while len(jogos) < num_jogos:
         jogo = sorted(random.sample(dezenas_mais_provaveis, 15))
-        pares, impares, primos, fibonacci, soma = calcular_estatisticas(jogo)
+        pares, impares, primos, fibonacci, soma = calcular_estatisticas(jogo, resultados)
         if 6 <= pares <= 9 and 6 <= impares <= 9 and 3 <= primos <= 6 and 2 <= fibonacci <= 5 and 180 <= soma <= 225:
             jogos.append(jogo)
 
@@ -235,53 +254,41 @@ def menu_lateral():
     escolha = st.sidebar.radio("Ir para:", opcoes)
 
     arquivo = st.sidebar.file_uploader("Enviar arquivo Excel", type=["xlsx"])
+    modelos = None
+
     if arquivo:
         modelos = carregar_dados_e_treinar_modelos(arquivo)
 
+    if escolha == "Início":
+        st.title("🎯 Bem-vindo ao Lotofácil 8X")
+        st.write("Escolha uma opção no menu lateral para começar.")
+
+    elif escolha == "Estatísticas":
         if modelos:
-            if escolha == "Início":
-                st.title("🎯 Bem-vindo ao Lotofácil 8X")
-                st.write("Escolha uma opção no menu lateral para começar.")
-
-            elif escolha == "Estatísticas":
-                mostrar_dashboard_estatistico(modelos['dados'])
-
-            elif escolha == "Gerar Jogos":
-                st.subheader("🔮 Gerador de Jogos com IA")
-                modelo_selecionado = st.selectbox("Escolha o Modelo", ["XGBoost", "Random Forest", "MLP"])
-                if modelo_selecionado == "XGBoost":
-                    modelo, accuracy, y_test, y_pred = modelos['xgb']
-                elif modelo_selecionado == "Random Forest":
-                    modelo, accuracy, y_test, y_pred = modelos['rf']
-                else:
-                    modelo, accuracy, y_test, y_pred = modelos['mlp']
-
-                st.write(f"Acurácia do Modelo {modelo_selecionado}: **{accuracy:.2%}**")
-                mostrar_graficos_desempenho(y_test, y_pred, modelo_selecionado)
-
-                df_dados = modelos['dados']
-                top_dezenas = gerar_jogo(modelo, df_dados)
-
-                if 'dezena' not in top_dezenas.columns:
-                    top_dezenas = top_dezenas.reset_index()
-
-                st.subheader(f"🎯 Dezenas mais prováveis segundo IA ({modelo_selecionado})")
-                st.dataframe(top_dezenas[['dezena', 'Probabilidade']])
-
-                jogo_gerado = sorted(top_dezenas['dezena'].sample(15).tolist())
-                st.success(f"Jogo gerado com IA: {', '.join(map(str, jogo_gerado))}")
-
-            elif escolha == "Simulação de Jogos":
-                st.subheader("🎲 Simulação de Jogos")
-                st.info("Em breve...")
-
-            elif escolha == "Sobre":
-                st.subheader("📜 Sobre o Lotofácil 8X")
-                st.markdown("""
-                Este app utiliza **Inteligência Artificial** e **estatísticas** para analisar e gerar combinações prováveis para a Lotofácil.  
-                Desenvolvido por **Marcel Melon** com ❤ e tecnologia.
-                """)
+            mostrar_dashboard_estatistico(modelos['dados'])
         else:
-            st.warning("Erro ao carregar ou treinar modelos. Verifique o arquivo.")
-    else:
-        st.sidebar.info("📤 Por favor, envie um arquivo Excel para começar.")
+            st.warning("Por favor, envie um arquivo Excel para visualizar as estatísticas.")
+
+    elif escolha == "Gerar Jogos":
+        if modelos:
+            st.subheader("🔮 Gerador de Jogos com IA")
+            modelo_selecionado = st.selectbox("Escolha o Modelo", ["XGBoost", "Random Forest", "MLP"])
+            modelo, accuracy, _, _ = modelos[modelo_selecionado.lower()]
+            st.write(f"Acurácia do Modelo {modelo_selecionado}: **{accuracy:.2%}**")
+            jogos = gerar_jogos_otimizados(modelos['dados'], num_jogos=10)
+            st.write("Jogos Gerados:")
+            for jogo in jogos:
+                st.write(jogo)
+        else:
+            st.warning("Por favor, envie um arquivo Excel para gerar jogos.")
+
+    elif escolha == "Simulação de Jogos":
+        st.subheader("🎲 Simulação de Jogos")
+        st.info("Em breve...")
+
+    elif escolha == "Sobre":
+        st.subheader("📜 Sobre o Lotofácil 8X")
+        st.markdown("""
+        Este app utiliza **Inteligência Artificial** e **estatísticas** para analisar e gerar combinações prováveis para a Lotofácil.  
+        Desenvolvido por **Marcel Melon** com ❤ e tecnologia.
+        """)
