@@ -1,5 +1,6 @@
 import pandas as pd
 import streamlit as st
+import logging
 
 @st.cache_data
 def carregar_dados_resultados(resultados_file):
@@ -84,14 +85,27 @@ def calcular_frequencia_das_dezenas(resultados):
 def calcular_frequencia(df):
     """
     Calcula a frequência das dezenas em um DataFrame.
+
+    Args:
+        df (pd.DataFrame): DataFrame com colunas de dezenas.
+
+    Returns:
+        pd.DataFrame: DataFrame com a frequência das dezenas.
     """
-    frequencia = pd.DataFrame(df.stack().value_counts(), columns=["Frequência"])
-    frequencia.index.name = "Dezena"
-    frequencia.reset_index(inplace=True)
-    frequencia["Dezena"] = pd.to_numeric(frequencia["Dezena"], errors="coerce")  # Garantir valores numéricos
-    frequencia.dropna(subset=["Dezena"], inplace=True)
-    frequencia["Dezena"] = frequencia["Dezena"].astype(int)
-    return frequencia
+    try:
+        dezenas = [col for col in df.columns if col.startswith("D")]
+        freq = pd.DataFrame(df[dezenas].stack().value_counts(), columns=["Frequência"])
+        freq.index.name = "Dezena"
+        freq.reset_index(inplace=True)
+        
+        # Garantir que a coluna "Dezena" seja numérica
+        freq["Dezena"] = pd.to_numeric(freq["Dezena"], errors="coerce")
+        freq = freq.dropna().astype({"Dezena": int})
+        
+        return freq
+    except Exception as e:
+        logging.error(f"Erro ao calcular a frequência: {e}")
+        raise
 
 @st.cache_data
 def calcular_frequencia(resultados_df):

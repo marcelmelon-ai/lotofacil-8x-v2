@@ -1,8 +1,18 @@
 import pandas as pd
 import streamlit as st
 import random
-
-from models import gerar_jogos_otimizados
+import logging
+import numpy as np
+from models import gerar_jogos_otimizados, gerar_jogos_simples, gerar_jogos_ia, gerar_jogos_com_fechamento
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import make_pipeline
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier
 
 def gerar_jogo(modelo, frequencia, num_jogos=10):
     """
@@ -25,6 +35,39 @@ def gerar_jogo(modelo, frequencia, num_jogos=10):
         jogo = sorted(random.sample(dezenas_ordenadas[:20], 15))  # Seleciona as 20 mais prováveis
         jogos.append(jogo)
 
+    return jogos
+
+def gerar_jogos_simples(frequencia, num_jogos=10):
+    """
+    Gera jogos simples com base na frequência das dezenas.
+
+    Args:
+        frequencia (pd.DataFrame): DataFrame com a frequência das dezenas.
+        num_jogos (int): Número de jogos a serem gerados.
+
+    Returns:
+        list: Lista de jogos gerados.
+    """
+    dezenas_ordenadas = frequencia.sort_values(by="Frequência", ascending=False)["Dezena"].tolist()
+    jogos = [sorted(random.sample(dezenas_ordenadas[:20], 15)) for _ in range(num_jogos)]
+    return jogos
+
+def gerar_jogos_ia(modelo, frequencia, num_jogos=10):
+    """
+    Gera jogos inteligentes com base no modelo treinado.
+
+    Args:
+        modelo: Modelo treinado de IA.
+        frequencia (pd.DataFrame): DataFrame com a frequência das dezenas.
+        num_jogos (int): Número de jogos a serem gerados.
+
+    Returns:
+        list: Lista de jogos gerados.
+    """
+    probabilidades = modelo.predict_proba(frequencia[["Frequência"]])[:, 1]
+    frequencia["Probabilidade"] = probabilidades
+    dezenas_ordenadas = frequencia.sort_values(by="Probabilidade", ascending=False)["Dezena"].tolist()
+    jogos = [sorted(random.sample(dezenas_ordenadas[:20], 15)) for _ in range(num_jogos)]
     return jogos
 
 def gerar_jogos_com_fechamento(frequencia, num_jogos=10):
