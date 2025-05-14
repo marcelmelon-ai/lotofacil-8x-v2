@@ -39,7 +39,7 @@ def test_dataframe_creation():
     # Assert the DataFrame is created correctly
     assert not df.empty
     assert list(df.columns) == list(dados.keys())
-    assert len(df) == 1
+    assert len(df) == 400
 
 def test_excel_file_creation(setup_test_environment):
     # Sample data to mimic the 'dados' dictionary
@@ -64,21 +64,17 @@ def test_excel_file_creation(setup_test_environment):
     "Soma das dezenas": [100 for _ in range(400)]
     }
 
-# Função fictícia para configurar o ambiente de teste
-def setup_test_environment():
-    return os.getcwd()  # Retorna o diretório atual como exemplo
-
 # Diretório e arquivo de saída
-output_dir = setup_test_environment()
-output_file = os.path.join(output_dir, "resultados.xlsx")
+    output_dir = setup_test_environment
+    output_file = os.path.join(output_dir, "resultados.xlsx")
 
-# Criação do DataFrame e salvamento no Excel
-df = pd.DataFrame()
-df.to_excel(output_file, index=False)
+    # Criação do DataFrame e salvamento no Excel
+    df = pd.DataFrame(dados)
+    df.to_excel(output_file, index=False)
 
-# Verificação se o arquivo foi criado
-assert os.path.exists(output_file)
+    # Verificação se o arquivo foi criado
+    assert os.path.exists(output_file)
 
-# Carregamento do arquivo Excel e verificação do conteúdo
-loaded_df = pd.read_excel(output_file)
-pd.testing.assert_frame_equal(df, loaded_df)
+    # Carregamento do arquivo Excel e verificação do conteúdo
+    loaded_df = pd.read_excel(output_file)
+    pd.testing.assert_frame_equal(df, loaded_df)
