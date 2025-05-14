@@ -4,7 +4,7 @@ import pandas as pd
 # Criar um DataFrame de exemplo
 dados = {
     "Concurso": [3000 for _ in range(4000)],
-    "Data do sorteio": ["2025-01-01" for _ in "2025-12-12"],
+    "Data do sorteio": ["2025-01-01" for _ in range (2025-12-12)],
     "D1": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
     "D2": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
     "D3": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17],
@@ -20,7 +20,7 @@ dados = {
     "D13": [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
     "D14": [13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
     "D15": [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
-    "Soma das dezenas": [100 for _ in 400],
+    "Soma das dezenas": [100 for _ in range(400)],
 }
 
 # Ajustar os comprimentos das listas no dicionário 'dados'
