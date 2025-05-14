@@ -128,6 +128,8 @@ def gerar_jogos_otimizados(resultados, num_jogos=10):
     """
     try:
         # Verificar se há pelo menos 25 resultados
+        if resultados is None or not isinstance(resultados, pd.DataFrame):
+            raise ValueError("O parâmetro 'resultados' deve ser um DataFrame válido.")
         if len(resultados) < 25:
             raise ValueError("É necessário pelo menos 25 resultados para gerar estatísticas.")
 
@@ -136,7 +138,10 @@ def gerar_jogos_otimizados(resultados, num_jogos=10):
         for dezena in dezenas:
             if dezena not in resultados.columns:
                 raise KeyError(f"Coluna {dezena} não encontrada no DataFrame.")
-
+        try:
+            frequencia = pd.DataFrame(resultados[dezenas].stack().value_counts(), columns=["Frequência"])
+        except KeyError as e:
+            raise KeyError(f"Erro ao calcular a frequência: {e}")
         # Calcular frequência das dezenas
         frequencia = pd.DataFrame(resultados[dezenas].stack().value_counts(), columns=["Frequência"])
         frequencia.index.name = "Dezena"
@@ -144,8 +149,9 @@ def gerar_jogos_otimizados(resultados, num_jogos=10):
         frequencia["Dezena"] = frequencia["Dezena"].astype(int)
 
         # Selecionar as 20 dezenas mais frequentes
-        dezenas_ordenadas = frequencia.sort_values(by="Frequência", ascending=False)["Dezena"].tolist()
-        dezenas_mais_provaveis = dezenas_ordenadas[:20]
+        dezenas_mais_provaveis = frequencia.sort_values(by="Frequência", ascending=False)["Dezena"].tolist()
+        if len(dezenas_mais_provaveis) < 15:
+            raise ValueError("Não há dezenas suficientes para gerar um jogo.")
 
         # Gerar jogos
         jogos = []
@@ -167,10 +173,18 @@ def calcular_estatisticas(dezenas, resultados):
     soma = sum(dezenas)
     return pares, impares, primos, fibonacci, soma
 
-    # Calcular frequência das dezenas nos últimos 25 resultados
-    dezenas_mais_provaveis = [f"D{i}" for i in range(1, 16)]
+def gerar_jogos_otimizados_v2(dezenas_mais_provaveis, resultados, num_jogos):
+    """
+    Gera jogos otimizados com base em critérios estatísticos.
 
-    # Gerar jogos otimizados
+    Args:
+        dezenas_mais_provaveis (list): Lista das dezenas mais prováveis.
+        resultados (pd.DataFrame): DataFrame com os resultados.
+        num_jogos (int): Número de jogos a serem gerados.
+
+    Returns:
+        list: Lista de jogos gerados.
+    """
     jogos = []
     for _ in range(num_jogos):
         # Selecionar 15 dezenas aleatórias das 20 mais prováveis
