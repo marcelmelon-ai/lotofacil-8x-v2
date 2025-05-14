@@ -32,5 +32,10 @@ for key in dados:
 # Criar o DataFrame
 df = pd.DataFrame(dados)
 
+# Garantir que o diretório existe
+output_dir = "/workspaces/lotofacil-8x-v2/data"
+os.makedirs(output_dir, exist_ok=True)
+
 # Salvar como Excel
-df.to_excel("/workspaces/lotofacil-8x-v2/data/resultados.xlsx", index=False)
+output_file = os.path.join(output_dir, "resultados.xlsx")
+df.to_excel(output_file, index=False)
