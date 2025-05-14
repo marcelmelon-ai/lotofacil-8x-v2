@@ -2,6 +2,7 @@ import pandas as pd
 import streamlit as st
 import logging
 from paginas.dados import dados
+from paginas.dados import carregar_dados_excel
 
 # Configuração de logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -37,6 +38,8 @@ def preprocessar_dados(df):
     
     if not y.between(1, 25).all():
         raise ValueError(f"Valores inválidos encontrados em y. Esperado: números entre 1 e 25, obtido: {y.unique()}")
+    
+    return X, y
 
 def preprocessar_dados(df):
     """
@@ -95,7 +98,7 @@ def preprocessar_dados(df):
 
         # Remover colunas ou linhas com muitos valores NaN
         df = df.dropna(axis=0, how='any')
-
+        return df, None
         logging.info("Pré-processamento concluído com sucesso.")
         return df
     except Exception as e:
@@ -127,3 +130,11 @@ def preprocessar_dados(df):
     except Exception as e:
         logging.error(f"Erro durante o pré-processamento dos dados: {e}")
         raise
+
+ def preprocessar_dados(output_file):
+    # Carrega os dados do Excel (somente no ambiente online)
+    df = carregar_dados_excel(output_file)
+    if df.empty:
+        return "Nenhum dado carregado no ambiente local."
+    # Processa os dados (exemplo)
+    return df.describe() 

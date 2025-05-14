@@ -313,3 +313,37 @@ def test_pagina_gerador_sem_frequencia():
         assert False, "Deveria ter ocorrido um erro ao carregar a página sem dados de frequência!"
     except KeyError as e:
         assert str(e) == "'frequencia'", "Mensagem de erro incorreta ao acessar dados de frequência!"
+
+def test_preprocessar_dados_empty_dataframe():
+    df = pd.DataFrame()
+    with pytest.raises(ValueError, match="O DataFrame fornecido está vazio."):
+        preprocessar_dados(df)
+
+def test_preprocessar_dados_no_relevant_columns():
+    df = pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})
+    with pytest.raises(ValueError, match="Nenhuma coluna de dezenas encontrada no DataFrame."):
+        preprocessar_dados(df)
+
+def test_preprocessar_dados_insufficient_columns():
+    df = pd.DataFrame({f"D{i}": [1, 2, 3] for i in range(10)})
+    with pytest.raises(ValueError, match="Colunas insuficientes. Esperado: 15, Encontrado: 10"):
+        preprocessar_dados(df)
+
+def test_preprocessar_dados_missing_target_column():
+    df = pd.DataFrame({f"D{i}": [1, 2, 3] for i in range(15)})
+    with pytest.raises(ValueError, match="Coluna 'Soma das dezenas' não encontrada no DataFrame."):
+        preprocessar_dados(df)
+
+def test_preprocessar_dados_invalid_target_values():
+    df = pd.DataFrame({f"D{i}": [1, 2, 3] for i in range(15)})
+    df["Soma das dezenas"] = [30, 40, 50]  # Invalid values
+    with pytest.raises(ValueError, match="Valores inválidos encontrados em y. Esperado: números entre 1 e 25"):
+        preprocessar_dados(df)
+
+def test_preprocessar_dados_success():
+    df = pd.DataFrame({f"D{i}": [1, 2, 3] for i in range(15)})
+    df["Soma das dezenas"] = [10, 15, 20]
+    X, y = preprocessar_dados(df)
+    assert not X.empty
+    assert len(X.columns) == 15
+    assert y.equals(pd.Series([10, 15, 20], name="Soma das dezenas"))
