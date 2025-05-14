@@ -274,6 +274,21 @@ def test_preprocessar_dados_sem_colunas_irrelevantes():
     assert X.shape[1] == 4, "Número incorreto de colunas relevantes em X!"
     assert y.name == "D15", "A última coluna não foi definida como alvo corretamente!"
 
+def test_dataframe_creation_validity():
+    # Test the DataFrame creation function
+    try:
+        test_dataframe_creation()
+    except AssertionError as e:
+        pytest.fail(f"DataFrame creation test failed: {e}")
+
+def test_excel_file_creation_validity(tmp_path):
+    # Test the Excel file creation function
+    try:
+        test_dir = setup_test_environment(tmp_path)
+        test_excel_file_creation(test_dir)
+    except AssertionError as e:
+        pytest.fail(f"Excel file creation test failed: {e}")
+
 def test_pagina_gerador_sem_frequencia():
     """
     Testa a página do gerador de jogos quando não há dados de frequência disponíveis.
