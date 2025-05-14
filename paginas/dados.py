@@ -3,8 +3,8 @@ import pandas as pd
 
 # Criar um DataFrame de exemplo
 dados = {
-    "Concurso": [1, 2, 3],
-    "Data do sorteio": ["2025-05-01", "2025-05-02", "2025-05-03"],
+    "Concurso": [3000 for _ in range(4000)],
+    "Data do sorteio": ["2025-01-01" for _ in "2025-12-12"],
     "D1": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
     "D2": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
     "D3": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17],
@@ -20,9 +20,17 @@ dados = {
     "D13": [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
     "D14": [13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
     "D15": [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
-    "Soma das dezenas": [105, 120, 135]
+    "Soma das dezenas": [100 and 250, 200 and 300, 300 and 400],
 }
 
-# Salvar como Excel
+# Ajustar os comprimentos das listas no dicionário 'dados'
+max_length = max(len(value) for value in dados.values())
+for key in dados:
+    if len(dados[key]) < max_length:
+        dados[key].extend([None] * (max_length - len(dados[key])))  # Preenche com None
+
+# Criar o DataFrame
 df = pd.DataFrame(dados)
+
+# Salvar como Excel
 df.to_excel("/workspaces/lotofacil-8x-v2/data/resultados.xlsx", index=False)
