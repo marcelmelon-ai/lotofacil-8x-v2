@@ -1,5 +1,6 @@
 import pandas as pd
 import random
+import pytest
 from ajustes import carregar_dados_excel, preprocessar_dados
 from estatisticas import calcular_frequencia
 from models import gerar_jogos_otimizados
@@ -273,6 +274,18 @@ def test_preprocessar_dados_sem_colunas_irrelevantes():
     X, y = preprocessar_dados(df)
     assert X.shape[1] == 4, "Número incorreto de colunas relevantes em X!"
     assert y.name == "D15", "A última coluna não foi definida como alvo corretamente!"
+
+def test_dataframe_creation():
+    # Placeholder for the actual implementation of test_dataframe_creation
+    pass
+
+def setup_test_environment(tmp_path):
+    # Placeholder for the actual implementation of setup_test_environment
+    return tmp_path
+
+def test_excel_file_creation(test_dir):
+    # Placeholder for the actual implementation of test_excel_file_creation
+    pass
 
 def test_dataframe_creation_validity():
     # Test the DataFrame creation function
