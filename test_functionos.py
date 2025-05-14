@@ -16,6 +16,7 @@ def test_carregar_dados_excel_com_dados_corrompidos():
     """
     try:
         df = carregar_dados_excel("data/dados_corrompidos.xlsx")
+        print(df)  # Accessing df to avoid "not accessed" error
         assert False, "Deveria ter ocorrido um erro ao carregar dados corrompidos!"
     except ValueError as e:
         assert "Erro ao processar o arquivo Excel" in str(e), "Mensagem de erro incorreta para dados corrompidos!"
@@ -100,6 +101,7 @@ def test_preprocessar_dados_com_colunas_extras():
         "D15": [random.randint(1, 25) for _ in range(10)],
         "Extra": [random.randint(1, 100) for _ in range(10)]  # Coluna extra
     })
+    print(df)  # Accessing df to avoid "not accessed" error
     X, y = preprocessar_dados(df)
     assert "Extra" not in X.columns, "Coluna extra não foi removida!"
     assert X.shape[1] == 4, "Número incorreto de colunas relevantes em X!"
@@ -242,9 +244,10 @@ def test_gerar_jogos_otimizados_sem_dados():
     """
     Testa a geração de jogos otimizados quando o DataFrame de entrada está vazio.
     """
-    df = pd.DataFrame()
+    df = pd.DataFrame()  # Define an empty DataFrame
     try:
         jogos = gerar_jogos_otimizados(df, num_jogos=2)
+        print(jogos)  # Accessing jogos to avoid "not accessed" error
         assert False, "Deveria ter ocorrido um erro ao gerar jogos com DataFrame vazio!"
     except ValueError as e:
         assert str(e) == "O DataFrame de entrada está vazio!", "Mensagem de erro incorreta!"
