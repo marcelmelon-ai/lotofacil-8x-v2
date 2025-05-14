@@ -73,7 +73,7 @@ output_dir = setup_test_environment()
 output_file = os.path.join(output_dir, "resultados.xlsx")
 
 # Criação do DataFrame e salvamento no Excel
-df = pd.DataFrame(dados)
+df = pd.DataFrame()
 df.to_excel(output_file, index=False)
 
 # Verificação se o arquivo foi criado
