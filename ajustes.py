@@ -5,15 +5,18 @@ import logging
 # Configuração de logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+caminho_arquivo = 'data/resultados.xlsx'
+arquivo_enviado = None
+
 @st.cache_data
 def carregar_dados_excel(caminho_arquivo=None, arquivo_enviado=None):
     """
     Carrega os dados de um arquivo Excel.
-
+    
     Args:
         caminho_arquivo (str): Caminho para o arquivo Excel.
         arquivo_enviado (UploadedFile): Arquivo enviado pelo usuário.
-
+    
     Returns:
         pd.DataFrame: DataFrame com os dados carregados.
     """
@@ -28,7 +31,7 @@ def carregar_dados_excel(caminho_arquivo=None, arquivo_enviado=None):
             raise ValueError("Nenhum arquivo fornecido para carregar os dados.")
     except FileNotFoundError:
         logging.error(f"Arquivo não encontrado: {caminho_arquivo}")
-        raise FileNotFoundError(f"Arquivo não encontrado: {caminho_arquivo}")
+        raise
     except Exception as e:
         logging.error(f"Erro ao carregar o arquivo Excel: {e}")
         raise
