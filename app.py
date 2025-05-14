@@ -178,7 +178,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-def pagina_dados():
-    st.title("📊 Dados")
-    st.write("Página para exibir e gerenciar dados.")
