@@ -11,7 +11,7 @@ def carregar_dados_excel(output_file):
         # Retorna um DataFrame vazio no ambiente local
         return pd.DataFrame()
 
-def test_dataframe_creation():
+def test_dataframe_creation(df):
     # Sample data to mimic the 'dados' dictionary
     dados = {
     "Concurso": [3000 for _ in range(4000)],
