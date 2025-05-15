@@ -15,11 +15,20 @@ def mostrar_dashboard():
     resultados = pd.read_excel("dados/resultados_historicos.xlsx")
     estatisticas = pd.read_excel("dados/estatisticas.xlsx")
 
+    # Verificar se o arquivo de jogos atuais existe
+    jogos_atuais = None
+    if os.path.exists("dados/jogos_atuais.xlsx"):
+        jogos_atuais = pd.read_excel("dados/jogos_atuais.xlsx")
+
     st.write("### Resultados Históricos")
     st.dataframe(resultados)
 
     st.write("### Estatísticas")
     st.dataframe(estatisticas)
+
+    if jogos_atuais is not None:
+        st.write("### Jogos Atuais")
+        st.dataframe(jogos_atuais)
 
     # Gráfico de frequência
     st.write("### Frequência das Dezenas")
