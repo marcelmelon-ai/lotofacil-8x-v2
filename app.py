@@ -5,7 +5,7 @@ import random
 import streamlit as st
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.multioutput import MultiOutputClassifier
-from visualizacao import mostrar_dashboard, ler_estatisticas_personalizadas
+from visualizacao import mostrar_dashboard
 from inteligencia import gerar_jogos_inteligentes, treinar_modelo, gerar_jogos
 
 # --- Utilitários ---
@@ -124,7 +124,7 @@ def main():
         st.title("📊 Painel Estatístico Inteligente")
 
     try:
-        estatisticas_dict = ler_estatisticas_personalizadas("dados/estatisticas.xlsx")
+        estatisticas_dict = mostrar_dashboard("dados/estatisticas.xlsx")
 
         col1, col2 = st.columns(2)
 
@@ -178,7 +178,7 @@ def main():
         st.title("🎯 Geração de Jogos Inteligentes com IA")
 
     try:
-        estatisticas_dict = ler_estatisticas_personalizadas("dados/estatisticas.xlsx")
+        estatisticas_dict = mostrar_dashboard("dados/estatisticas.xlsx")
         jogos_gerados = gerar_jogos_inteligentes(n=10, estatisticas_dict=estatisticas_dict)
 
         st.success("✅ Jogos gerados com base nas estatísticas mais relevantes!")
