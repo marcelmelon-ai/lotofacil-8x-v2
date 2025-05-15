@@ -37,24 +37,22 @@ def mostrar_dashboard():
     st.write(f"### Dados da Planilha: {planilha_selecionada}")
     st.dataframe(df_estatisticas)
 
-    # Verificar se a coluna "Dezena" e pelo menos uma métrica relevante estão presentes
-    if "Dezena" in df_estatisticas.columns:
-        metricas_disponiveis = [col for col in df_estatisticas.columns if col != "Dezena"]
-        if metricas_disponiveis:
-            # Permitir que o usuário escolha a métrica para o gráfico
-            metrica_selecionada = st.selectbox("Selecione a métrica para o gráfico:", metricas_disponiveis)
+    # Verificar se há colunas suficientes para gerar gráficos
+    if len(df_estatisticas.columns) < 2:
+        st.warning("A planilha selecionada não contém colunas suficientes para gerar gráficos.")
+        return
 
-            # Gerar o gráfico com a métrica selecionada
-            try:
-                st.write(f"### Gráfico: {metrica_selecionada} por Dezena")
-                fig = px.bar(df_estatisticas, x="Dezena", y=metrica_selecionada, title=f"{metrica_selecionada} por Dezena")
-                st.plotly_chart(fig)
-            except ValueError as e:
-                st.error(f"Erro ao gerar o gráfico: {e}")
-        else:
-            st.warning("A planilha selecionada não contém métricas para exibir.")
-    else:
-        st.warning("A planilha selecionada não contém uma coluna chamada 'Dezena'.")
+    # Permitir que o usuário escolha as colunas para o gráfico
+    coluna_x = st.selectbox("Selecione a coluna para o eixo X:", df_estatisticas.columns)
+    coluna_y = st.selectbox("Selecione a coluna para o eixo Y:", df_estatisticas.columns)
+
+    # Gerar o gráfico com as colunas selecionadas
+    try:
+        st.write(f"### Gráfico: {coluna_y} por {coluna_x}")
+        fig = px.bar(df_estatisticas, x=coluna_x, y=coluna_y, title=f"{coluna_y} por {coluna_x}")
+        st.plotly_chart(fig)
+    except ValueError as e:
+        st.error(f"Erro ao gerar o gráfico: {e}")
 
     # Exibir os jogos atuais, se disponíveis
     if jogos_atuais is not None:
