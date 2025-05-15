@@ -88,3 +88,4 @@ def atualizar_dashboard(jogos_gerados, acertos, resultados):
     st.plotly_chart(fig)
     fig = px.histogram(resultados, x="Primos", title="Distribuição de Primos")
     st.plotly_chart(fig)
+
