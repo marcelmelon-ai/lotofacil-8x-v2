@@ -58,3 +58,7 @@ def mostrar_dashboard():
     if jogos_atuais is not None:
         st.write("### Jogos Atuais")
         st.dataframe(jogos_atuais)
+
+def mostrar_dashboard(caminho_arquivo):
+    estatisticas = pd.read_excel(caminho_arquivo, sheet_name=None)
+    return estatisticas
