@@ -1,4 +1,4 @@
-mport streamlit as st
+import streamlit as st
 from pipeline import processar_dados_diarios
 from inteligencia import treinar_modelo, gerar_sugestoes
 from visualizacao import mostrar_dashboard
