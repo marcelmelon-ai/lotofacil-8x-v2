@@ -6,8 +6,8 @@
       "extensions": [
         "ms-python.python",
         "ms-python.vscode-pylance",
-        "BisnetoInc.theme-excel",
-        "GrapeCity.gc-excelviewer"
+        "GrapeCity.gc-excelviewer",
+        "ms-toolsai.jupyter"
       ]
     }
   },

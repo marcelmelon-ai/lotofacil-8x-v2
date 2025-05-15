@@ -1,52 +1,36 @@
-import streamlit as st
-from estatisticas import calcular_frequencia
-from paginas.ia import pagina_ia
-from paginas.gerador import pagina_gerador
+mport streamlit as st
+from pipeline import processar_dados_diarios
+from inteligencia import treinar_modelo, gerar_sugestoes
+from visualizacao import mostrar_dashboard
 
 def main():
-    """
-    Função principal para executar o aplicativo Streamlit.
-    """
     st.set_page_config(page_title="Lotofácil 8X", layout="wide")
     st.sidebar.title("🎯 Lotofácil 8X")
-    
+
     # Menu lateral
     escolha = st.sidebar.radio(
         "Navegação",
-        ["Dashboard", "Gerar Jogos", "Simulação de Jogos", "Sobre"]
+        ["Dashboard", "Gerar Sugestões", "Sobre"]
     )
-
-    # Upload manual dos arquivos
-    resultados_file = st.sidebar.file_uploader("Envie o arquivo de resultados", type=["txt", "csv"])
-
-    if not resultados_file:
-        st.sidebar.warning("Por favor, envie o arquivo de resultados para continuar.")
-        return
-
-    # Carregar resultados
-    resultados = []
-    for linha in resultados_file:
-        resultados.append(list(map(int, linha.strip().split(","))))
-
-    # Calcular frequência
-    frequencia = calcular_frequencia(resultados)
-    st.session_state["frequencia"] = frequencia
-    st.session_state["resultados"] = resultados
 
     if escolha == "Dashboard":
         st.title("📊 Dashboard de Estatísticas")
-        st.write("Frequência das dezenas:")
-        st.bar_chart(frequencia)
+        mostrar_dashboard()
 
-    elif escolha == "Gerar Jogos":
-        pagina_gerador()
-
-    elif escolha == "Simulação de Jogos":
-        pagina_ia()
+    elif escolha == "Gerar Sugestões":
+        st.title("🔮 Sugestões de Apostas")
+        processar_dados_diarios()
+        sugestoes = gerar_sugestoes()
+        st.write("Sugestões de Apostas:")
+        for i, sugestao in enumerate(sugestoes, 1):
+            st.write(f"Jogo {i}: {sugestao}")
 
     elif escolha == "Sobre":
-        st.title("ℹ️ Sobre")
-        st.write("Informações sobre o projeto.")
+        st.title("ℹ️ Sobre o Lotofácil 8X")
+        st.markdown("""
+        Este aplicativo utiliza **Inteligência Artificial** e **estatísticas** para analisar e gerar combinações prováveis para a Lotofácil.
+        Desenvolvido para uso pessoal.
+        """)
 
 if __name__ == "__main__":
     main()

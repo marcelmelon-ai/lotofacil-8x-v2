@@ -1,39 +1,33 @@
+import pandas as pd
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
-from xgboost import XGBClassifier
+from sklearn.ensemble import RandomForestClassifier
+import random
 
-def treinar_modelo_xgb(X, y):
+def treinar_modelo():
     """
-    Treina um modelo XGBoost com os dados fornecidos.
-
-    Args:
-        X (list): Dados de entrada.
-        y (list): Rótulos de saída.
-
-    Returns:
-        XGBClassifier: Modelo treinado.
+    Treina um modelo de IA com base nos dados históricos.
     """
-    model = XGBClassifier(eval_metric="logloss")
+    dados = pd.read_excel("dados/resultados_historicos.xlsx")
+    X = dados.iloc[:, 2:17]  # Colunas das dezenas
+    y = dados["Soma das dezenas"]  # Exemplo de rótulo
+
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
-    acc = accuracy_score(y_test, y_pred)
-    print(f"Acurácia do modelo: {acc:.2f}")
-    return model
+    modelo = RandomForestClassifier(n_estimators=100, random_state=42)
+    modelo.fit(X_train, y_train)
+    return modelo
 
-def prever_dezenas(model, frequencia, top_n=15):
+def gerar_sugestoes(num_jogos=10):
     """
-    Faz previsões com base no modelo treinado e na frequência fornecida.
-
-    Args:
-        model (XGBClassifier): Modelo treinado.
-        frequencia (list): Lista de frequências das dezenas.
-        top_n (int): Número de dezenas mais prováveis a serem retornadas.
-
-    Returns:
-        list: Lista das dezenas mais prováveis.
+    Gera sugestões de apostas com base no modelo treinado.
     """
-    probabilidades = model.predict_proba([[f] for f in frequencia])[:, 1]
-    dezenas_probabilidades = list(zip(range(1, len(frequencia) + 1), probabilidades))
-    dezenas_ordenadas = sorted(dezenas_probabilidades, key=lambda x: x[1], reverse=True)[:top_n]
-    return [dezena for dezena, _ in dezenas_ordenadas]
+    modelo = treinar_modelo()
+    frequencias = pd.read_excel("dados/estatisticas.xlsx")["Frequência"]
+    dezenas = list(range(1, 26))
+    probabilidades = modelo.predict_proba([[f] for f in frequencias])[:, 1]
+    dezenas_prob = sorted(zip(dezenas, probabilidades), key=lambda x: x[1], reverse=True)
+
+    jogos = []
+    for _ in range(num_jogos):
+        jogo = sorted(random.sample([d[0] for d in dezenas_prob[:20]], 15))
+        jogos.append(jogo)
+    return jogos
