@@ -27,6 +27,10 @@ def main():
                 # Ler o arquivo carregado
                 resultados = pd.read_excel(resultados_file)
 
+                # Corrigir tipos incompatíveis para Streamlit
+                if "Data Sorteio" in resultados.columns:
+                    resultados["Data Sorteio"] = resultados["Data Sorteio"].astype(str)
+
                 # Salvar o arquivo carregado no diretório 'dados'
                 os.makedirs("dados", exist_ok=True)
                 resultados.to_excel("dados/resultados_historicos.xlsx", index=False)
