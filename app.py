@@ -1,89 +1,71 @@
-import streamlit as st
-from inteligencia import processar_dados, treinar_modelo, gerar_jogos, avaliar_acertos, atualizar_dashboard
 import pandas as pd
-import os
-from sklearn.model_selection import train_test_split
+import numpy as np
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.multioutput import MultiOutputClassifier
+import random
 
-def main():
-    st.set_page_config(page_title="Lotofácil 8X", layout="wide")
-    st.sidebar.title("🎯 Lotofácil 8X")
+# --- Função para verificar propriedades de um número ---
+def is_prime(n):
+    if n < 2:
+        return False
+    for i in range(2, int(n**0.5) + 1):
+        if n % i == 0:
+            return False
+    return True
 
-    # Menu de navegação
-    escolha = st.sidebar.radio(
-        "Navegação",
-        ["Carregar Arquivos", "Gerar Sugestões", "Sobre"]
-    )
+def is_fibonacci(n):
+    x = 5 * n * n
+    return int(x**0.5 + 0.5)**2 in [x + 4, x - 4]
 
-    if escolha == "Carregar Arquivos":
-        st.title("📂 Carregar Arquivos Excel")
-        st.write("Carregue os arquivos necessários para continuar.")
+# --- Função para processar os dados ---
+def processar_dados(caminho_excel):
+    df = pd.read_excel(caminho_excel)
+    df = df.dropna()
 
-        # Upload de arquivos
-        resultados_file = st.file_uploader("Envie o arquivo de resultados históricos (Excel)", type=["xlsx"])
-        estatisticas_file = st.file_uploader("Envie o arquivo de estatísticas (Excel)", type=["xlsx"])
-        jogos_atuais_file = st.file_uploader("Envie o arquivo de jogos atuais (Excel)", type=["xlsx"])
+    # Seleciona as colunas com as dezenas (assumimos da coluna 2 até 16)
+    dezenas = df.iloc[:, 2:17].astype(int)
 
-        if resultados_file and estatisticas_file and jogos_atuais_file:
-            try:
-                # Criar o diretório 'dados' se não existir
-                os.makedirs("dados", exist_ok=True)
+    # Cria uma matriz binária com 25 colunas
+    jogos_binarios = []
+    for _, row in dezenas.iterrows():
+        binario = [1 if i in row.values else 0 for i in range(1, 26)]
+        jogos_binarios.append(binario)
 
-                # Salvar os arquivos carregados no diretório 'dados'
-                pd.read_excel(resultados_file).to_excel("dados/resultados_historicos.xlsx", index=False)
-                pd.read_excel(estatisticas_file).to_excel("dados/estatisticas.xlsx", index=False)
-                pd.read_excel(jogos_atuais_file).to_excel("dados/jogos_atuais.xlsx", index=False)
+    jogos_binarios_df = pd.DataFrame(jogos_binarios, columns=[f'D{i}' for i in range(1, 26)])
+    return jogos_binarios_df, df
 
-                st.success("Arquivos carregados com sucesso!")
-                st.write("### Pré-visualização dos Resultados Históricos:")
-                st.dataframe(pd.read_excel("dados/resultados_historicos.xlsx").head())
-                st.write("### Pré-visualização das Estatísticas:")
-                st.dataframe(pd.read_excel("dados/estatisticas.xlsx").head())
-                st.write("### Pré-visualização dos Jogos Atuais:")
-                st.dataframe(pd.read_excel("dados/jogos_atuais.xlsx").head())
-            except Exception as e:
-                st.error(f"Erro ao carregar os arquivos: {e}")
+# --- Função para treinar o modelo ---
+def treinar_modelo(X, y):
+    modelo_rf = RandomForestClassifier(n_estimators=200, random_state=42)
+    modelo = MultiOutputClassifier(modelo_rf)
+    modelo.fit(X, y)
+    return modelo
 
-    elif escolha == "Gerar Sugestões":
-        st.title("🔮 Sugestões de Apostas")
-        try:
-            # Caminhos dos arquivos
-            resultados_path = "dados/resultados_historicos.xlsx"
-            estatisticas_path = "dados/estatisticas.xlsx"
-            jogos_atuais_path = "dados/jogos_atuais.xlsx"
+# --- Função para gerar jogos ---
+def gerar_jogos(modelo, X_referencia, n_jogos=10):
+    probabilidades = modelo.predict_proba(X_referencia)
 
-            # Processar os dados
-            jogos_binarios, resultados, estatisticas, jogos_atuais = processar_dados(
-                resultados_path, estatisticas_path, jogos_atuais_path
-            )
+    # Calcula a média das probabilidades previstas para cada dezena (coluna)
+    probs_medias = []
+    for i in range(25):
+        classe_1_probs = [p[1] for p in probabilidades[i]]  # probabilidade de "1"
+        media = np.mean(classe_1_probs)
+        probs_medias.append((i + 1, media))
 
-            # Dividir os dados em treino e teste
-            X = jogos_binarios
-            y = jogos_binarios.iloc[:, :15]  # As primeiras 15 colunas são o target
-            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    # Ordena pela maior probabilidade e seleciona os 15 mais prováveis
+    dezenas_ordenadas = sorted(probs_medias, key=lambda x: x[1], reverse=True)
 
-            # Treinar o modelo
-            modelo = treinar_modelo(X_train, y_train)
+    jogos = []
+    for _ in range(n_jogos):
+        jogo = sorted(random.sample([d[0] for d in dezenas_ordenadas[:20]], 15))  # sorteia 15 entre os 20 mais prováveis
+        jogos.append(jogo)
 
-            # Gerar novos jogos
-            jogos_gerados = gerar_jogos(modelo, X_test)
+    return jogos
 
-            # Avaliar os acertos
-            ultimo_resultado = resultados.iloc[-1, 2:17].values.tolist()  # Último resultado real
-            acertos = avaliar_acertos(jogos_gerados, ultimo_resultado)
-
-            # Atualizar o dashboard
-            atualizar_dashboard(jogos_gerados, acertos, resultados)
-        except FileNotFoundError:
-            st.error("Os arquivos necessários não foram encontrados. Por favor, carregue os arquivos na aba 'Carregar Arquivos'.")
-        except Exception as e:
-            st.error(f"Erro ao gerar sugestões: {e}")
-
-    elif escolha == "Sobre":
-        st.title("ℹ️ Sobre o Lotofácil 8X")
-        st.markdown("""
-        Este aplicativo utiliza **Inteligência Artificial** e **estatísticas** para analisar e gerar combinações prováveis para a Lotofácil.
-        Desenvolvido para uso pessoal.
-        """)
-
-if __name__ == "__main__":
-    main()
+# --- Função para avaliar acertos ---
+def avaliar_acertos(jogos, resultado_real):
+    acertos = []
+    for jogo in jogos:
+        acerto = len(set(jogo).intersection(set(resultado_real)))
+        acertos.append(acerto)
+    return acertos
