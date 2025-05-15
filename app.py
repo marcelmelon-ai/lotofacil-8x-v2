@@ -2,6 +2,7 @@ import streamlit as st
 from pipeline import processar_dados_diarios
 from inteligencia import treinar_modelo, gerar_sugestoes
 from visualizacao import mostrar_dashboard
+import pandas as pd
 
 def main():
     st.set_page_config(page_title="Lotofácil 8X", layout="wide")
@@ -10,10 +11,38 @@ def main():
     # Menu lateral
     escolha = st.sidebar.radio(
         "Navegação",
-        ["Dashboard", "Gerar Sugestões", "Sobre"]
+        ["Carregar Arquivos", "Dashboard", "Gerar Sugestões", "Sobre"]
     )
 
-    if escolha == "Dashboard":
+    if escolha == "Carregar Arquivos":
+        st.title("📂 Carregar Arquivos Excel")
+        st.write("Carregue os arquivos de resultados e estatísticas para continuar.")
+
+        # Upload de arquivos
+        resultados_file = st.file_uploader("Envie o arquivo de resultados históricos (Excel)", type=["xlsx"])
+        estatisticas_file = st.file_uploader("Envie o arquivo de estatísticas (Excel)", type=["xlsx"])
+
+        if resultados_file and estatisticas_file:
+            try:
+                # Ler os arquivos carregados
+                resultados = pd.read_excel(resultados_file)
+                estatisticas = pd.read_excel(estatisticas_file)
+
+                # Salvar os arquivos carregados no estado da sessão
+                st.session_state["resultados"] = resultados
+                st.session_state["estatisticas"] = estatisticas
+
+                st.success("Arquivos carregados com sucesso!")
+                st.write("### Pré-visualização dos Resultados:")
+                st.dataframe(resultados.head())
+                st.write("### Pré-visualização das Estatísticas:")
+                st.dataframe(estatisticas.head())
+            except Exception as e:
+                st.error(f"Erro ao processar os arquivos: {e}")
+        else:
+            st.info("Por favor, carregue ambos os arquivos para continuar.")
+
+    elif escolha == "Dashboard":
         st.title("📊 Dashboard de Estatísticas")
         mostrar_dashboard()
 
