@@ -347,3 +347,6 @@ def test_preprocessar_dados_success():
     assert not X.empty
     assert len(X.columns) == 15
     assert y.equals(pd.Series([10, 15, 20], name="Soma das dezenas"))
+
+def test_soma():
+    assert 1 + 1 == 2
