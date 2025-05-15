@@ -30,7 +30,21 @@ def mostrar_dashboard():
         st.write("### Jogos Atuais")
         st.dataframe(jogos_atuais)
 
-    # Gráfico de frequência
-    st.write("### Frequência das Dezenas")
-    fig = px.bar(estatisticas, x="Dezena", y="Frequência", title="Frequência das Dezenas")
-    st.plotly_chart(fig)
+    # Caminho para o arquivo Excel (ajuste conforme o local no seu Codespaces)
+file_path = "estatisticas.xlsx"
+
+# Carrega todas as planilhas do arquivo
+excel_file = pd.ExcelFile(file_path)
+
+# Lista os nomes das planilhas
+print("Planilhas disponíveis:", excel_file.sheet_names)
+
+# Cria um dicionário para armazenar os DataFrames de cada planilha
+dataframes = {}
+
+# Lê cada planilha com os nomes corretos das colunas
+for sheet in excel_file.sheet_names:
+    df = excel_file.parse(sheet)
+    print(f"\nPlanilha: {sheet}")
+    print("Colunas:", df.columns.tolist())
+    dataframes[sheet] = df
