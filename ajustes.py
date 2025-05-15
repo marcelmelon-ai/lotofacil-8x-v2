@@ -2,7 +2,6 @@ import pandas as pd
 import streamlit as st
 import logging
 import os
-from paginas.dados import dados
 from paginas.dados import carregar_dados_excel
 
 # Configuração de logging
