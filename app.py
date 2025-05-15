@@ -3,6 +3,7 @@ from pipeline import processar_dados_diarios
 from inteligencia import treinar_modelo, gerar_sugestoes
 from visualizacao import mostrar_dashboard
 import pandas as pd
+import os
 
 def main():
     st.set_page_config(page_title="Lotofácil 8X", layout="wide")
@@ -28,11 +29,16 @@ def main():
                 resultados = pd.read_excel(resultados_file)
                 estatisticas = pd.read_excel(estatisticas_file)
 
-                # Salvar os arquivos carregados no estado da sessão
+                # Salvar os arquivos carregados no diretório 'dados'
+                os.makedirs("dados", exist_ok=True)
+                resultados.to_excel("dados/resultados_historicos.xlsx", index=False)
+                estatisticas.to_excel("dados/estatisticas.xlsx", index=False)
+
+                # Salvar no estado da sessão
                 st.session_state["resultados"] = resultados
                 st.session_state["estatisticas"] = estatisticas
 
-                st.success("Arquivos carregados com sucesso!")
+                st.success("Arquivos carregados e salvos com sucesso!")
                 st.write("### Pré-visualização dos Resultados:")
                 st.dataframe(resultados.head())
                 st.write("### Pré-visualização das Estatísticas:")
@@ -44,15 +50,21 @@ def main():
 
     elif escolha == "Dashboard":
         st.title("📊 Dashboard de Estatísticas")
-        mostrar_dashboard()
+        try:
+            mostrar_dashboard()
+        except FileNotFoundError:
+            st.error("Os arquivos necessários não foram encontrados. Por favor, carregue os arquivos na aba 'Carregar Arquivos'.")
 
     elif escolha == "Gerar Sugestões":
         st.title("🔮 Sugestões de Apostas")
-        processar_dados_diarios()
-        sugestoes = gerar_sugestoes()
-        st.write("Sugestões de Apostas:")
-        for i, sugestao in enumerate(sugestoes, 1):
-            st.write(f"Jogo {i}: {sugestao}")
+        try:
+            processar_dados_diarios()
+            sugestoes = gerar_sugestoes()
+            st.write("Sugestões de Apostas:")
+            for i, sugestao in enumerate(sugestoes, 1):
+                st.write(f"Jogo {i}: {sugestao}")
+        except FileNotFoundError:
+            st.error("Os arquivos necessários não foram encontrados. Por favor, carregue os arquivos na aba 'Carregar Arquivos'.")
 
     elif escolha == "Sobre":
         st.title("ℹ️ Sobre o Lotofácil 8X")

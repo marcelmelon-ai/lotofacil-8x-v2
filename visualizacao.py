@@ -1,11 +1,17 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import os
 
 def mostrar_dashboard():
     """
     Exibe o dashboard com gráficos e tabelas.
     """
+    # Verificar se os arquivos existem
+    if not os.path.exists("dados/resultados_historicos.xlsx") or not os.path.exists("dados/estatisticas.xlsx"):
+        raise FileNotFoundError("Os arquivos necessários não foram encontrados.")
+
+    # Carregar os dados
     resultados = pd.read_excel("dados/resultados_historicos.xlsx")
     estatisticas = pd.read_excel("dados/estatisticas.xlsx")
 
