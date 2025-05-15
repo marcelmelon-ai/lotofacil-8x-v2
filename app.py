@@ -149,7 +149,7 @@ def main():
     except Exception as e:
         st.error(f"Erro ao carregar estatísticas: {e}")
 
-    elif escolha == "Gerar Sugestões":
+    if escolha == "Gerar Sugestões":
         st.title("🎰 Sugestões de Jogos com IA")
         if "resultados" not in st.session_state:
             st.error("Carregue os arquivos primeiro na aba 'Carregar Arquivos'.")
@@ -175,7 +175,7 @@ def main():
             st.write(f"Jogo {i}: {acerto} acertos")
 
     elif escolha == "Gerar Sugestões":
-    st.title("🎯 Geração de Jogos Inteligentes com IA")
+        st.title("🎯 Geração de Jogos Inteligentes com IA")
 
     try:
         estatisticas_dict = ler_estatisticas_personalizadas("dados/estatisticas.xlsx")
@@ -188,7 +188,7 @@ def main():
     except Exception as e:
         st.error(f"Erro ao gerar jogos inteligentes: {e}")
 
-    elif escolha == "Sobre":
+    if escolha == "Sobre":
         st.title("📘 Sobre o Projeto Lotofácil 8X")
         st.write("""
         Este aplicativo foi desenvolvido para analisar os resultados da Lotofácil e gerar sugestões inteligentes de jogos utilizando aprendizado de máquina. 
