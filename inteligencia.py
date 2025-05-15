@@ -68,6 +68,50 @@ def gerar_jogos(modelo, X, num_jogos=10):
         jogos.append(sorted(jogo))
     return jogos
 
+import random
+
+def is_prime(n):
+    if n < 2:
+        return False
+    for i in range(2, int(n ** 0.5)+1):
+        if n % i == 0:
+            return False
+    return True
+
+def is_fibonacci(n):
+    x1 = 5*n*n + 4
+    x2 = 5*n*n - 4
+    return int(x1**0.5)**2 == x1 or int(x2**0.5)**2 == x2
+
+def gerar_jogos_inteligentes(n=10, estatisticas_dict=None):
+    pares_freq = estatisticas_dict['pares'].iloc[0]['Qtd']
+    primos_freq = estatisticas_dict['primos'].iloc[0]['Qtd']
+    multiplos3_freq = estatisticas_dict['multiplos3'].iloc[0]['Qtd']
+    fibonacci_freq = estatisticas_dict['fibonacci'].iloc[0]['Qtd']
+    soma_target = estatisticas_dict['soma'].iloc[0]['Soma']
+
+    jogos = []
+    tentativas = 0
+    while len(jogos) < n and tentativas < 10000:
+        jogo = sorted(random.sample(range(1, 26), 15))
+        pares = sum(1 for d in jogo if d % 2 == 0)
+        primos = sum(1 for d in jogo if is_prime(d))
+        mult3 = sum(1 for d in jogo if d % 3 == 0)
+        fibos = sum(1 for d in jogo if is_fibonacci(d))
+        soma = sum(jogo)
+
+        if (
+            abs(pares - pares_freq) <= 1 and
+            abs(primos - primos_freq) <= 1 and
+            abs(mult3 - multiplos3_freq) <= 1 and
+            abs(fibos - fibonacci_freq) <= 1 and
+            abs(soma - soma_target) <= 10
+        ):
+            jogos.append(jogo)
+        tentativas += 1
+
+    return jogos
+
 # Função para avaliar os acertos
 def avaliar_acertos(jogos_gerados, ultimo_resultado):
     return [len(set(jogo) & set(ultimo_resultado)) for jogo in jogos_gerados]

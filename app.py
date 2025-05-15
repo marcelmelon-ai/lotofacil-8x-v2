@@ -5,6 +5,8 @@ import random
 import streamlit as st
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.multioutput import MultiOutputClassifier
+from visualizacao import mostrar_dashboard, ler_estatisticas_personalizadas
+from inteligencia import gerar_jogos_inteligentes, treinar_modelo, gerar_jogos
 
 # --- Utilitários ---
 def is_prime(n):
@@ -85,7 +87,7 @@ def main():
     st.set_page_config(page_title="Lotofácil 8X", layout="wide")
     st.sidebar.title("🎯 Lotofácil 8X")
 
-    escolha = st.sidebar.radio("Navegação", ["Carregar Arquivos", "Dashboard", "Gerar Sugestões", "Sobre"])
+    escolha = st.sidebar.radio("Navegação", ["Carregar Arquivos", "Dashboard de Estatísticas", "Gerar Sugestões", "Sobre"])
 
     if escolha == "Carregar Arquivos":
         st.title("📂 Carregar Arquivos Excel")
@@ -118,12 +120,34 @@ def main():
         else:
             st.info("Por favor, carregue todos os arquivos.")
 
-    elif escolha == "Dashboard":
-        st.title("📊 Dashboard de Estatísticas")
-        if "resultados" in st.session_state:
-            mostrar_dashboard()
-        else:
-            st.warning("Carregue os arquivos primeiro.")
+    elif escolha == "Dashboard de Estatísticas":
+        st.title("📊 Painel Estatístico Inteligente")
+
+    try:
+        estatisticas_dict = ler_estatisticas_personalizadas("dados/estatisticas.xlsx")
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.metric("🔢 % Pares mais comuns", f"{estatisticas_dict['pares'].iloc[0]['%']}%")
+            st.metric("🔢 % Primos mais comuns", f"{estatisticas_dict['primos'].iloc[0]['%']}%")
+            st.metric("🔢 % Múltiplos de 3", f"{estatisticas_dict['multiplos3'].iloc[0]['%']}%")
+
+        with col2:
+            st.metric("🔢 % Fibonacci", f"{estatisticas_dict['fibonacci'].iloc[0]['%']}%")
+            st.metric("➕ Soma mais comum", f"{estatisticas_dict['soma'].iloc[0]['Soma']}")
+            st.metric("♻️ % Repetidas do último sorteio", f"{estatisticas_dict['repetidas'].iloc[0]['%']}%")
+
+        st.bar_chart({
+            "Pares": [estatisticas_dict["pares"].iloc[0]["%"]],
+            "Primos": [estatisticas_dict["primos"].iloc[0]["%"]],
+            "Múltiplos de 3": [estatisticas_dict["multiplos3"].iloc[0]["%"]],
+            "Fibonacci": [estatisticas_dict["fibonacci"].iloc[0]["%"]],
+            "Repetidas": [estatisticas_dict["repetidas"].iloc[0]["%"]],
+        })
+
+    except Exception as e:
+        st.error(f"Erro ao carregar estatísticas: {e}")
 
     elif escolha == "Gerar Sugestões":
         st.title("🎰 Sugestões de Jogos com IA")
@@ -149,6 +173,20 @@ def main():
         st.subheader("🎯 Avaliação de Acertos (com base no último resultado)")
         for i, acerto in enumerate(acertos, 1):
             st.write(f"Jogo {i}: {acerto} acertos")
+
+    elif escolha == "Gerar Sugestões":
+    st.title("🎯 Geração de Jogos Inteligentes com IA")
+
+    try:
+        estatisticas_dict = ler_estatisticas_personalizadas("dados/estatisticas.xlsx")
+        jogos_gerados = gerar_jogos_inteligentes(n=10, estatisticas_dict=estatisticas_dict)
+
+        st.success("✅ Jogos gerados com base nas estatísticas mais relevantes!")
+        for i, jogo in enumerate(jogos_gerados):
+            st.write(f"Jogo {i+1}: {jogo}")
+
+    except Exception as e:
+        st.error(f"Erro ao gerar jogos inteligentes: {e}")
 
     elif escolha == "Sobre":
         st.title("📘 Sobre o Projeto Lotofácil 8X")

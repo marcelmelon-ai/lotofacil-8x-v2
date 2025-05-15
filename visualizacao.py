@@ -58,3 +58,15 @@ def mostrar_dashboard():
     if jogos_atuais is not None:
         st.write("### Jogos Atuais")
         st.dataframe(jogos_atuais)
+
+def ler_estatisticas_personalizadas(caminho="dados/estatisticas.xlsx"):
+    estatisticas = pd.read_excel(caminho, sheet_name=None)
+
+    return {
+        "pares": estatisticas["Tabela 1"],
+        "primos": estatisticas["Tabela 2"],
+        "multiplos3": estatisticas["Tabela 3"],
+        "fibonacci": estatisticas["Tabela 4"],
+        "soma": estatisticas["Tabela 5"],
+        "repetidas": estatisticas["Tabela 6"]
+    }
