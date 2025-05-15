@@ -68,6 +68,11 @@ def main():
     elif escolha == "Gerar Sugestões":
         st.title("🔮 Sugestões de Apostas")
         try:
+            # Verificar se os dados necessários estão carregados
+            if "resultados" not in st.session_state:
+                st.error("Os arquivos necessários não foram carregados. Por favor, carregue os arquivos na aba 'Carregar Arquivos'.")
+                return
+
             # Processar os dados
             filepath = "dados/resultados_historicos.xlsx"
             jogos_binarios, df = processar_dados(filepath)
