@@ -17,30 +17,46 @@ def main():
 
     if escolha == "Carregar Arquivos":
         st.title("📂 Carregar Arquivos Excel")
-        st.write("Carregue os arquivos de resultados históricos para continuar.")
+        st.write("Carregue os arquivos necessários para continuar.")
 
         # Upload de arquivos
         resultados_file = st.file_uploader("Envie o arquivo de resultados históricos (Excel)", type=["xlsx"])
+        estatisticas_file = st.file_uploader("Envie o arquivo de estatísticas (Excel)", type=["xlsx"])
+        jogos_atuais_file = st.file_uploader("Envie o arquivo de jogos atuais (Excel)", type=["xlsx"])
 
-        if resultados_file:
+        if resultados_file and estatisticas_file and jogos_atuais_file:
             try:
-                # Ler o arquivo carregado
+                # Ler os arquivos carregados
                 resultados = pd.read_excel(resultados_file)
+                estatisticas = pd.read_excel(estatisticas_file)
+                jogos_atuais = pd.read_excel(jogos_atuais_file)
 
-                # Salvar o arquivo carregado no diretório 'dados'
+                # Corrigir tipos incompatíveis para Streamlit
+                if "Data Sorteio" in resultados.columns:
+                    resultados["Data Sorteio"] = resultados["Data Sorteio"].astype(str)
+
+                # Salvar os arquivos carregados no diretório 'dados'
                 os.makedirs("dados", exist_ok=True)
                 resultados.to_excel("dados/resultados_historicos.xlsx", index=False)
+                estatisticas.to_excel("dados/estatisticas.xlsx", index=False)
+                jogos_atuais.to_excel("dados/jogos_atuais.xlsx", index=False)
 
                 # Salvar no estado da sessão
                 st.session_state["resultados"] = resultados
+                st.session_state["estatisticas"] = estatisticas
+                st.session_state["jogos_atuais"] = jogos_atuais
 
-                st.success("Arquivo carregado e salvo com sucesso!")
+                st.success("Arquivos carregados e salvos com sucesso!")
                 st.write("### Pré-visualização dos Resultados:")
                 st.dataframe(resultados.head())
+                st.write("### Pré-visualização das Estatísticas:")
+                st.dataframe(estatisticas.head())
+                st.write("### Pré-visualização dos Jogos Atuais:")
+                st.dataframe(jogos_atuais.head())
             except Exception as e:
-                st.error(f"Erro ao processar o arquivo: {e}")
+                st.error(f"Erro ao processar os arquivos: {e}")
         else:
-            st.info("Por favor, carregue o arquivo para continuar.")
+            st.info("Por favor, carregue todos os arquivos para continuar.")
 
     elif escolha == "Dashboard":
         st.title("📊 Dashboard de Estatísticas")
