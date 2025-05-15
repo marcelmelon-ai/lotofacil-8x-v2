@@ -84,7 +84,7 @@ def main():
             jogos_gerados = gerar_jogos(modelo, X_test)
 
             # Avaliar os acertos
-            ultimo_resultado = df.iloc[-1, 2:17].values  # Último resultado real
+            ultimo_resultado = df.iloc[-1, 2:17].values.tolist()  # Último resultado real
             acertos = avaliar_acertos(jogos_gerados, ultimo_resultado)
 
             # Exibir os jogos gerados
