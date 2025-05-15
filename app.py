@@ -69,18 +69,53 @@ def avaliar_acertos(jogos, resultado_real):
 
 # --- Exibe o dashboard interativo ---
 def mostrar_dashboard():
-    resultados = st.session_state["resultados"]
-    estatisticas = st.session_state["estatisticas"]
-    jogos_atuais = st.session_state["jogos_atuais"]
+    """
+    Exibe o dashboard com gráficos e tabelas.
+    """
+    resultados = st.session_state.get("resultados", None)
+    estatisticas_file = "dados/estatisticas.xlsx"
+    jogos_atuais = st.session_state.get("jogos_atuais", None)
 
-    st.subheader("Últimos Resultados")
-    st.dataframe(resultados.tail(10))
+    # Verificar se os dados necessários existem
+    if resultados is None or not os.path.exists(estatisticas_file):
+        st.warning("Os dados necessários não foram encontrados. Carregue os arquivos primeiro.")
+        return
 
-    st.subheader("Estatísticas")
-    st.dataframe(estatisticas)
+    # Carregar o arquivo Excel com múltiplas planilhas
+    estatisticas = pd.ExcelFile(estatisticas_file)
 
-    st.subheader("Jogos Atuais")
-    st.dataframe(jogos_atuais)
+    # Exibir os resultados históricos
+    st.subheader("📅 Resultados Históricos")
+    st.dataframe(resultados.tail(15))
+
+    # Selecionar a planilha de estatísticas
+    st.subheader("📊 Estatísticas")
+    st.write("Selecione uma planilha para visualizar os dados estatísticos:")
+    planilhas_disponiveis = estatisticas.sheet_names
+    planilha_selecionada = st.selectbox("Selecione a planilha:", planilhas_disponiveis)
+
+    # Carregar a planilha selecionada
+    df_estatisticas = estatisticas.parse(planilha_selecionada)
+    st.write(f"### Dados da Planilha: {planilha_selecionada}")
+    st.dataframe(df_estatisticas)
+
+    # Verificar se há colunas suficientes para gráfico
+    if len(df_estatisticas.columns) >= 2:
+        coluna_x = st.selectbox("Selecione a coluna para o eixo X:", df_estatisticas.columns)
+        coluna_y = st.selectbox("Selecione a coluna para o eixo Y:", df_estatisticas.columns)
+
+        try:
+            fig = px.bar(df_estatisticas, x=coluna_x, y=coluna_y, title=f"{coluna_y} por {coluna_x}")
+            st.plotly_chart(fig)
+        except Exception as e:
+            st.error(f"Erro ao gerar o gráfico: {e}")
+    else:
+        st.warning("A planilha selecionada não contém colunas suficientes para gerar gráficos.")
+
+    # Exibir os jogos atuais
+    if jogos_atuais is not None:
+        st.subheader("🎰 Jogos Atuais")
+        st.dataframe(jogos_atuais)
 
 # --- Função Principal ---
 def main():
@@ -122,9 +157,7 @@ def main():
 
     elif escolha == "Dashboard de Estatísticas":
         st.title("📊 Painel Estatístico Inteligente")
-
-    try:
-        estatisticas_dict = mostrar_dashboard("dados/estatisticas.xlsx")
+        mostrar_dashboard()
 
         col1, col2 = st.columns(2)
 
