@@ -3,6 +3,7 @@ from inteligencia import processar_dados, treinar_modelo, gerar_jogos, avaliar_a
 from visualizacao import mostrar_dashboard
 import pandas as pd
 import os
+from sklearn.model_selection import train_test_split
 
 def main():
     st.set_page_config(page_title="Lotofácil 8X", layout="wide")
