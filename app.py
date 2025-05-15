@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import random
 import streamlit as st
+import plotly.express as px
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.multioutput import MultiOutputClassifier
 from visualizacao import mostrar_dashboard
@@ -158,30 +159,7 @@ def main():
     elif escolha == "Dashboard de Estatísticas":
         st.title("📊 Painel Estatístico Inteligente")
         mostrar_dashboard()
-
-        col1, col2 = st.columns(2)
-
-        with col1:
-            st.metric("🔢 % Pares mais comuns", f"{estatisticas_dict['pares'].iloc[0]['%']}%")
-            st.metric("🔢 % Primos mais comuns", f"{estatisticas_dict['primos'].iloc[0]['%']}%")
-            st.metric("🔢 % Múltiplos de 3", f"{estatisticas_dict['multiplos3'].iloc[0]['%']}%")
-
-        with col2:
-            st.metric("🔢 % Fibonacci", f"{estatisticas_dict['fibonacci'].iloc[0]['%']}%")
-            st.metric("➕ Soma mais comum", f"{estatisticas_dict['soma'].iloc[0]['Soma']}")
-            st.metric("♻️ % Repetidas do último sorteio", f"{estatisticas_dict['repetidas'].iloc[0]['%']}%")
-
-        st.bar_chart({
-            "Pares": [estatisticas_dict["pares"].iloc[0]["%"]],
-            "Primos": [estatisticas_dict["primos"].iloc[0]["%"]],
-            "Múltiplos de 3": [estatisticas_dict["multiplos3"].iloc[0]["%"]],
-            "Fibonacci": [estatisticas_dict["fibonacci"].iloc[0]["%"]],
-            "Repetidas": [estatisticas_dict["repetidas"].iloc[0]["%"]],
-        })
-
-    except Exception as e:
-        st.error(f"Erro ao carregar estatísticas: {e}")
-
+    
     if escolha == "Gerar Sugestões":
         st.title("🎰 Sugestões de Jogos com IA")
         if "resultados" not in st.session_state:
