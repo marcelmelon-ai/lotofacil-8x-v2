@@ -39,19 +39,27 @@ def treinar_modelo(X, y):
     modelo.fit(X, y)
     return modelo
 
-# Função para gerar jogos
 def gerar_jogos(modelo, X, num_jogos=10):
     """
     Gera novos jogos com base nas probabilidades previstas pelo modelo.
     """
-    probabilidades = modelo.predict_proba(X)
+    probabilidades = modelo.predict_proba(X)  # Obter as probabilidades previstas pelo modelo
     jogos = []
+
     for _ in range(num_jogos):
         jogo = []
-        for i in range(25):
-            if np.random.rand() < probabilidades[i][1]:
+        for i, prob in enumerate(probabilidades):
+            # Selecionar as dezenas com base nas probabilidades
+            if prob[1] > 0.5:  # Ajuste o limiar conforme necessário
                 jogo.append(i + 1)
-        jogos.append(sorted(np.random.choice(jogo, 15, replace=False)))
+        if len(jogo) >= 15:
+            jogo = sorted(jogo[:15])  # Garantir que o jogo tenha exatamente 15 dezenas
+        else:
+            # Completar o jogo com dezenas aleatórias, se necessário
+            restantes = [i for i in range(1, 26) if i not in jogo]
+            jogo.extend(sorted(np.random.choice(restantes, 15 - len(jogo), replace=False)))
+        jogos.append(jogo)
+
     return jogos
 
 # Função para avaliar os acertos
