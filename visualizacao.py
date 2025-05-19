@@ -59,6 +59,18 @@ def mostrar_dashboard():
         st.write("### Jogos Atuais")
         st.dataframe(jogos_atuais)
 
-def mostrar_dashboard(caminho_arquivo):
-    estatisticas = pd.read_excel(caminho_arquivo, sheet_name=None)
-    return estatisticas
+    caminho_estatisticas = "dados/estatisticas.xlsx"
+    if not os.path.exists(caminho_estatisticas):
+        df_vazio = pd.DataFrame(columns=["Data", "Jogo", "Acertos", "Pares", "Ímpares", "Primos", "Múltiplos de 3", "Fibonacci", "Soma"])
+        os.makedirs("dados", exist_ok=True)
+        df_vazio.to_excel(caminho_estatisticas, index=False)   
+
+def mostrar_dashboard(caminho_excel):
+    try:
+        df = pd.read_excel(caminho_excel)
+        st.subheader("📊 Estatísticas dos Jogos Salvos")
+        st.dataframe(df)
+        return df
+    except Exception as e:
+        st.error(f"Erro ao carregar estatísticas: {e}")
+        return pd.DataFrame()

@@ -201,10 +201,12 @@ def main():
         "Escolha uma opção:",
         ["Geração de Jogos Inteligentes", "Gerar Sugestões com IA"]
     )
-
-    if opcao == "Geração de Jogos Inteligentes":
-        st.header("🧠 Geração de Jogos com Filtros Estatísticos")
-        estatisticas_dict = mostrar_dashboard("dados/estatisticas.xlsx")
+    caminho_estatisticas = "dados/estatisticas.xlsx"
+    if not os.path.exists(caminho_estatisticas):
+        df_vazio = pd.DataFrame(columns=["Data", "Jogo", "Acertos", "Pares", "Ímpares", "Primos", "Múltiplos de 3", "Fibonacci", "Soma"])
+        os.makedirs("dados", exist_ok=True)
+        df_vazio.to_excel(caminho_estatisticas, index=False)
+        estatisticas_dict = mostrar_dashboard(caminho_estatisticas)
 
         if st.button("Gerar Jogos Inteligentes"):
             jogos_inteligentes = gerar_jogos_inteligentes_v2(n=10, estatisticas_dict=estatisticas_dict)
