@@ -7,8 +7,7 @@ import plotly.express as px
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.multioutput import MultiOutputClassifier
 from visualizacao import mostrar_dashboard
-from inteligencia import gerar_jogos_inteligentes, treinar_modelo, gerar_jogos
-
+from inteligencia import gerar_jogos_inteligentes_v2, treinar_modelo, gerar_jogos_ml_filtrados
 # --- Utilitários ---
 def is_prime(n):
     if n < 2:
@@ -67,6 +66,44 @@ def avaliar_acertos(jogos, resultado_real):
         acerto = len(set(jogo).intersection(set(resultado_real)))
         acertos.append(acerto)
     return acertos
+
+# --- Exporta jogos para Excel ---
+def exportar_jogos_para_excel(jogos, nome_arquivo="dados/jogos_gerados.xlsx"):
+    df = pd.DataFrame(jogos, columns=[f'D{i+1}' for i in range(15)])
+    df.to_excel(nome_arquivo, index=False)
+    return df
+
+# --- Calcula estatísticas do jogo ---
+def calcular_estatisticas_jogo(jogo):
+    pares = len([d for d in jogo if d % 2 == 0])
+    impares = 15 - pares
+    primos = len([d for d in jogo if is_prime(d)])
+    fibonacci = len([d for d in jogo if is_fibonacci(d)])
+    soma = sum(jogo)
+    return {
+        "jogo": jogo,
+        "soma": soma,
+        "pares": pares,
+        "ímpares": impares,
+        "primos": primos,
+        "fibonacci": fibonacci
+    }
+
+# --- Salva histórico de jogos ---
+def salvar_historico(jogos, acertos=None, nome_arquivo="dados/historico_jogos.xlsx"):
+    estatisticas = []
+    for i, jogo in enumerate(jogos):
+        stats = calcular_estatisticas_jogo(jogo)
+        stats["acertos"] = acertos[i] if acertos else None
+        estatisticas.append(stats)
+
+    df = pd.DataFrame(estatisticas)
+    if os.path.exists(nome_arquivo):
+        df_antigo = pd.read_excel(nome_arquivo)
+        df = pd.concat([df_antigo, df], ignore_index=True)
+
+    df.to_excel(nome_arquivo, index=False)
+    return df
 
 # --- Exibe o dashboard interativo ---
 def mostrar_dashboard():
@@ -160,44 +197,40 @@ def main():
         st.title("📊 Painel Estatístico Inteligente")
         mostrar_dashboard()
     
-    if escolha == "Gerar Sugestões":
-        st.title("🎰 Sugestões de Jogos com IA")
-        if "resultados" not in st.session_state:
-            st.error("Carregue os arquivos primeiro na aba 'Carregar Arquivos'.")
-            return
+    opcao = st.sidebar.selectbox(
+        "Escolha uma opção:",
+        ["Geração de Jogos Inteligentes", "Gerar Sugestões com IA"]
+    )
 
-        st.info("Gerando sugestões com base nos resultados históricos...")
+    if opcao == "Geração de Jogos Inteligentes":
+        st.header("🧠 Geração de Jogos com Filtros Estatísticos")
+        estatisticas_dict = mostrar_dashboard("dados/estatisticas.xlsx")
 
+        if st.button("Gerar Jogos Inteligentes"):
+            jogos_inteligentes = gerar_jogos_inteligentes_v2(n=10, estatisticas_dict=estatisticas_dict)
+
+        st.subheader("🤖 Jogos Gerados")
+        for i, jogo in enumerate(jogos_inteligentes, 1):
+            st.write(f"Jogo {i}: {jogo}")
+
+        df_historico = salvar_historico(jogos_inteligentes)
+        st.download_button("📥 Baixar Jogos Inteligentes", data=df_historico.to_excel(index=False), file_name="jogos_inteligentes.xlsx")
+
+    elif "Gerar Sugestões com IA":
+        st.header("📊 Geração com IA baseada em histórico")
         X, df_original = processar_dados("dados/resultados_historicos.xlsx")
         modelo = treinar_modelo(X, X)
-
-        st.success("Modelo treinado com sucesso!")
-        jogos_gerados = gerar_jogos(modelo, X.tail(1), n_jogos=10)
-
-        st.subheader("🔢 Jogos Sugeridos")
-        for i, jogo in enumerate(jogos_gerados, 1):
-            st.write(f"Jogo {i}: {jogo}")
+        jogos_gerados = gerar_jogos_ml_filtrados(modelo, X.tail(1), n_jogos=10)
 
         ultimo_resultado = df_original.iloc[-1, 2:17].tolist()
         acertos = avaliar_acertos(jogos_gerados, ultimo_resultado)
 
-        st.subheader("🎯 Avaliação de Acertos (com base no último resultado)")
-        for i, acerto in enumerate(acertos, 1):
-            st.write(f"Jogo {i}: {acerto} acertos")
+        st.subheader("🔢 Jogos Sugeridos com IA")
+        for i, jogo in enumerate(jogos_gerados, 1):
+            st.write(f"Jogo {i}: {jogo} - Acertos: {acertos[i-1]}")
 
-    elif escolha == "Gerar Sugestões":
-        st.title("🎯 Geração de Jogos Inteligentes com IA")
-
-    try:
-        estatisticas_dict = mostrar_dashboard("dados/estatisticas.xlsx")
-        jogos_gerados = gerar_jogos_inteligentes(n=10, estatisticas_dict=estatisticas_dict)
-
-        st.success("✅ Jogos gerados com base nas estatísticas mais relevantes!")
-        for i, jogo in enumerate(jogos_gerados):
-            st.write(f"Jogo {i+1}: {jogo}")
-
-    except Exception as e:
-        st.error(f"Erro ao gerar jogos inteligentes: {e}")
+        df_historico = salvar_historico(jogos_gerados, acertos)
+        st.download_button("📥 Baixar Jogos em Excel", data=df_historico.to_excel(index=False), file_name="jogos_sugeridos.xlsx")
 
     if escolha == "Sobre":
         st.title("📘 Sobre o Projeto Lotofácil 8X")

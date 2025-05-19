@@ -49,24 +49,14 @@ def treinar_modelo(X, y):
     return modelo
 
 # Função para gerar jogos
-def gerar_jogos(modelo, X, num_jogos=10):
-    jogos = []
-
-    for _ in range(num_jogos):
-        # Previsões binárias (0 ou 1)
-        pred = modelo.predict(X)
-        idx = np.random.randint(len(pred))  # Escolhe uma linha aleatória das previsões
-        jogo = [i+1 for i, v in enumerate(pred[idx]) if v == 1]
-
-        # Corrige para ter exatamente 15 dezenas
-        if len(jogo) < 15:
-            restantes = [i for i in range(1, 26) if i not in jogo]
-            jogo += list(np.random.choice(restantes, 15 - len(jogo), replace=False))
-        elif len(jogo) > 15:
-            jogo = jogo[:15]
-
-        jogos.append(sorted(jogo))
-    return jogos
+def gerar_jogos_ml_filtrados(modelo, X_base, n=10, ultimo_resultado=None):
+    candidatos = gerar_jogos_inteligentes_v2(n*5, ultimo_resultado)  # gera 5x mais
+    jogos_bin = pd.DataFrame([[1 if i in jogo else 0 for i in range(1, 26)] for jogo in candidatos],
+                             columns=[f'Dezena_{i}' for i in range(1, 26)])
+    probs = modelo.predict_proba(jogos_bin)
+    scores = [np.mean([p[1] for p in jogo_probs]) for jogo_probs in probs]
+    melhores_idx = np.argsort(scores)[-n:]
+    return [candidatos[i] for i in melhores_idx]
 
 import random
 
@@ -83,29 +73,30 @@ def is_fibonacci(n):
     x2 = 5*n*n - 4
     return int(x1**0.5)**2 == x1 or int(x2**0.5)**2 == x2
 
-def gerar_jogos_inteligentes(n=10, estatisticas_dict=None):
-    pares_freq = estatisticas_dict['pares'].iloc[0]['Qtd']
-    primos_freq = estatisticas_dict['primos'].iloc[0]['Qtd']
-    multiplos3_freq = estatisticas_dict['multiplos3'].iloc[0]['Qtd']
-    fibonacci_freq = estatisticas_dict['fibonacci'].iloc[0]['Qtd']
-    soma_target = estatisticas_dict['soma'].iloc[0]['Soma']
-
+def gerar_jogos_inteligentes_v2(n=10, ultimo_resultado=None):
     jogos = []
     tentativas = 0
+    fibonacci_set = {1, 2, 3, 5, 8, 13, 21}
+    primos_set = {2, 3, 5, 7, 11, 13, 17, 19, 23}
+
     while len(jogos) < n and tentativas < 10000:
         jogo = sorted(random.sample(range(1, 26), 15))
         pares = sum(1 for d in jogo if d % 2 == 0)
-        primos = sum(1 for d in jogo if is_prime(d))
+        impares = 15 - pares
+        primos = sum(1 for d in jogo if d in primos_set)
         mult3 = sum(1 for d in jogo if d % 3 == 0)
-        fibos = sum(1 for d in jogo if is_fibonacci(d))
+        fibos = sum(1 for d in jogo if d in fibonacci_set)
         soma = sum(jogo)
+        repetidas = len(set(jogo) & set(ultimo_resultado)) if ultimo_resultado else 0
 
         if (
-            abs(pares - pares_freq) <= 1 and
-            abs(primos - primos_freq) <= 1 and
-            abs(mult3 - multiplos3_freq) <= 1 and
-            abs(fibos - fibonacci_freq) <= 1 and
-            abs(soma - soma_target) <= 10
+            6 <= pares <= 9 and
+            6 <= impares <= 9 and
+            4 <= primos <= 7 and
+            4 <= mult3 <= 6 and
+            3 <= fibos <= 5 and
+            165 <= soma <= 224 and
+            8 <= repetidas <= 11
         ):
             jogos.append(jogo)
         tentativas += 1
