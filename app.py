@@ -5,7 +5,7 @@ import random
 import streamlit as st
 from inteligencia import gerar_jogos_inteligentes_v2, gerar_jogos_ml_filtrados
 from visualizacao import is_prime, is_fibonacci, atende_filtros, gerar_jogos_filtrados, calcular_estatisticas_jogo
-from pipeline import atualizar_historico, gerar_estatisticas, carregar_planilha
+
 
 # --- Funções auxiliares ---
 def is_prime(n):
