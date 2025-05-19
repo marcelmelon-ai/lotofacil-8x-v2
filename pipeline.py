@@ -1,36 +1,61 @@
 import pandas as pd
 import os
 
-def carregar_dados_historicos():
-    """
-    Carrega os dados históricos dos resultados da Lotofácil.
-    """
-    caminho = "dados/resultados_historicos.xlsx"
+# Caminhos dos arquivos
+ARQUIVO_HISTORICO = "dados/resultados_historicos.xlsx"
+ARQUIVO_NOVOS = "dados/novos_resultados.xlsx"
+ARQUIVO_ESTATS = "dados/estatisticas.xlsx"
+
+def carregar_planilha(caminho):
     if not os.path.exists(caminho):
-        raise FileNotFoundError("Arquivo de resultados históricos não encontrado.")
+        raise FileNotFoundError(f"Arquivo não encontrado: {caminho}")
     return pd.read_excel(caminho)
 
-def carregar_dados_estatisticos():
-    """
-    Carrega os dados estatísticos.
-    """
-    caminho = "dados/estatisticas.xlsx"
-    if not os.path.exists(caminho):
-        raise FileNotFoundError("Arquivo de estatísticas não encontrado.")
-    return pd.read_excel(caminho)
+def salvar_planilha(df, caminho):
+    df.to_excel(caminho, index=False)
 
-def processar_dados_diarios():
+def atualizar_historico():
     """
-    Processa novos resultados diários e atualiza os dados históricos.
+    Atualiza os dados históricos com novos resultados (sem duplicatas).
     """
-    historico = carregar_dados_historicos()
-    novos_resultados = pd.read_excel("dados/novos_resultados.xlsx")
+    historico = carregar_planilha(ARQUIVO_HISTORICO)
+    novos = carregar_planilha(ARQUIVO_NOVOS)
 
-    # Validar estrutura dos novos resultados
-    if not set(historico.columns).issubset(novos_resultados.columns):
-        raise ValueError("Estrutura dos novos resultados inválida.")
+    # Verifica se os novos resultados têm as mesmas colunas
+    if not set(historico.columns).issubset(novos.columns):
+        raise ValueError("Estrutura dos novos resultados não compatível com o histórico.")
 
-    # Atualizar histórico
-    historico_atualizado = pd.concat([historico, novos_resultados]).drop_duplicates()
-    historico_atualizado.to_excel("dados/resultados_historicos.xlsx", index=False)
-    print("Dados históricos atualizados com sucesso.")
+    # Atualiza histórico
+    atualizado = pd.concat([historico, novos], ignore_index=True)
+    atualizado = atualizado.drop_duplicates().sort_values(by='Concurso')
+
+    salvar_planilha(atualizado, ARQUIVO_HISTORICO)
+    print("✅ Histórico atualizado com sucesso.")
+
+    return atualizado
+
+def gerar_estatisticas(historico):
+    """
+    Gera estatísticas com base no histórico atualizado.
+    """
+    dezenas = [col for col in historico.columns if col not in ['Concurso', 'Data']]
+
+    estatisticas = pd.DataFrame(columns=['Dezena', 'Frequência'])
+
+    # Conta a frequência de cada dezena
+    todas = historico[dezenas].values.flatten()
+    contagem = pd.Series(todas).value_counts().sort_index()
+    estatisticas['Dezena'] = contagem.index
+    estatisticas['Frequência'] = contagem.values
+
+    salvar_planilha(estatisticas, ARQUIVO_ESTATS)
+    print("📊 Estatísticas geradas com sucesso.")
+
+    return estatisticas
+
+def main():
+    historico_atualizado = atualizar_historico()
+    gerar_estatisticas(historico_atualizado)
+
+if __name__ == "__main__":
+    main()

@@ -1,73 +1,76 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
+import random
 import os
 
-def mostrar_dashboard():
-    """
-    Exibe o dashboard com gráficos e tabelas.
-    """
-    # Verificar se os arquivos necessários existem
-    if not os.path.exists("dados/resultados_historicos.xlsx") or not os.path.exists("dados/estatisticas.xlsx"):
-        raise FileNotFoundError("Os arquivos necessários não foram encontrados.")
+# --- Utilitários Matemáticos ---
+def is_prime(n):
+    if n < 2:
+        return False
+    for i in range(2, int(n**0.5)+1):
+        if n % i == 0:
+            return False
+    return True
 
-    # Carregar os dados
-    resultados = pd.read_excel("dados/resultados_historicos.xlsx")
-    estatisticas = pd.ExcelFile("dados/estatisticas.xlsx")  # Carregar o arquivo Excel com múltiplas planilhas
+def is_fibonacci(n):
+    x1 = 5 * n * n + 4
+    x2 = 5 * n * n - 4
+    return int(x1**0.5)**2 == x1 or int(x2**0.5)**2 == x2
 
-    # Verificar se o arquivo de jogos atuais existe
-    jogos_atuais = None
-    if os.path.exists("dados/jogos_atuais.xlsx"):
-        jogos_atuais = pd.read_excel("dados/jogos_atuais.xlsx")
+# --- Filtros Estatísticos ---
+def atende_filtros(jogo, ultimo_resultado):
+    pares = len([d for d in jogo if d % 2 == 0])
+    impares = 15 - pares
+    primos = len([d for d in jogo if is_prime(d)])
+    mult3 = len([d for d in jogo if d % 3 == 0])
+    fib = len([d for d in jogo if is_fibonacci(d)])
+    soma = sum(jogo)
+    repetidas = len(set(jogo).intersection(set(ultimo_resultado)))
 
-    # Exibir os resultados históricos
-    st.write("### Resultados Históricos")
-    st.dataframe(resultados)
+    return (
+        6 <= pares <= 9 and
+        6 <= impares <= 9 and
+        4 <= primos <= 7 and
+        4 <= mult3 <= 6 and
+        3 <= fib <= 5 and
+        165 <= soma <= 224 and
+        8 <= repetidas <= 11
+    )
 
-    # Exibir as estatísticas
-    st.write("### Estatísticas")
-    st.write("Selecione uma planilha para visualizar os dados estatísticos.")
+# --- Geração de Jogos com Filtros ---
+def gerar_jogos_filtrados(ultimo_resultado, n_jogos=10):
+    jogos = []
+    tentativas = 0
+    while len(jogos) < n_jogos and tentativas < 10000:
+        jogo = sorted(random.sample(range(1, 26), 15))
+        if atende_filtros(jogo, ultimo_resultado):
+            jogos.append(jogo)
+        tentativas += 1
+    return jogos
 
-    # Listar as planilhas disponíveis no arquivo de estatísticas
-    planilhas_disponiveis = estatisticas.sheet_names
-    planilha_selecionada = st.selectbox("Selecione a planilha:", planilhas_disponiveis)
+# --- Cálculo de Estatísticas de um Jogo ---
+def calcular_estatisticas_jogo(jogo, ultimo_resultado):
+    pares = len([d for d in jogo if d % 2 == 0])
+    impares = 15 - pares
+    primos = len([d for d in jogo if is_prime(d)])
+    mult3 = len([d for d in jogo if d % 3 == 0])
+    fib = len([d for d in jogo if is_fibonacci(d)])
+    soma = sum(jogo)
+    repetidas = len(set(jogo).intersection(set(ultimo_resultado)))
+    return pares, impares, primos, mult3, fib, soma, repetidas
 
-    # Carregar a planilha selecionada
-    df_estatisticas = estatisticas.parse(planilha_selecionada)
-    st.write(f"### Dados da Planilha: {planilha_selecionada}")
-    st.dataframe(df_estatisticas)
-
-    # Verificar se há colunas suficientes para gerar gráficos
-    if len(df_estatisticas.columns) < 2:
-        st.warning("A planilha selecionada não contém colunas suficientes para gerar gráficos.")
-        return
-
-    # Permitir que o usuário escolha as colunas para o gráfico
-    coluna_x = st.selectbox("Selecione a coluna para o eixo X:", df_estatisticas.columns)
-    coluna_y = st.selectbox("Selecione a coluna para o eixo Y:", df_estatisticas.columns)
-
-    # Gerar o gráfico com as colunas selecionadas
-    try:
-        st.write(f"### Gráfico: {coluna_y} por {coluna_x}")
-        fig = px.bar(df_estatisticas, x=coluna_x, y=coluna_y, title=f"{coluna_y} por {coluna_x}")
-        st.plotly_chart(fig)
-    except ValueError as e:
-        st.error(f"Erro ao gerar o gráfico: {e}")
-
-    # Exibir os jogos atuais, se disponíveis
-    if jogos_atuais is not None:
-        st.write("### Jogos Atuais")
-        st.dataframe(jogos_atuais)
-
-    caminho_estatisticas = "dados/estatisticas.xlsx"
+# --- Visualização de Estatísticas em Dashboard ---
+def mostrar_dashboard(caminho_estatisticas="dados/estatisticas.xlsx"):
     if not os.path.exists(caminho_estatisticas):
-        df_vazio = pd.DataFrame(columns=["Data", "Jogo", "Acertos", "Pares", "Ímpares", "Primos", "Múltiplos de 3", "Fibonacci", "Soma"])
-        os.makedirs("dados", exist_ok=True)
-        df_vazio.to_excel(caminho_estatisticas, index=False)   
+        df_vazio = pd.DataFrame(columns=[
+            "Data", "Jogo", "Acertos", "Pares", "Ímpares", 
+            "Primos", "Múltiplos de 3", "Fibonacci", "Soma"
+        ])
+        os.makedirs(os.path.dirname(caminho_estatisticas), exist_ok=True)
+        df_vazio.to_excel(caminho_estatisticas, index=False)
 
-def mostrar_dashboard(caminho_excel):
     try:
-        df = pd.read_excel(caminho_excel)
+        df = pd.read_excel(caminho_estatisticas)
         st.subheader("📊 Estatísticas dos Jogos Salvos")
         st.dataframe(df)
         return df

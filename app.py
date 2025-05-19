@@ -4,8 +4,22 @@ import numpy as np
 import random
 import streamlit as st
 from inteligencia import gerar_jogos_inteligentes_v2, gerar_jogos_ml_filtrados
-from visualizacao import mostrar_dashboard
-from utils import salvar_historico, is_prime, is_fibonacci
+from visualizacao import is_prime, is_fibonacci, atende_filtros, gerar_jogos_filtrados, calcular_estatisticas_jogo
+from pipeline import atualizar_historico, gerar_estatisticas, carregar_planilha
+
+# --- Funções auxiliares ---
+def is_prime(n):
+    if n < 2:
+        return False
+    for i in range(2, int(n**0.5)+1):
+        if n % i == 0:
+            return False
+    return True
+
+def is_fibonacci(n):
+    x1 = 5 * n * n + 4
+    x2 = 5 * n * n - 4
+    return int(x1**0.5)**2 == x1 or int(x2**0.5)**2 == x2
 
 # --- Filtros Estatísticos ---
 def atende_filtros(jogo, ultimo_resultado):
@@ -38,30 +52,88 @@ def gerar_jogos_filtrados(ultimo_resultado, n_jogos=10):
         tentativas += 1
     return jogos
 
-# --- Função Principal Streamlit ---
+# --- Dashboard Streamlit ---
+def mostrar_dashboard(caminho_estatisticas):
+    try:
+        df = pd.read_excel(caminho_estatisticas)
+        st.subheader("📊 Estatísticas dos Jogos Salvos")
+        st.dataframe(df)
+        return df
+    except Exception as e:
+        st.error(f"Erro ao carregar estatísticas: {e}")
+        return pd.DataFrame()
+
+# --- Função para calcular estatísticas de um jogo ---
+def calcular_estatisticas_jogo(jogo, ultimo_resultado):
+    pares = len([d for d in jogo if d % 2 == 0])
+    impares = 15 - pares
+    primos = len([d for d in jogo if is_prime(d)])
+    mult3 = len([d for d in jogo if d % 3 == 0])
+    fib = len([d for d in jogo if is_fibonacci(d)])
+    soma = sum(jogo)
+    repetidas = len(set(jogo).intersection(set(ultimo_resultado)))
+    return pares, impares, primos, mult3, fib, soma, repetidas
+
+# --- Função principal do app ---
 def main():
-    st.set_page_config(page_title="Lotofácil 8X", layout="wide")
-    st.title("🎯 Lotofácil 8X - Geração Inteligente de Jogos")
+    st.set_page_config(page_title="Gerador Inteligente Lotofácil", layout="centered")
+    st.title("🎯 Gerador Inteligente de Jogos da Lotofácil")
+    st.markdown("Use filtros matemáticos e estatísticos para criar jogos inteligentes.")
 
-    arquivo_excel = st.file_uploader("Carregar Planilha Unificada", type=["xlsx"])
+    caminho_historico = "dados/resultados_historicos.xlsx"
+    caminho_estatisticas = "dados/estatisticas.xlsx"
+    os.makedirs("dados", exist_ok=True)
 
-    if arquivo_excel:
-        df = pd.read_excel(arquivo_excel)
+    if not os.path.exists(caminho_estatisticas):
+        df_vazio = pd.DataFrame(columns=[
+            "Data", "Jogo", "Acertos", "Pares", "Ímpares", "Primos",
+            "Múltiplos de 3", "Fibonacci", "Soma", "Repetidas com último"
+        ])
+        df_vazio.to_excel(caminho_estatisticas, index=False)
 
-        # Espera que as últimas 15 colunas sejam as dezenas
-        col_dezenas = df.columns[-15:]
-        ultimo_jogo = df.iloc[-1][col_dezenas].values.tolist()
+    # Carregar último resultado
+    if not os.path.exists(caminho_historico):
+        st.error("Arquivo de resultados históricos não encontrado.")
+        return
+    historico = pd.read_excel(caminho_historico)
+    ultimo_resultado = historico.sort_values(by='Concurso', ascending=False).iloc[0, 2:].tolist()
+    ultimo_resultado = [int(d) for d in ultimo_resultado if not pd.isna(d)]
 
-        st.success("Arquivo carregado com sucesso!")
-        st.write("Último Jogo:", sorted(ultimo_jogo))
+    # Interface para gerar jogos
+    qtd_jogos = st.number_input("Quantidade de jogos a gerar:", min_value=1, max_value=20, value=5)
+    if st.button("🎲 Gerar Jogos"):
+        jogos = gerar_jogos_filtrados(ultimo_resultado, qtd_jogos)
 
-        if st.button("Gerar Jogos Inteligentes com Filtros"):
-            jogos = gerar_jogos_filtrados(ultimo_jogo, n_jogos=10)
-            for i, jogo in enumerate(jogos, 1):
-                st.write(f"Jogo {i}: {jogo}")
+        # Calcular estatísticas
+        hoje = pd.Timestamp.now().date()
+        df_resultado = []
+        for jogo in jogos:
+            pares, impares, primos, mult3, fib, soma, repetidas = calcular_estatisticas_jogo(jogo, ultimo_resultado)
+            df_resultado.append({
+                "Data": hoje,
+                "Jogo": ", ".join([f"{d:02d}" for d in jogo]),
+                "Acertos": "",  # Pode ser preenchido após o sorteio
+                "Pares": pares,
+                "Ímpares": impares,
+                "Primos": primos,
+                "Múltiplos de 3": mult3,
+                "Fibonacci": fib,
+                "Soma": soma,
+                "Repetidas com último": repetidas
+            })
 
-            df_resultado = salvar_historico(jogos)
-            st.download_button("📥 Baixar Jogos", data=df_resultado.to_excel(index=False), file_name="jogos_filtrados.xlsx")
+        df_jogos = pd.DataFrame(df_resultado)
+        st.success("Jogos gerados com sucesso!")
+        st.dataframe(df_jogos)
+
+        # Salvar no Excel
+        df_antigo = pd.read_excel(caminho_estatisticas)
+        df_total = pd.concat([df_antigo, df_jogos], ignore_index=True)
+        df_total.to_excel(caminho_estatisticas, index=False)
+
+    # Exibir dashboard
+    st.markdown("---")
+    mostrar_dashboard(caminho_estatisticas)
 
 if __name__ == "__main__":
     main()
