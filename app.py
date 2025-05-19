@@ -221,7 +221,7 @@ def main():
         )
 
         if st.button("Gerar Jogos Inteligentes"):
-            jogos_inteligentes = gerar_jogos_inteligentes_v2(n=10, estatisticas_d=caminho_estatisticas)
+            jogos_inteligentes = gerar_jogos_inteligentes_v2(n=10, estatisticas_df="dados/estatisticas.xlsx")
 
         st.subheader("🤖 Jogos Gerados")
         for i, jogo in enumerate(jogos_inteligentes, 1):
