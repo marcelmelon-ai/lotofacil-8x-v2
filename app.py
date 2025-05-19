@@ -195,21 +195,33 @@ def main():
 
     elif escolha == "Dashboard de Estatísticas":
         st.title("📊 Painel Estatístico Inteligente")
-        mostrar_dashboard()
-    
-    opcao = st.sidebar.selectbox(
-        "Escolha uma opção:",
-        ["Geração de Jogos Inteligentes", "Gerar Sugestões com IA"]
-    )
-    caminho_estatisticas = "dados/estatisticas.xlsx"
-    if not os.path.exists(caminho_estatisticas):
-        df_vazio = pd.DataFrame(columns=["Data", "Jogo", "Acertos", "Pares", "Ímpares", "Primos", "Múltiplos de 3", "Fibonacci", "Soma"])
+
+        # Caminho padrão
+        caminho_estatisticas = "dados/estatisticas.xlsx"
         os.makedirs("dados", exist_ok=True)
-        df_vazio.to_excel(caminho_estatisticas, index=False)
-        estatisticas_dict = mostrar_dashboard(caminho_estatisticas)
+
+        # Garante que o arquivo exista
+        if not os.path.exists(caminho_estatisticas):
+            df_vazio = pd.DataFrame(columns=["Data", "Jogo", "Acertos", "Pares", "Ímpares", "Primos", "Múltiplos de 3", "Fibonacci", "Soma"])
+            df_vazio.to_excel(caminho_estatisticas, index=False)
+
+        # Agora carrega o dashboard com o caminho correto
+        try:
+            mostrar_dashboard(caminho_estatisticas)
+        except Exception as e:
+            st.error(f"Erro ao exibir o dashboard: {e}")
+
+    elif escolha == "Gerar Sugestões":
+        st.title("🎰 Geração de Jogos com IA e Filtros Estatísticos")
+
+        # Aqui fica a lógica da aba de geração
+        opcao = st.sidebar.selectbox(
+            "Escolha uma opção:",
+            ["Geração de Jogos Inteligentes", "Gerar Sugestões com IA"]
+        )
 
         if st.button("Gerar Jogos Inteligentes"):
-            jogos_inteligentes = gerar_jogos_inteligentes_v2(n=10, estatisticas_dict=estatisticas_dict)
+            jogos_inteligentes = gerar_jogos_inteligentes_v2(n=10, estatisticas_d=estatisticas_file)
 
         st.subheader("🤖 Jogos Gerados")
         for i, jogo in enumerate(jogos_inteligentes, 1):
@@ -220,7 +232,7 @@ def main():
 
     elif "Gerar Sugestões com IA":
         st.header("📊 Geração com IA baseada em histórico")
-        X, df_original = processar_dados("dados/resultados_historicos.xlsx")
+        X, df_original = processar_dados("dados/jogos_atuais.xlsx")
         modelo = treinar_modelo(X, X)
         jogos_gerados = gerar_jogos_ml_filtrados(modelo, X.tail(1), n_jogos=10)
 
