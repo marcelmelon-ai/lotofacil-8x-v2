@@ -159,7 +159,7 @@ def main():
             )
 
     # Treinamento com feedback
-if arquivo_feedback:
+if arquoilo_feedback:
     st.subheader("🤖 Aprendizado de Máquina")
     df_feedback = pd.read_excel(arquivo_feedback)
     if "Acertos" in df_feedback.columns:
