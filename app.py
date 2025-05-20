@@ -126,11 +126,14 @@ def main():
     if arquivo_feedback:
         st.subheader("🤖 Aprendizado de Máquina")
         df_feedback = pd.read_excel(arquivo_feedback)
-        if "Acertos" in df_feedback.columns:
-            modelo = treinar_modelo(df_feedback)
-            st.success("🧠 Modelo treinado com base nos acertos passados.")
-    else:
-        st.warning("⚠️ A planilha deve conter a coluna 'Acertos'.")
+        colunas_necessarias = ["Pares", "Ímpares", "Primos", "Múltiplos de 3", "Fibonacci", "Soma", "Repetidas", "Acertos"]
+        faltando = [col for col in colunas_necessarias if col not in df_feedback.columns]
+        if faltando:
+            st.warning(f"⚠️ A planilha deve conter as colunas: {faltando}")
+            st.info("Exemplo de cabeçalho esperado: " + ", ".join(colunas_necessarias))
+        else:
+           modelo = treinar_modelo(df_feedback)
+           st.success("🧠 Modelo treinado com base nos acertos passados.")
 
     if arquivo_resultados:
         df_resultados = pd.read_excel(arquivo_resultados)
