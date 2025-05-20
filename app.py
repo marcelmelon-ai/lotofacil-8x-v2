@@ -101,6 +101,12 @@ def carregar_modelo():
         return load("modelo_lotofacil.joblib")
     return None
 
+def to_excel_bytes(df):
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+        df.to_excel(writer, index=False)
+    return output.getvalue()
+
 # ------------------------------------------
 # --- Interface Principal com Streamlit ---
 # ------------------------------------------
@@ -115,6 +121,16 @@ def main():
         arquivo_resultados = st.file_uploader("✅ Suba o arquivo de resultados oficiais", type=["xlsx"])
     with col2:
         arquivo_feedback = st.file_uploader("📊 Suba os jogos anteriores com desempenho", type=["xlsx"])
+
+    # Treinamento com feedback
+    if arquivo_feedback:
+        st.subheader("🤖 Aprendizado de Máquina")
+        df_feedback = pd.read_excel(arquivo_feedback)
+        if "Acertos" in df_feedback.columns:
+            modelo = treinar_modelo(df_feedback)
+            st.success("🧠 Modelo treinado com base nos acertos passados.")
+    else:
+        st.warning("⚠️ A planilha deve conter a coluna 'Acertos'.")
 
     if arquivo_resultados:
         df_resultados = pd.read_excel(arquivo_resultados)
@@ -157,16 +173,5 @@ def main():
             file_name="jogos_inteligentes.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
-
-# Treinamento com feedback
-if arquivo_feedback:
-    st.subheader("🤖 Aprendizado de Máquina")
-    df_feedback = pd.read_excel(arquivo_feedback)
-    if "Acertos" in df_feedback.columns:
-        modelo = treinar_modelo(df_feedback)
-        st.success("🧠 Modelo treinado com base nos acertos passados.")
-    else:
-        st.warning("⚠️ A planilha deve conter a coluna 'Acertos'.")
-
 if __name__ == "__main__":
     main()
