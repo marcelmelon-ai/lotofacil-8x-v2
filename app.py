@@ -6,6 +6,8 @@ from datetime import datetime
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from joblib import dump, load
+from io import BytesIO
+
 
 # ------------------------------------------
 # --- Utilitários Matemáticos ---
@@ -147,18 +149,31 @@ def main():
             st.success("✅ Jogos gerados com sucesso!")
             mostrar_dashboard(df_jogos)
 
-            # Baixar os jogos
-            st.download_button("📥 Baixar Jogos", data=df_jogos.to_excel(index=False), file_name="jogos_inteligentes.xlsx")
+    def to_excel_bytes(df):
+        output = BytesIO()
+        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+            df.to_excel(writer, index=False)
+        processed_data = output.getvalue()
+    return processed_data
+
+    # Download dos jogos gerados
+excel_bytes = to_excel_bytes(df_jogos)
+st.download_button(
+    label="📥 Baixar Jogos",
+    data=excel_bytes,
+    file_name="jogos_inteligentes.xlsx",
+    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+)  
 
     # Treinamento com feedback
-    if arquivo_feedback:
-        st.subheader("🤖 Aprendizado de Máquina")
-        df_feedback = pd.read_excel(arquivo_feedback)
-        if "Acertos" in df_feedback.columns:
-            modelo = treinar_modelo(df_feedback)
-            st.success("🧠 Modelo treinado com base nos acertos passados.")
-        else:
-            st.warning("⚠️ A planilha deve conter a coluna 'Acertos'.")
+if arquivo_feedback:
+    st.subheader("🤖 Aprendizado de Máquina")
+    df_feedback = pd.read_excel(arquivo_feedback)
+    if "Acertos" in df_feedback.columns:
+        modelo = treinar_modelo(df_feedback)
+        st.success("🧠 Modelo treinado com base nos acertos passados.")
+    else:
+        st.warning("⚠️ A planilha deve conter a coluna 'Acertos'.")
 
 if __name__ == "__main__":
     main()
