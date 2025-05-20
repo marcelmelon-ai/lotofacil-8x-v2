@@ -149,21 +149,14 @@ def main():
             st.success("✅ Jogos gerados com sucesso!")
             mostrar_dashboard(df_jogos)
 
-    def to_excel_bytes(df):
-        output = BytesIO()
-        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-            df.to_excel(writer, index=False)
-        processed_data = output.getvalue()
-    return processed_data
-
-    # Download dos jogos gerados
-excel_bytes = to_excel_bytes(df_jogos)
-st.download_button(
-    label="📥 Baixar Jogos",
-    data=excel_bytes,
-    file_name="jogos_inteligentes.xlsx",
-    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-)  
+     # Download dos jogos gerados
+            excel_bytes = to_excel_bytes(df_jogos)
+            st.download_button(
+                label="📥 Baixar Jogos",
+                data=excel_bytes,
+                file_name="jogos_inteligentes.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
 
     # Treinamento com feedback
 if arquivo_feedback:
