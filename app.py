@@ -1,12 +1,50 @@
-import os
-import pandas as pd
 import streamlit as st
+import pandas as pd
+import random
+import os
 from datetime import datetime
-from inteligencia import gerar_jogos_inteligentes_v2, gerar_jogos_ml_filtrados
-from visualizacao import is_prime,is_fibonacci,atende_filtros,gerar_jogos_filtrados,calcular_estatisticas_jogo,mostrar_dashboard
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from joblib import dump, load
 
+# ------------------------------------------
+# --- Utilitários Matemáticos ---
+# ------------------------------------------
+def is_prime(n):
+    if n < 2: return False
+    for i in range(2, int(n**0.5)+1):
+        if n % i == 0:
+            return False
+    return True
 
-# --- Geração de Jogos com Filtros ---
+def is_fibonacci(n):
+    x1 = 5 * n * n + 4
+    x2 = 5 * n * n - 4
+    return int(x1**0.5)**2 == x1 or int(x2**0.5)**2 == x2
+
+# ------------------------------------------
+# --- Filtros Estatísticos para os Jogos ---
+# ------------------------------------------
+def atende_filtros(jogo, ultimo_resultado):
+    pares = len([d for d in jogo if d % 2 == 0])
+    primos = len([d for d in jogo if is_prime(d)])
+    mult3 = len([d for d in jogo if d % 3 == 0])
+    fib = len([d for d in jogo if is_fibonacci(d)])
+    soma = sum(jogo)
+    repetidas = len(set(jogo).intersection(set(ultimo_resultado)))
+
+    return (
+        6 <= pares <= 8 and
+        4 <= primos <= 7 and
+        4 <= mult3 <= 6 and
+        3 <= fib <= 5 and
+        8 <= repetidas <= 10 and
+        160 <= soma <= 225
+    )
+
+# ------------------------------------------
+# --- Gerar Jogos com Base nos Filtros ---
+# ------------------------------------------
 def gerar_jogos_filtrados(ultimo_resultado, n_jogos=10):
     jogos = []
     tentativas = 0
@@ -17,101 +55,110 @@ def gerar_jogos_filtrados(ultimo_resultado, n_jogos=10):
         tentativas += 1
     return jogos
 
-# --- Função Principal Streamlit ---
+# ------------------------------------------
+# --- Calcular Estatísticas por Jogo ---
+# ------------------------------------------
+def calcular_estatisticas_jogo(jogo, ultimo_resultado):
+    pares = len([d for d in jogo if d % 2 == 0])
+    impares = 15 - pares
+    primos = len([d for d in jogo if is_prime(d)])
+    mult3 = len([d for d in jogo if d % 3 == 0])
+    fib = len([d for d in jogo if is_fibonacci(d)])
+    soma = sum(jogo)
+    repetidas = len(set(jogo).intersection(set(ultimo_resultado)))
+    return [pares, impares, primos, mult3, fib, soma, repetidas]
+
+# ------------------------------------------
+# --- Dashboard com Estatísticas ---
+# ------------------------------------------
+def mostrar_dashboard(df_jogos):
+    st.subheader("📊 Estatísticas dos Jogos Gerados")
+    st.dataframe(df_jogos)
+
+    st.bar_chart(df_jogos[["Pares", "Ímpares", "Primos", "Múltiplos de 3", "Fibonacci"]])
+    st.line_chart(df_jogos[["Soma"]])
+
+# ------------------------------------------
+# --- Aprendizado de Máquina com Feedback ---
+# ------------------------------------------
+def treinar_modelo(df_feedback):
+    if "Acertos" not in df_feedback.columns:
+        return None
+
+    X = df_feedback[["Pares", "Ímpares", "Primos", "Múltiplos de 3", "Fibonacci", "Soma", "Repetidas"]]
+    y = df_feedback["Acertos"]
+
+    model = RandomForestClassifier(n_estimators=100, random_state=42)
+    model.fit(X, y)
+
+    dump(model, "modelo_lotofacil.joblib")
+    return model
+
+def carregar_modelo():
+    if os.path.exists("modelo_lotofacil.joblib"):
+        return load("modelo_lotofacil.joblib")
+    return None
+
+# ------------------------------------------
+# --- Interface Principal com Streamlit ---
+# ------------------------------------------
 def main():
-    st.set_page_config(page_title="Lotofácil 8X", layout="wide")
-    st.title("🎯 Lotofácil 8X - Geração Inteligente de Jogos")
-
-    arquivo_excel = st.file_uploader("Carregar Planilha Unificada", type=["xlsx"])
-
-    if arquivo_excel:
-        df = pd.read_excel(arquivo_excel)
-
-        # Espera que as últimas 15 colunas sejam as dezenas
-        col_dezenas = df.columns[-15:]
-        ultimo_jogo = df.iloc[-1][col_dezenas].values.tolist()
-
-        st.success("Arquivo carregado com sucesso!")
-        st.write("Último Jogo:", sorted(ultimo_jogo))
-
-        if st.button("Gerar Jogos Inteligentes com Filtros"):
-            jogos = gerar_jogos_filtrados(ultimo_jogo, n_jogos=10)
-            for i, jogo in enumerate(jogos, 1):
-                st.write(f"Jogo {i}: {jogo}")
-
-            df_resultado = salvar_historico(jogos)
-            st.download_button("📥 Baixar Jogos", data=df_resultado.to_excel(index=False), file_name="jogos_filtrados.xlsx")
-
-# --- Caminhos dos arquivos ---
-CAMINHO_HISTORICO = "dados/resultados_historicos.xlsx"
-CAMINHO_ESTATISTICAS = "dados/estatisticas.xlsx"
-
-# --- Inicialização de diretórios e arquivos ---
-def inicializar_arquivos():
-    os.makedirs("dados", exist_ok=True)
-
-    if not os.path.exists(CAMINHO_ESTATISTICAS):
-        df_vazio = pd.DataFrame(columns=[
-            "Data", "Jogo", "Acertos", "Pares", "Ímpares", "Primos",
-            "Múltiplos de 3", "Fibonacci", "Soma", "Repetidas com último"
-        ])
-        df_vazio.to_excel(CAMINHO_ESTATISTICAS, index=False)
-
-    if not os.path.exists(CAMINHO_HISTORICO):
-        st.error("❌ Arquivo de resultados históricos não encontrado.")
-        st.stop()
-
-# --- Carregar último resultado do concurso ---
-def carregar_ultimo_resultado():
-    historico = pd.read_excel(CAMINHO_HISTORICO)
-    ultimo = historico.sort_values(by='Concurso', ascending=False).iloc[0, 2:]
-    return [int(d) for d in ultimo if not pd.isna(d)]
-
-# --- Interface principal ---
-def main():
-    st.set_page_config(page_title="Gerador Inteligente Lotofácil", layout="centered")
+    st.set_page_config(page_title="Lotofácil Inteligente", layout="wide")
     st.title("🎯 Gerador Inteligente de Jogos da Lotofácil")
-    st.markdown("Crie jogos usando **filtros estatísticos e inteligência matemática**.")
 
-    inicializar_arquivos()
-    ultimo_resultado = carregar_ultimo_resultado()
+    # Upload dos arquivos Excel
+    st.header("📤 Upload dos Arquivos")
+    col1, col2 = st.columns(2)
+    with col1:
+        arquivo_resultados = st.file_uploader("✅ Suba o arquivo de resultados oficiais", type=["xlsx"])
+    with col2:
+        arquivo_feedback = st.file_uploader("📊 Suba os jogos anteriores com desempenho", type=["xlsx"])
 
-    # --- Seção: Geração de jogos ---
-    qtd_jogos = st.number_input("🎮 Quantidade de jogos a gerar:", min_value=1, max_value=20, value=5)
-    if st.button("🚀 Gerar Jogos Inteligentes"):
-        jogos = gerar_jogos_filtrados(ultimo_resultado, qtd_jogos)
-        hoje = datetime.now().date()
+    if arquivo_resultados:
+        df_resultados = pd.read_excel(arquivo_resultados)
+        col_dezenas = df_resultados.columns[-15:]
+        ultimo_jogo = df_resultados.iloc[-1][col_dezenas].tolist()
+        st.success("✔️ Resultados carregados com sucesso!")
 
-        # Calcular estatísticas de cada jogo
-        dados_jogos = []
-        for jogo in jogos:
-            estatisticas = calcular_estatisticas_jogo(jogo, ultimo_resultado)
-            dados_jogos.append({
-                "Data": hoje,
-                "Jogo": ", ".join(f"{d:02d}" for d in jogo),
-                "Acertos": "",  # A ser preenchido posteriormente
-                "Pares": estatisticas[0],
-                "Ímpares": estatisticas[1],
-                "Primos": estatisticas[2],
-                "Múltiplos de 3": estatisticas[3],
-                "Fibonacci": estatisticas[4],
-                "Soma": estatisticas[5],
-                "Repetidas com último": estatisticas[6]
-            })
+        # Gerar jogos
+        st.subheader("🎮 Geração de Jogos Inteligentes")
+        qtd_jogos = st.slider("Quantidade de jogos", 1, 20, 10)
+        if st.button("🚀 Gerar Jogos"):
+            jogos = gerar_jogos_filtrados(ultimo_jogo, qtd_jogos)
+            hoje = datetime.now().date()
 
-        df_jogos = pd.DataFrame(dados_jogos)
-        st.success("✅ Jogos gerados com sucesso!")
-        st.dataframe(df_jogos)
+            dados = []
+            for jogo in jogos:
+                stats = calcular_estatisticas_jogo(jogo, ultimo_jogo)
+                dados.append({
+                    "Data": hoje,
+                    "Jogo": ", ".join(f"{d:02d}" for d in jogo),
+                    "Pares": stats[0],
+                    "Ímpares": stats[1],
+                    "Primos": stats[2],
+                    "Múltiplos de 3": stats[3],
+                    "Fibonacci": stats[4],
+                    "Soma": stats[5],
+                    "Repetidas": stats[6],
+                    "Acertos": ""  # A ser preenchido manualmente depois
+                })
 
-        # Salvar no Excel
-        df_antigo = pd.read_excel(CAMINHO_ESTATISTICAS)
-        df_total = pd.concat([df_antigo, df_jogos], ignore_index=True)
-        df_total.to_excel(CAMINHO_ESTATISTICAS, index=False)
+            df_jogos = pd.DataFrame(dados)
+            st.success("✅ Jogos gerados com sucesso!")
+            mostrar_dashboard(df_jogos)
 
-    # --- Seção: Visualização dos jogos salvos ---
-    st.markdown("---")
-    mostrar_dashboard(CAMINHO_ESTATISTICAS)
+            # Baixar os jogos
+            st.download_button("📥 Baixar Jogos", data=df_jogos.to_excel(index=False), file_name="jogos_inteligentes.xlsx")
 
-# --- Execução principal ---
+    # Treinamento com feedback
+    if arquivo_feedback:
+        st.subheader("🤖 Aprendizado de Máquina")
+        df_feedback = pd.read_excel(arquivo_feedback)
+        if "Acertos" in df_feedback.columns:
+            modelo = treinar_modelo(df_feedback)
+            st.success("🧠 Modelo treinado com base nos acertos passados.")
+        else:
+            st.warning("⚠️ A planilha deve conter a coluna 'Acertos'.")
+
 if __name__ == "__main__":
     main()
