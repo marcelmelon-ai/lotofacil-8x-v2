@@ -149,16 +149,16 @@ def main():
             st.success("✅ Jogos gerados com sucesso!")
             mostrar_dashboard(df_jogos)
 
-     # Download dos jogos gerados
-            excel_bytes = to_excel_bytes(df_jogos)
-            st.download_button(
-                label="📥 Baixar Jogos",
-                data=excel_bytes,
-                file_name="jogos_inteligentes.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            )
+ # Download dos jogos gerados
+        excel_bytes = to_excel_bytes(df_jogos)
+        st.download_button(
+            label="📥 Baixar Jogos",
+            data=excel_bytes,
+            file_name="jogos_inteligentes.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
 
-    # Treinamento com feedback
+# Treinamento com feedback
 if arquivo_feedback:
     st.subheader("🤖 Aprendizado de Máquina")
     df_feedback = pd.read_excel(arquivo_feedback)
