@@ -77,8 +77,17 @@ def mostrar_dashboard(df_jogos):
     st.subheader("📊 Estatísticas dos Jogos Gerados")
     st.dataframe(df_jogos)
 
-    st.bar_chart(df_jogos[["Pares", "Ímpares", "Primos", "Múltiplos de 3", "Fibonacci"]])
-    st.line_chart(df_jogos[["Soma"]])
+    colunas_grafico = ["Pares", "Ímpares", "Primos", "Múltiplos de 3", "Fibonacci"]
+    colunas_faltando = [col for col in colunas_grafico if col not in df_jogos.columns]
+    if colunas_faltando:
+        st.warning(f"As seguintes colunas não estão presentes nos dados e não serão exibidas no gráfico: {colunas_faltando}")
+    else:
+        st.bar_chart(df_jogos[colunas_grafico])
+
+    if "Soma" in df_jogos.columns:
+        st.line_chart(df_jogos[["Soma"]])
+    else:
+        st.warning("Coluna 'Soma' não encontrada para o gráfico de linha.")
 
 # ------------------------------------------
 # --- Aprendizado de Máquina com Feedback ---
