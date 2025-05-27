@@ -12,3 +12,4 @@ lxml
 plotly
 xlsxwriter
 lightgbm
+joblib
