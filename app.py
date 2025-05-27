@@ -3,18 +3,20 @@ import pandas as pd
 import random
 import os
 from datetime import datetime
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
-from joblib import dump, load
 from io import BytesIO
+from joblib import dump, load
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.neural_network import MLPClassifier
+from xgboost import XGBRegressor
+from lightgbm import LGBMRegressor
+from sklearn.model_selection import train_test_split, cross_val_score
+import matplotlib.pyplot as plt
+import seaborn as sns
 
-
-# ------------------------------------------
-# --- Utilitários Matemáticos ---
-# ------------------------------------------
+# -------------------- UTILITÁRIOS --------------------
 def is_prime(n):
     if n < 2: return False
-    for i in range(2, int(n**0.5)+1):
+    for i in range(2, int(n ** 0.5) + 1):
         if n % i == 0:
             return False
     return True
@@ -22,11 +24,9 @@ def is_prime(n):
 def is_fibonacci(n):
     x1 = 5 * n * n + 4
     x2 = 5 * n * n - 4
-    return int(x1**0.5)**2 == x1 or int(x2**0.5)**2 == x2
+    return int(x1 ** 0.5) ** 2 == x1 or int(x2 ** 0.5) ** 2 == x2
 
-# ------------------------------------------
-# --- Filtros Estatísticos para os Jogos ---
-# ------------------------------------------
+# -------------------- FILTROS --------------------
 def atende_filtros(jogo, ultimo_resultado):
     pares = len([d for d in jogo if d % 2 == 0])
     primos = len([d for d in jogo if is_prime(d)])
@@ -44,23 +44,18 @@ def atende_filtros(jogo, ultimo_resultado):
         160 <= soma <= 225
     )
 
-# ------------------------------------------
-# --- Gerar Jogos com Base nos Filtros ---
-# ------------------------------------------
-def gerar_jogos_filtrados(ultimo_resultado, n_jogos=10):
+# -------------------- GERAÇÃO E ESTATÍSTICAS --------------------
+def gerar_jogos_filtrados(ultimo_resultado, n_jogos=2000):
     jogos = []
     tentativas = 0
-    while len(jogos) < n_jogos and tentativas < 10000:
+    while len(jogos) < n_jogos and tentativas < 20000:
         jogo = sorted(random.sample(range(1, 26), 15))
         if atende_filtros(jogo, ultimo_resultado):
             jogos.append(jogo)
         tentativas += 1
     return jogos
 
-# ------------------------------------------
-# --- Calcular Estatísticas por Jogo ---
-# ------------------------------------------
-def calcular_estatisticas_jogo(jogo, ultimo_resultado):
+def calcular_estatisticas(jogo, ultimo_resultado):
     pares = len([d for d in jogo if d % 2 == 0])
     impares = 15 - pares
     primos = len([d for d in jogo if is_prime(d)])
@@ -70,120 +65,101 @@ def calcular_estatisticas_jogo(jogo, ultimo_resultado):
     repetidas = len(set(jogo).intersection(set(ultimo_resultado)))
     return [pares, impares, primos, mult3, fib, soma, repetidas]
 
-# ------------------------------------------
-# --- Dashboard com Estatísticas ---
-# ------------------------------------------
-def mostrar_dashboard(df_jogos):
-    st.subheader("📊 Estatísticas dos Jogos Gerados")
-    st.dataframe(df_jogos)
+# -------------------- MODELO --------------------
+def treinar_modelo(df, modelo_tipo):
+    X = df[["Pares", "Ímpares", "Primos", "Múltiplos de 3", "Fibonacci", "Soma", "Repetidas"]]
+    y = df["Acertos"]
 
-    colunas_grafico = ["Pares", "Ímpares", "Primos", "Múltiplos de 3", "Fibonacci"]
-    colunas_faltando = [col for col in colunas_grafico if col not in df_jogos.columns]
-    if colunas_faltando:
-        st.warning(f"As seguintes colunas não estão presentes nos dados e não serão exibidas no gráfico: {colunas_faltando}")
+    if modelo_tipo == "RandomForest":
+        modelo = RandomForestClassifier(n_estimators=100, random_state=42)
+    elif modelo_tipo == "XGBoost":
+        modelo = XGBRegressor(n_estimators=100, random_state=42)
+    elif modelo_tipo == "LightGBM":
+        modelo = LGBMRegressor(n_estimators=100, random_state=42)
+    elif modelo_tipo == "NeuralNet":
+        modelo = MLPClassifier(hidden_layer_sizes=(50,50), max_iter=500, random_state=42)
     else:
-        st.bar_chart(df_jogos[colunas_grafico])
+        modelo = RandomForestClassifier(n_estimators=100, random_state=42)
 
-    if "Soma" in df_jogos.columns:
-        st.line_chart(df_jogos[["Soma"]])
-    else:
-        st.warning("Coluna 'Soma' não encontrada para o gráfico de linha.")
-
-# ------------------------------------------
-# --- Aprendizado de Máquina com Feedback ---
-# ------------------------------------------
-def treinar_modelo(df_feedback):
-    if "Acertos" not in df_feedback.columns:
-        return None
-
-    X = df_feedback[["Pares", "Ímpares", "Primos", "Múltiplos de 3", "Fibonacci", "Soma", "Repetidas"]]
-    y = df_feedback["Acertos"]
-
-    model = RandomForestClassifier(n_estimators=100, random_state=42)
-    model.fit(X, y)
-
-    dump(model, "modelo_lotofacil.joblib")
-    return model
+    modelo.fit(X, y)
+    dump(modelo, "modelo_lotofacil.joblib")
+    return modelo
 
 def carregar_modelo():
     if os.path.exists("modelo_lotofacil.joblib"):
         return load("modelo_lotofacil.joblib")
     return None
 
+# -------------------- SELEÇÃO DOS MELHORES --------------------
+def selecionar_melhores(jogos, modelo, ultimo_resultado, top_n):
+    stats = [calcular_estatisticas(jogo, ultimo_resultado) for jogo in jogos]
+    colunas = ["Pares", "Ímpares", "Primos", "Múltiplos de 3", "Fibonacci", "Soma", "Repetidas"]
+    df_stats = pd.DataFrame(stats, columns=colunas)
+
+    if modelo:
+        df_stats["Predito"] = modelo.predict(df_stats)
+    else:
+        df_stats["Predito"] = 0
+
+    melhores = df_stats.sort_values(by="Predito", ascending=False).head(top_n)
+    jogos_selecionados = [jogos[i] for i in melhores.index]
+    return jogos_selecionados, melhores
+
+# -------------------- VISUALIZAÇÃO --------------------
+def mostrar_dashboard(df):
+    st.dataframe(df)
+    st.bar_chart(df[["Pares", "Ímpares", "Primos", "Múltiplos de 3", "Fibonacci"]])
+    st.line_chart(df[["Soma"]])
+
+# -------------------- EXPORTAÇÃO --------------------
 def to_excel_bytes(df):
     output = BytesIO()
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
         df.to_excel(writer, index=False)
     return output.getvalue()
 
-# ------------------------------------------
-# --- Interface Principal com Streamlit ---
-# ------------------------------------------
+# -------------------- APP --------------------
 def main():
-    st.set_page_config(page_title="Lotofácil Inteligente", layout="wide")
-    st.title("🎯 Gerador Inteligente de Jogos da Lotofácil")
+    st.set_page_config(page_title="Lotofácil IA Turbo", layout="wide")
+    st.title("🤖 Lotofácil Inteligente com IA")
 
-    # Upload dos arquivos Excel
-    st.header("📤 Upload dos Arquivos")
     col1, col2 = st.columns(2)
     with col1:
-        arquivo_resultados = st.file_uploader("✅ Suba o arquivo de resultados oficiais", type=["xlsx"])
+        arquivo_resultados = st.file_uploader("Resultados oficiais (.xlsx)", type=["xlsx"])
     with col2:
-        arquivo_feedback = st.file_uploader("📊 Suba os jogos anteriores com desempenho", type=["xlsx"])
+        arquivo_feedback = st.file_uploader("Jogos com desempenho (.xlsx)", type=["xlsx"])
 
-    # Treinamento com feedback
+    modelo = None
+    modelo_tipo = st.selectbox("Modelo de IA", ["RandomForest", "XGBoost", "LightGBM", "NeuralNet"])
+
     if arquivo_feedback:
-        st.subheader("🤖 Aprendizado de Máquina")
         df_feedback = pd.read_excel(arquivo_feedback)
-        colunas_necessarias = ["Pares", "Ímpares", "Primos", "Múltiplos de 3", "Fibonacci", "Soma", "Repetidas", "Acertos"]
-        faltando = [col for col in colunas_necessarias if col not in df_feedback.columns]
-        if faltando:
-            st.warning(f"⚠️ A planilha deve conter as colunas: {faltando}")
-            st.info("Exemplo de cabeçalho esperado: " + ", ".join(colunas_necessarias))
+        if set(["Pares", "Ímpares", "Primos", "Múltiplos de 3", "Fibonacci", "Soma", "Repetidas", "Acertos"]).issubset(df_feedback.columns):
+            modelo = treinar_modelo(df_feedback, modelo_tipo)
+            st.success("Modelo treinado com sucesso!")
         else:
-           modelo = treinar_modelo(df_feedback)
-           st.success("🧠 Modelo treinado com base nos acertos passados.")
+            st.warning("Planilha de feedback incompleta.")
 
     if arquivo_resultados:
         df_resultados = pd.read_excel(arquivo_resultados)
-        col_dezenas = df_resultados.columns[-15:]
-        ultimo_jogo = df_resultados.iloc[-1][col_dezenas].tolist()
-        st.success("✔️ Resultados carregados com sucesso!")
+        ultimo_jogo = df_resultados.iloc[-1, -15:].tolist()
+        qtd_jogos = st.slider("Quantos jogos gerar?", 5, 50, 10)
 
-        # Gerar jogos
-        st.subheader("🎮 Geração de Jogos Inteligentes")
-        qtd_jogos = st.slider("Quantidade de jogos", 1, 20, 10)
-        if st.button("🚀 Gerar Jogos"):
-            jogos = gerar_jogos_filtrados(ultimo_jogo, qtd_jogos)
+        if st.button("🚀 Gerar e Avaliar Jogos"):
+            brutos = gerar_jogos_filtrados(ultimo_jogo, 2000)
+            selecionados, stats_df = selecionar_melhores(brutos, modelo, ultimo_jogo, qtd_jogos)
+
             hoje = datetime.now().date()
+            df_final = pd.DataFrame()
+            df_final["Data"] = [hoje] * qtd_jogos
+            df_final["Jogo"] = [", ".join(f"{d:02d}" for d in jogo) for jogo in selecionados]
+            df_final = pd.concat([df_final, stats_df.reset_index(drop=True)], axis=1)
+            df_final["Acertos"] = ""
 
-            dados = []
-            for jogo in jogos:
-                stats = calcular_estatisticas_jogo(jogo, ultimo_jogo)
-                dados.append({
-                    "Data": hoje,
-                    "Jogo": ", ".join(f"{d:02d}" for d in jogo),
-                    "Pares": stats[0],
-                    "Ímpares": stats[1],
-                    "Primos": stats[2],
-                    "Múltiplos de 3": stats[3],
-                    "Fibonacci": stats[4],
-                    "Soma": stats[5],
-                    "Repetidas": stats[6],
-                    "Acertos": ""  # A ser preenchido manualmente depois
-                })
+            mostrar_dashboard(df_final)
 
-            df_jogos = pd.DataFrame(dados)
-            st.success("✅ Jogos gerados com sucesso!")
-            mostrar_dashboard(df_jogos)
+            excel_bytes = to_excel_bytes(df_final)
+            st.download_button("📥 Baixar jogos gerados", excel_bytes, "jogos_com_predicao.xlsx")
 
- # Download dos jogos gerados
-        excel_bytes = to_excel_bytes(df_jogos)
-        st.download_button(
-            label="📥 Baixar Jogos",
-            data=excel_bytes,
-            file_name="jogos_inteligentes.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        )
 if __name__ == "__main__":
     main()
