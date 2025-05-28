@@ -36,12 +36,12 @@ def atende_filtros(jogo, ultimo_resultado):
     repetidas = len(set(jogo).intersection(set(ultimo_resultado)))
 
     return (
-        6 <= pares <= 8 and
-        4 <= primos <= 7 and
-        4 <= mult3 <= 6 and
-        3 <= fib <= 5 and
-        8 <= repetidas <= 10 and
-        160 <= soma <= 225
+        5 <= pares <= 9 and
+        3 <= primos <= 7 and
+        3 <= mult3 <= 6 and
+        2 <= fib <= 5 and
+        7 <= repetidas <= 10 and
+        150 <= soma <= 230
     )
 
 # -------------------- GERAÇÃO E ESTATÍSTICAS --------------------
